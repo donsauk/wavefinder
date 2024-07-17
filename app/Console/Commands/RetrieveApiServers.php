@@ -52,7 +52,7 @@ class RetrieveApiServers extends Command
             return 1;
         } else {
             // Print the list of server names
-            $this->info('Available Radio Browser API servers:');
+            $this->info('Sucessfully fetched Radio Browser API servers:');
             foreach ($serverNames as $server) {
                 $this->line($server);
             }

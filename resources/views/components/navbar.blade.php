@@ -23,7 +23,7 @@
     <div class="navbar-center hidden lg:flex">
         <ul class="menu menu-horizontal px-1">
             <li><a>Item 1</a></li>
-            <li><a>Browse</a></li>
+            <li><a href="{{ route('browse') }}">Browse</a></li>
             <li><a>Item 3</a></li>
         </ul>
     </div>
