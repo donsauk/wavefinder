@@ -1,15 +1,16 @@
 <?php
 
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\RadioStationController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
     return view('homepage');
 })->name('homepage');
 
-Route::get('/browse', function () {
-    return view('browse');
-})->name('browse');
+Route::get('/browse/{page?}', [RadioStationController::class, 'index'])
+    ->where('page', '[0-9]+')
+    ->name('browse');
 
 Route::get('/dashboard', function () {
     return view('dashboard');
