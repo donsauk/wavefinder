@@ -12,6 +12,8 @@ Route::get('/browse/{page?}', [RadioStationController::class, 'index'])
     ->where('page', '[0-9]+')
     ->name('browse');
 
+Route::get('/station/{slug}', [RadioStationController::class, 'show'])->name('station.show');
+
 Route::get('/dashboard', function () {
     return view('dashboard');
 })->middleware(['auth', 'verified'])->name('dashboard');

@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Cviebrock\EloquentSluggable\Sluggable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
@@ -39,6 +40,7 @@ class RadioStation extends Model
         'geo_lat',
         'geo_long',
         'has_extended_info',
+        'slug',
     ];
 
     protected $primaryKey = 'stationuuid'; // Assuming 'stationuuid' is the primary key
@@ -52,4 +54,18 @@ class RadioStation extends Model
         'lastcheckok' => 'boolean', // Cast 'lastcheckok' field to boolean
         'has_extended_info' => 'boolean', // Cast 'has_extended_info' field to boolean
     ];
+
+    /**
+     * Return the sluggable configuration array for this model.
+     */
+    public function sluggable(): array
+    {
+        return [
+            'slug' => [
+                'source' => 'name',
+                'onUpdate' => true,
+                'separator' => '-',
+            ],
+        ];
+    }
 }

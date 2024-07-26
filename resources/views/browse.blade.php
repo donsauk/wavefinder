@@ -5,9 +5,11 @@
 
     <ul>
         @foreach ($stations as $station)
-            <li>{{ $station->name }} - {{ $station->url }}</li>
+            <li>
+                <a href="{{ url('station/' . $station->slug) }}">{{ $station->name }}</a> - {{ $station->url }}
+            </li>
         @endforeach
     </ul>
 
-    {{ $stations->links('vendor.pagination.custom') }} <!-- Use custom pagination links with daisyUI -->
+    {{ $stations->links('vendor.pagination.custom') }}
 </x-standard-layout>
