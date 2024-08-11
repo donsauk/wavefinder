@@ -3,10 +3,7 @@
 
     <h1>{{ $radioStation->name }}</h1>
 
-    <audio controls>
-        <source src="{{ $radioStation->url }}" type="audio/mpeg">
-        Your browser does not support the audio element.
-    </audio>
+    <button id="play-button" data-url="{{ $radioStation->url }}">Play</button>
+    <button id="pause-button">Pause</button>
 
-    <p>{{ $radioStation->description }}</p> <!-- Assuming the station has a description field -->
 </x-standard-layout>

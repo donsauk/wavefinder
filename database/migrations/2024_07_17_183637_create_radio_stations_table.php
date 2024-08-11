@@ -41,7 +41,7 @@ return new class extends Migration
             $table->double('geo_lat')->nullable();
             $table->double('geo_long')->nullable();
             $table->boolean('has_extended_info')->default(false);
-            $table->string('slug', 250)->nullable()->unique(); // Slug is nullable and unique
+            $table->string('slug', 90)->nullable()->unique(); // Slug is nullable and unique
             $table->timestamps();
         });
     }

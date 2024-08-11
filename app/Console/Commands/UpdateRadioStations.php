@@ -68,19 +68,26 @@ class UpdateRadioStations extends Command
                 $stationData
             );
 
-            // Generate and assign a unique slug if it's not already set
             if (empty($radioStation->slug)) {
                 $baseSlug = \Illuminate\Support\Str::slug(\Illuminate\Support\Str::ascii($radioStation->name));
-                $slug = $baseSlug;
+                $maxLength = 90;
+
+                // Truncate the base slug to fit within the maximum length, allowing room for a unique suffix if needed
+                $slug = substr($baseSlug, 0, $maxLength - 8); // Reserve space for a 7-char suffix and a hyphen
+                $originalSlug = $slug;
                 $counter = 1;
 
-                // Truncate slug to a maximum length of 250 characters
-                $maxLength = 250;
-                $slug = substr($slug, 0, $maxLength);
-
                 while (RadioStation::where('slug', $slug)->exists()) {
-                    $slug = substr($baseSlug.'-'.$counter, 0, $maxLength);
-                    $counter++;
+                    // Append a unique suffix
+                    $suffix = '-'.$counter++;
+                    $slug = substr($originalSlug, 0, $maxLength - strlen($suffix)).$suffix;
+
+                    // As a last resort, append a unique random string if collisions persist
+                    if ($counter > 1000) {
+                        $suffix = '-'.\Illuminate\Support\Str::random(5);
+                        $slug = substr($originalSlug, 0, $maxLength - strlen($suffix)).$suffix;
+                        break;
+                    }
                 }
 
                 $radioStation->slug = $slug;
