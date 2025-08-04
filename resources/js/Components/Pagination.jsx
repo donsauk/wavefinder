@@ -1,0 +1,75 @@
+import React from 'react'
+import { Link } from '@inertiajs/react'
+
+export default function Pagination({ data, itemName = 'items' }) {
+    if (!data || !data.links) {
+        return null;
+    }
+
+    return (
+        <div className="flex-shrink-0 bg-base-100 border-t border-base-300 h-16">
+            <div className="max-w-8xl mx-auto px-8 h-full">
+                <div className="flex items-center justify-between h-full">
+                    {/* Page Info - Left */}
+                    <div className="text-sm text-base-content/70 min-w-[200px]">
+                        Showing {data.from} to {data.to} of {data.total} {itemName}
+                    </div>
+
+                    {/* Pagination Controls - Center */}
+                    <div className="flex items-center space-x-1">
+                        {/* Previous button */}
+                        {data.prev_page_url && (
+                            <Link
+                                href={data.prev_page_url}
+                                className="btn btn-outline btn-sm"
+                                preserveState
+                                preserveScroll
+                            >
+                                ← Previous
+                            </Link>
+                        )}
+
+                        {/* Page numbers */}
+                        {data.links && data.links.length > 3 && (
+                            <div className="join mx-2">
+                                {data.links.map((link, index) => {
+                                    // Skip the "Previous" and "Next" text links
+                                    if (index === 0 || index === data.links.length - 1) {
+                                        return null;
+                                    }
+
+                                    return (
+                                        <Link
+                                            key={index}
+                                            href={link.url || '#'}
+                                            className={`join-item btn btn-sm ${link.active ? 'btn-primary' : 'btn-outline'}`}
+                                            preserveState
+                                            preserveScroll
+                                        >
+                                            {link.label}
+                                        </Link>
+                                    );
+                                })}
+                            </div>
+                        )}
+
+                        {/* Next button */}
+                        {data.next_page_url && (
+                            <Link
+                                href={data.next_page_url}
+                                className="btn btn-outline btn-sm"
+                                preserveState
+                                preserveScroll
+                            >
+                                Next →
+                            </Link>
+                        )}
+                    </div>
+
+                    {/* Balance right side */}
+                    <div className="min-w-[200px]"></div>
+                </div>
+            </div>
+        </div>
+    );
+}
