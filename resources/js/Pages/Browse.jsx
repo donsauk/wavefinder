@@ -1,5 +1,8 @@
 import React from 'react'
 import { Head, Link } from '@inertiajs/react'
+import Navbar from '../Components/Navbar'
+import FilterBar from '../Components/FilterBar'
+import Footer from '../Components/Footer'
 import Pagination from '../Components/Pagination'
 
 export default function Browse({ stations }) {
@@ -7,10 +10,16 @@ export default function Browse({ stations }) {
         <>
             <Head title="Browse - WAVEFINDER" />
             <div className="h-screen bg-base-100 flex flex-col">
-                {/* Content with proper padding for pagination */}
-                <div className="flex-1 overflow-y-auto">
-                    <div className="max-w-8xl mx-auto p-8">
-                        {/* Station Grid */}
+                {/* Navbar - Fixed height */}
+                <Navbar />
+
+                {/* Filter Bar - Fixed height */}
+                <FilterBar />
+
+                {/* Main content area - Takes remaining space */}
+                <div className="flex-1 overflow-y-auto min-h-0">
+                    <div className="max-w-8xl mx-auto p-6">
+                        {/* Station Grid - 2 rows, larger cards */}
                         <div className="grid grid-cols-6 gap-4">
                             {stations.data.map((station) => (
                                 <div 
@@ -18,9 +27,9 @@ export default function Browse({ stations }) {
                                     className="card bg-base-200"
                                 >
                                     <div className="card-body p-2 flex flex-col h-full">
-                                        {/* Station Icon*/}
+                                        {/* Station Icon - Larger */}
                                         <div className="flex justify-center my-2">
-                                            <div className="w-20 h-20 rounded-full bg-primary flex items-center justify-center text-white text-2xl overflow-hidden">
+                                            <div className="w-24 h-24 rounded-full bg-primary flex items-center justify-center text-white text-2xl overflow-hidden">
                                                 {station.favicon ? (
                                                     <img 
                                                         src={station.favicon} 
@@ -37,32 +46,32 @@ export default function Browse({ stations }) {
                                             </div>
                                         </div>
 
-                                        {/* Station Name */}
-                                        <div className="h-12 flex items-center justify-center px-2">
-                                            <h3 className="font-semibold text-sm text-center line-clamp-2" title={station.name}>
+                                        {/* Station Name - Bigger text */}
+                                        <div className="h-14 flex items-center justify-center px-2">
+                                            <h3 className="font-semibold text-base text-center line-clamp-2" title={station.name}>
                                                 {station.name || 'Unknown Station'}
                                             </h3>
                                         </div>
 
-                                        {/* Badges */}
-                                        <div className="h-5 flex justify-center items-center gap-1">
+                                        {/* Badges - Bigger */}
+                                        <div className="h-6 flex justify-center items-center gap-1">
                                             {station.countrycode && (
-                                                <span className="badge badge-outline badge-xs">
+                                                <span className="badge badge-outline badge-sm">
                                                     {station.countrycode}
                                                 </span>
                                             )}
                                         </div>
 
-                                        {/* Stats */}
-                                        <div className="h-4 flex justify-center items-center gap-3 text-xs opacity-60">
+                                        {/* Stats - Bigger */}
+                                        <div className="h-5 flex justify-center items-center gap-3 text-sm opacity-60">
                                             <span>👍 {station.votes}</span>
                                             <span>👆 {station.clickcount}</span>
                                         </div>
 
-                                        {/* Play Button */}
-                                        <div className="flex justify-center">
-                                            <button className="btn btn-primary btn-circle">
-                                                <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                                        {/* Play Button - Bigger */}
+                                        <div className="flex justify-center mt-2">
+                                            <button className="btn btn-primary btn-lg btn-circle">
+                                                <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
                                                     <path d="M8 5v10l7-5-7-5z"/>
                                                 </svg>
                                             </button>
@@ -74,8 +83,11 @@ export default function Browse({ stations }) {
                     </div>
                 </div>
 
-                {/* Pagination Component */}
+                {/* Pagination - Fixed height */}
                 <Pagination data={stations} itemName="stations" />
+
+                {/* Footer - Fixed height */}
+                <Footer />
             </div>
         </>
     )

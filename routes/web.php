@@ -11,7 +11,7 @@ Route::get('/', function () {
 Route::get('/browse', function () {
     $stations = RadioStation::where('lastcheckok', true)
         ->orderBy('votes', 'desc')
-        ->paginate(18); // 3 rows × 6 stations = 18 per page
+        ->paginate(12);
     
     return Inertia::render('Browse', [
         'stations' => $stations
