@@ -4,27 +4,20 @@ use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 use App\Models\RadioStation;
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\BrowseController;
 
 Route::get('/', function () {
     return Inertia::render('Landing');
 });
 
-Route::get('/browse', function () {
-    $stations = RadioStation::where('lastcheckok', true)
-        ->orderBy('votes', 'desc')
-        ->paginate(12);
-    
-    return Inertia::render('Browse', [
-        'stations' => $stations
-    ]);
-})->name('browse');
+Route::get('/browse', [BrowseController::class, 'index'])->name('browse');
 
 // Authentication Routes
 Route::middleware('guest')->group(function () {
     Route::get('/login', [AuthController::class, 'showLogin'])->name('login');
-    Route::post('/login', [AuthController::class, 'login']);
+    Route::post('/login', [AuthController::class, 'login'])->middleware('throttle:8,1');
     Route::get('/register', [AuthController::class, 'showRegister'])->name('register');
-    Route::post('/register', [AuthController::class, 'register']);
+    Route::post('/register', [AuthController::class, 'register'])->middleware('throttle:5,1');
 });
 
 Route::middleware('auth')->group(function () {
