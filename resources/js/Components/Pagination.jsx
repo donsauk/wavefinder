@@ -1,10 +1,26 @@
-import React from 'react'
-import { Link } from '@inertiajs/react'
+import React, { useState } from 'react'
+import { Link, router } from '@inertiajs/react'
 
 export default function Pagination({ data, itemName = 'items' }) {
+    const [customPage, setCustomPage] = useState('');
+
     if (!data || !data.links) {
         return null;
     }
+
+    const handlePageJump = (e) => {
+        e.preventDefault();
+        const pageNumber = parseInt(customPage);
+        if (pageNumber && pageNumber >= 1 && pageNumber <= data.last_page) {
+            const currentUrl = new URL(window.location);
+            currentUrl.searchParams.set('page', pageNumber);
+            router.get(currentUrl.toString(), {}, {
+                preserveState: true,
+                preserveScroll: true
+            });
+            setCustomPage('');
+        }
+    };
 
     return (
         <div className="flex-shrink-0 bg-base-100 border-t border-base-300 h-16">
@@ -64,6 +80,26 @@ export default function Pagination({ data, itemName = 'items' }) {
                                 Next →
                             </Link>
                         )}
+
+                        {/* Jump to page */}
+                        <form onSubmit={handlePageJump} className="flex items-center space-x-1 ml-3">
+                            <input
+                                type="number"
+                                min="1"
+                                max={data.last_page}
+                                value={customPage}
+                                onChange={(e) => setCustomPage(e.target.value)}
+                                placeholder="Page"
+                                className="input input-sm w-16 input-bordered"
+                            />
+                            <button
+                                type="submit"
+                                className="btn btn-primary btn-sm"
+                                disabled={!customPage}
+                            >
+                                Go
+                            </button>
+                        </form>
                     </div>
 
                     {/* Balance right side */}
