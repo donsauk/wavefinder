@@ -8,12 +8,18 @@ export default function FilterBar() {
     // Initialize search state from backend filters to preserve search across page loads
     const [searchQuery, setSearchQuery] = useState(filters?.search || '')
     
-    // Handle country dropdown change - preserves current search query
+    // Initialize sort state from backend filters - default to votes descending
+    const [sortBy, setSortBy] = useState(filters?.sort_by || 'votes')
+    const [sortDirection, setSortDirection] = useState(filters?.sort_direction || 'desc')
+    
+    // Handle country dropdown change - preserves all other filters
     const handleCountryChange = (e) => {
-        // Send Inertia request to /browse with both country and search filters
+        // Send Inertia request to /browse with all current filters preserved
         router.get('/browse', { 
             country: e.target.value, 
-            search: searchQuery 
+            search: searchQuery,
+            sort_by: sortBy,
+            sort_direction: sortDirection
         }, {
             preserveState: true,    // Keep component state intact
             preserveScroll: true,   // Maintain scroll position
@@ -23,13 +29,47 @@ export default function FilterBar() {
     // Handle search form submission (Enter key press)
     const handleSearchSubmit = (e) => {
         e.preventDefault()
-        // Send Inertia request to /browse with both search and country filters
+        // Send Inertia request to /browse with all current filters preserved
         router.get('/browse', { 
             country: filters?.country || 'all',
-            search: searchQuery 
+            search: searchQuery,
+            sort_by: sortBy,
+            sort_direction: sortDirection
         }, {
             preserveState: true,    // Keep component state intact
             preserveScroll: true,   // Maintain scroll position
+        })
+    }
+
+    // Handle sort field change (votes, clickcount, clicktrend)
+    const handleSortChange = (e) => {
+        const newSortBy = e.target.value
+        setSortBy(newSortBy)
+        // Send Inertia request with new sort field
+        router.get('/browse', {
+            country: filters?.country || 'all',
+            search: searchQuery,
+            sort_by: newSortBy,
+            sort_direction: sortDirection
+        }, {
+            preserveState: true,
+            preserveScroll: true,
+        })
+    }
+
+    // Handle sort direction toggle (asc/desc)
+    const handleSortDirectionToggle = () => {
+        const newDirection = sortDirection === 'desc' ? 'asc' : 'desc'
+        setSortDirection(newDirection)
+        // Send Inertia request with new sort direction
+        router.get('/browse', {
+            country: filters?.country || 'all',
+            search: searchQuery,
+            sort_by: sortBy,
+            sort_direction: newDirection
+        }, {
+            preserveState: true,
+            preserveScroll: true,
         })
     }
 
@@ -73,6 +113,29 @@ export default function FilterBar() {
                                 </option>
                             ))}
                         </select>
+                    </div>
+
+                    {/* Sort Options */}
+                    <div className="form-control">
+                        <div className="flex gap-1">
+                            <select 
+                                className="select select-bordered select-sm w-32"
+                                value={sortBy}
+                                onChange={handleSortChange}
+                            >
+                                <option value="votes">Votes</option>
+                                <option value="clickcount">Clicks</option>
+                                <option value="clicktrend">Trending</option>
+                            </select>
+                            <button
+                                type="button"
+                                className="btn btn-secondary btn-bordered btn-sm w-10"
+                                onClick={handleSortDirectionToggle}
+                                title={sortDirection === 'desc' ? 'Descending' : 'Ascending'}
+                            >
+                                {sortDirection === 'desc' ? '↓' : '↑'}
+                            </button>
+                        </div>
                     </div>
                 </div>
             </div>

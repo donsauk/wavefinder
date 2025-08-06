@@ -37,8 +37,22 @@ class BrowseController extends Controller
             ->sort()
             ->mapWithKeys(fn($country) => [$country => $country]);
 
-        // Execute query with pagination, ordered by vote count (most popular first)
-        $stations = $query->orderBy('votes', 'desc')->paginate(12);
+        // Apply sorting - default to votes descending
+        $sortBy = $request->get('sort_by', 'votes');
+        $sortDirection = $request->get('sort_direction', 'desc');
+        
+        // Map frontend sort field names to database column names
+        $sortFieldMap = [
+            'votes' => 'votes',
+            'clickcount' => 'clickcount',
+            'clicktrend' => 'clicktrend',
+        ];
+        
+        // Use mapped field name or default to votes
+        $sortColumn = $sortFieldMap[$sortBy] ?? 'votes';
+        
+        // Execute query with dynamic sorting and pagination
+        $stations = $query->orderBy($sortColumn, $sortDirection)->paginate(12);
 
         // Return Inertia response with data and current filter state
         return Inertia::render('Browse', [
@@ -47,6 +61,8 @@ class BrowseController extends Controller
             'filters' => [                        // Current filter state (sent back to frontend)
                 'country' => $request->country ?? 'all',
                 'search' => $request->search ?? '',
+                'sort_by' => $sortBy,
+                'sort_direction' => $sortDirection,
             ],
         ]);
     }

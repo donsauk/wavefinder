@@ -66,6 +66,7 @@ export default function Browse({ stations }) {
                                         <div className="h-5 flex justify-center items-center gap-3 text-sm opacity-60">
                                             <span>👍 {station.votes}</span>
                                             <span>👆 {station.clickcount}</span>
+                                            <span>🔥 {station.clicktrend}</span>
                                         </div>
 
                                         {/* Play Button - Bigger */}
