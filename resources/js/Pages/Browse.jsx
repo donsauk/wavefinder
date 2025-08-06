@@ -1,5 +1,5 @@
 import React from 'react'
-import { Head, Link } from '@inertiajs/react'
+import { Head, Link, router } from '@inertiajs/react'
 import Navbar from '../Components/Navbar'
 import FilterBar from '../Components/FilterBar'
 import Footer from '../Components/Footer'
@@ -31,7 +31,7 @@ export default function Browse({ stations }) {
                                         <div className="flex justify-center my-2">
                                             <div 
                                                 className="relative w-24 h-24 rounded-full bg-primary flex items-center justify-center text-white text-2xl overflow-hidden cursor-pointer group transition-all duration-300 hover:ring-4 hover:ring-secondary hover:ring-opacity-80"
-                                                onClick={() => console.log('Navigate to station:', station.stationuuid)}
+                                                onClick={() => router.get(`/station/${station.stationuuid}`)}
                                             >
                                                 {station.favicon ? (
                                                     <img 
@@ -40,14 +40,14 @@ export default function Browse({ stations }) {
                                                         className="w-full h-full object-cover transition-opacity duration-300 group-hover:opacity-70"
                                                         onError={(e) => {
                                                             e.target.style.display = 'none';
-                                                            e.target.parentElement.innerHTML = station.name?.charAt(0).toUpperCase() || '?';
                                                         }}
                                                     />
-                                                ) : (
-                                                    <span className="transition-opacity duration-300 group-hover:opacity-70">
-                                                        {station.name?.charAt(0).toUpperCase() || '?'}
-                                                    </span>
-                                                )}
+                                                ) : null}
+                                                
+                                                {/* Fallback letter - only show when no favicon or favicon failed to load */}
+                                                <span className="transition-opacity duration-300 group-hover:opacity-70 absolute inset-0 flex items-center justify-center text-2xl">
+                                                    {(!station.favicon) ? (station.name?.charAt(0).toUpperCase() || '?') : ''}
+                                                </span>
                                                 
                                                 {/* Hover Play Button Overlay */}
                                                 <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">

@@ -5,12 +5,14 @@ use Inertia\Inertia;
 use App\Models\RadioStation;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\BrowseController;
+use App\Http\Controllers\StationController;
 
 Route::get('/', function () {
     return Inertia::render('Landing');
 });
 
 Route::get('/browse', [BrowseController::class, 'index'])->name('browse');
+Route::get('/station/{stationuuid}', [StationController::class, 'show'])->name('station');
 
 // Authentication Routes
 Route::middleware('guest')->group(function () {

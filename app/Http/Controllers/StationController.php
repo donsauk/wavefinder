@@ -1,0 +1,22 @@
+<?php
+
+namespace App\Http\Controllers;
+
+use App\Models\RadioStation;
+use Illuminate\Http\Request;
+use Inertia\Inertia;
+
+class StationController extends Controller
+{
+    // Display individual station page with full station details
+    public function show(string $stationuuid)
+    {
+        $station = RadioStation::where('stationuuid', $stationuuid)
+            ->where('lastcheckok', true) // Only show stations that are currently working
+            ->firstOrFail();
+
+        return Inertia::render('Station', [
+            'station' => $station
+        ]);
+    }
+}
