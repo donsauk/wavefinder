@@ -129,7 +129,7 @@ export default function FilterBar() {
                             </select>
                             <button
                                 type="button"
-                                className="btn btn-secondary btn-bordered btn-sm w-10"
+                                className="btn btn-secondary btn-bordered ml-2 btn-sm w-10"
                                 onClick={handleSortDirectionToggle}
                                 title={sortDirection === 'desc' ? 'Descending' : 'Ascending'}
                             >
