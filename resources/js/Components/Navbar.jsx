@@ -64,8 +64,8 @@ export default function Navbar() {
                                     {auth.user.name}
                                 </div>
                             </li>
-                            <li><a>Profile</a></li>
-                            <li><a>Settings</a></li>
+                            <li><Link href={route('profile')}>Profile</Link></li>
+                            <li><Link href={route('settings')}>Settings</Link></li>
                             <li>
                                 <button onClick={handleLogout}>Logout</button>
                             </li>

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\RadioStation;
+use App\Models\UserFavorite;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 
@@ -15,8 +16,16 @@ class StationController extends Controller
             ->where('lastcheckok', true) // Only show stations that are currently working
             ->firstOrFail();
 
+        // Check if current user has favorited this station
+        $isFavorited = auth()->check() ? 
+            UserFavorite::where('user_id', auth()->id())
+                ->where('station_uuid', $stationuuid)
+                ->exists() 
+            : false;
+
         return Inertia::render('Station', [
-            'station' => $station
+            'station' => $station,
+            'isFavorited' => $isFavorited
         ]);
     }
 

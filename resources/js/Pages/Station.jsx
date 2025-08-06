@@ -1,9 +1,19 @@
 import React from 'react'
-import { Head, Link } from '@inertiajs/react'
+import { Head, Link, router, usePage } from '@inertiajs/react'
 import Navbar from '../Components/Navbar'
 import Footer from '../Components/Footer'
 
-export default function Station({ station }) {
+export default function Station({ station, isFavorited }) {
+    const { auth } = usePage().props
+    
+    // Handle favorite toggle with simple form submission
+    const handleFavoriteToggle = () => {
+        router.post('/favorites/toggle', {
+            station_uuid: station.stationuuid
+        }, {
+            preserveScroll: true, // Don't scroll to top after toggle
+        })
+    }
     return (
         <>
             <Head title={`${station.name} - WAVEFINDER`} />
@@ -55,13 +65,26 @@ export default function Station({ station }) {
                                     </div>
                                 )}
 
-                                {/* Play Button */}
-                                <button className="btn btn-primary btn-lg">
-                                    <svg className="w-6 h-6 mr-2" fill="currentColor" viewBox="0 0 20 20">
-                                        <path d="M8 5v10l7-5-7-5z"/>
-                                    </svg>
-                                    Play Station
-                                </button>
+                                {/* Action Buttons */}
+                                <div className="flex gap-4">
+                                    <button className="btn btn-primary btn-lg">
+                                        <svg className="w-6 h-6 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                                            <path d="M8 5v10l7-5-7-5z"/>
+                                        </svg>
+                                        Play Station
+                                    </button>
+                                    
+                                    {/* Favorite Button - only show if user is authenticated */}
+                                    {auth?.user && (
+                                        <button 
+                                            onClick={handleFavoriteToggle}
+                                            className={`btn btn-lg ${isFavorited ? 'btn-secondary' : 'btn-outline btn-secondary'}`}
+                                            title={isFavorited ? 'Remove from favorites' : 'Add to favorites'}
+                                        >
+                                            {isFavorited ? '❤️' : '🤍'}
+                                        </button>
+                                    )}
+                                </div>
                             </div>
 
                             {/* Station Details */}

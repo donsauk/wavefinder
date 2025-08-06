@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\RadioStation;
+use App\Models\UserFavorite;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -26,6 +27,15 @@ class BrowseController extends Controller
             $query->where(function ($q) use ($searchTerm) {
                 $q->where('name', 'LIKE', '%' . $searchTerm . '%')
                   ->orWhere('tags', 'LIKE', '%' . $searchTerm . '%');
+            });
+        }
+
+        // Apply favorites filter - only show user's favorite stations if requested and user is authenticated
+        if ($request->boolean('favorites_only') && auth()->check()) {
+            // Use a join instead of loading all favorites into memory
+            $query->join('user_favorites', function($join) {
+                $join->on('radio_stations.stationuuid', '=', 'user_favorites.station_uuid')
+                     ->where('user_favorites.user_id', auth()->id());
             });
         }
 
@@ -63,6 +73,7 @@ class BrowseController extends Controller
                 'search' => $request->search ?? '',
                 'sort_by' => $sortBy,
                 'sort_direction' => $sortDirection,
+                'favorites_only' => $request->boolean('favorites_only'),
             ],
         ]);
     }

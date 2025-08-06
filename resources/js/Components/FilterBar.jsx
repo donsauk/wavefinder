@@ -3,14 +3,17 @@ import { router, usePage } from '@inertiajs/react'
 
 export default function FilterBar() {
     // Get props from Laravel backend via Inertia.js
-    const { countries, filters } = usePage().props
+    const { countries, filters, auth } = usePage().props
     
     // Initialize search state from backend filters to preserve search across page loads
     const [searchQuery, setSearchQuery] = useState(filters?.search || '')
-    
+
     // Initialize sort state from backend filters - default to votes descending
     const [sortBy, setSortBy] = useState(filters?.sort_by || 'votes')
     const [sortDirection, setSortDirection] = useState(filters?.sort_direction || 'desc')
+    
+    // Initialize favorites filter state from backend filters
+    const [showFavoritesOnly, setShowFavoritesOnly] = useState(filters?.favorites_only || false)
     
     // Handle country dropdown change - preserves all other filters
     const handleCountryChange = (e) => {
@@ -19,7 +22,8 @@ export default function FilterBar() {
             country: e.target.value, 
             search: searchQuery,
             sort_by: sortBy,
-            sort_direction: sortDirection
+            sort_direction: sortDirection,
+            favorites_only: showFavoritesOnly
         }, {
             preserveState: true,    // Keep component state intact
             preserveScroll: true,   // Maintain scroll position
@@ -34,7 +38,8 @@ export default function FilterBar() {
             country: filters?.country || 'all',
             search: searchQuery,
             sort_by: sortBy,
-            sort_direction: sortDirection
+            sort_direction: sortDirection,
+            favorites_only: showFavoritesOnly
         }, {
             preserveState: true,    // Keep component state intact
             preserveScroll: true,   // Maintain scroll position
@@ -50,7 +55,8 @@ export default function FilterBar() {
             country: filters?.country || 'all',
             search: searchQuery,
             sort_by: newSortBy,
-            sort_direction: sortDirection
+            sort_direction: sortDirection,
+            favorites_only: showFavoritesOnly
         }, {
             preserveState: true,
             preserveScroll: true,
@@ -66,7 +72,25 @@ export default function FilterBar() {
             country: filters?.country || 'all',
             search: searchQuery,
             sort_by: sortBy,
-            sort_direction: newDirection
+            sort_direction: newDirection,
+            favorites_only: showFavoritesOnly
+        }, {
+            preserveState: true,
+            preserveScroll: true,
+        })
+    }
+
+    // Handle favorites filter toggle - only show if user is authenticated
+    const handleFavoritesToggle = () => {
+        const newShowFavorites = !showFavoritesOnly
+        setShowFavoritesOnly(newShowFavorites)
+        // Send Inertia request with new favorites filter
+        router.get('/browse', {
+            country: filters?.country || 'all',
+            search: searchQuery,
+            sort_by: sortBy,
+            sort_direction: sortDirection,
+            favorites_only: newShowFavorites
         }, {
             preserveState: true,
             preserveScroll: true,
@@ -135,6 +159,20 @@ export default function FilterBar() {
                             </button>
                         </div>
                     </div>
+
+                    {/* Favorites Filter - only show if user is authenticated */}
+                    {auth?.user && (
+                        <div className="form-control">
+                            <button
+                                type="button"
+                                className={`btn btn-sm ${showFavoritesOnly ? 'btn-primary' : 'btn-outline btn-primary'}`}
+                                onClick={handleFavoritesToggle}
+                                title="Show favorites only"
+                            >
+                                ❤️ Favorites
+                            </button>
+                        </div>
+                    )}
                 </div>
             </div>
         </div>

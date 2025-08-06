@@ -5,7 +5,9 @@ use Inertia\Inertia;
 use App\Models\RadioStation;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\BrowseController;
+use App\Http\Controllers\FavoriteController;
 use App\Http\Controllers\StationController;
+use App\Http\Controllers\UserController;
 
 Route::get('/', function () {
     return Inertia::render('Landing');
@@ -25,4 +27,9 @@ Route::middleware('guest')->group(function () {
 
 Route::middleware('auth')->group(function () {
     Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
+    Route::get('/profile', [UserController::class, 'profile'])->name('profile');
+    Route::get('/settings', [UserController::class, 'settings'])->name('settings');
+    
+    // Favorites routes
+    Route::post('/favorites/toggle', [FavoriteController::class, 'toggle'])->name('favorites.toggle');
 });
