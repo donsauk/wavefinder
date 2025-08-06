@@ -12,6 +12,7 @@ Route::get('/', function () {
 });
 
 Route::get('/browse', [BrowseController::class, 'index'])->name('browse');
+Route::get('/random', [StationController::class, 'random'])->name('random');
 Route::get('/station/{stationuuid}', [StationController::class, 'show'])->name('station');
 
 // Authentication Routes

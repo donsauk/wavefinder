@@ -27,7 +27,12 @@ export default function Navbar() {
                         </Link>
                     </li>
                     <li>
-                        <a className="btn btn-ghost">Random</a>
+                        <Link href={route('random')} className="btn btn-primary">
+                            <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="currentColor" viewBox="0 0 24 24">
+                                <path d="M5 3h4a2 2 0 0 1 2 2v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2zm10 0h4a2 2 0 0 1 2 2v4a2 2 0 0 1-2 2h-4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2zM5 13h4a2 2 0 0 1 2 2v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4a2 2 0 0 1 2-2zm10 0h4a2 2 0 0 1 2 2v4a2 2 0 0 1-2 2h-4a2 2 0 0 1-2-2v-4a2 2 0 0 1 2-2zM7 5.5a1.5 1.5 0 1 0 0 3 1.5 1.5 0 0 0 0-3zm10 0a1.5 1.5 0 1 0 0 3 1.5 1.5 0 0 0 0-3zM7 15.5a1.5 1.5 0 1 0 0 3 1.5 1.5 0 0 0 0-3zm8.5 1.5a1.5 1.5 0 1 1 3 0 1.5 1.5 0 0 1-3 0zm1.5-1.5a1.5 1.5 0 1 0 0 3 1.5 1.5 0 0 0 0-3z"/>
+                            </svg>
+                            Random
+                        </Link>
                     </li>
                     {auth.user && (
                         <li>

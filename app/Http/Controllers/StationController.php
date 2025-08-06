@@ -19,4 +19,18 @@ class StationController extends Controller
             'station' => $station
         ]);
     }
+
+    // Redirect to a random working station
+    public function random()
+    {
+        $randomStation = RadioStation::where('lastcheckok', true)
+            ->inRandomOrder()
+            ->first();
+
+        if (!$randomStation) {
+            return redirect()->route('browse');
+        }
+
+        return redirect()->route('station', ['stationuuid' => $randomStation->stationuuid]);
+    }
 }
