@@ -47,7 +47,7 @@ export default function Login() {
                                     </label>
                                     <input
                                         type="email"
-                                        className={`input input-bordered w-full ${errors.email ? 'input-error' : ''}`}
+                                        className={`input w-full ${errors.email ? 'input-error' : ''}`}
                                         value={data.email}
                                         onChange={(e) => setData('email', e.target.value)}
                                         required
@@ -66,7 +66,7 @@ export default function Login() {
                                     </label>
                                     <input
                                         type="password"
-                                        className={`input input-bordered w-full ${errors.password ? 'input-error' : ''}`}
+                                        className={`input w-full ${errors.password ? 'input-error' : ''}`}
                                         value={data.password}
                                         onChange={(e) => setData('password', e.target.value)}
                                         required
