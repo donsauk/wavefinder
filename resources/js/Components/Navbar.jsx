@@ -1,5 +1,6 @@
 import React from 'react'
 import { Link, useForm, usePage } from '@inertiajs/react'
+import ThemeSelector from './ThemeSelector'
 
 export default function Navbar() {
     const { auth } = usePage().props;
@@ -37,9 +38,10 @@ export default function Navbar() {
             </div>
             
             <div className="navbar-end">
+                <ThemeSelector />
                 {auth.user ? (
                     // Logged in user
-                    <div className="dropdown dropdown-end">
+                    <div className="dropdown dropdown-end ml-2">
                         <div tabIndex={0} role="button" className="btn btn-ghost btn-circle">
                             <div className="avatar">
                                 <div className="w-10 rounded-full bg-primary">
@@ -66,7 +68,7 @@ export default function Navbar() {
                     </div>
                 ) : (
                     // Guest user
-                    <div className="flex gap-2">
+                    <div className="flex gap-2 ml-2">
                         <Link href={route('login')} className="btn btn-ghost btn-sm">
                             Login
                         </Link>
