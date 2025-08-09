@@ -32,55 +32,78 @@ export function AudioProvider({ children }) {
         setIsLoading(true)
         console.log('Playing station:', station.name, 'URL:', streamUrl)
         
-        // Stop any existing audio
+        // Stop any existing audio with proper cleanup
         if (howlerRef.current) {
-            howlerRef.current.stop()
-            howlerRef.current.unload()
+            try {
+                howlerRef.current.stop()
+                howlerRef.current.unload()
+                howlerRef.current = null
+            } catch (error) {
+                console.warn('Error cleaning up previous audio:', error)
+                howlerRef.current = null
+            }
         }
 
         // Set current station
         setCurrentStation(station)
 
-        // Create new Howler instance
-        howlerRef.current = new Howl({
-            src: [streamUrl],
-            html5: true,
-            format: ['mp3', 'aac'],
-            volume: volume,
-            onload: () => {
-                setIsLoading(false)
-                setIsPlaying(true)
-            },
-            onplay: () => {
-                setIsPlaying(true)
-            },
-            onpause: () => {
-                setIsPlaying(false)
-            },
-            onstop: () => {
-                setIsPlaying(false)
-            },
-            onloaderror: (id, error) => {
-                console.error('Audio load error:', error)
-                setIsLoading(false)
-                alert('Failed to load audio stream. Please try again.')
-            },
-            onplayerror: (id, error) => {
-                console.error('Audio play error:', error)
-                setIsLoading(false)
-                alert('Failed to play audio stream. Please try again.')
-            }
-        })
+        // Add small delay to ensure cleanup is complete
+        setTimeout(() => {
+            // Create new Howler instance
+            howlerRef.current = new Howl({
+                src: [streamUrl],
+                html5: true,
+                format: ['mp3', 'aac'],
+                volume: volume,
+                onload: () => {
+                    setIsLoading(false)
+                    setIsPlaying(true)
+                },
+                onplay: () => {
+                    setIsPlaying(true)
+                },
+                onpause: () => {
+                    setIsPlaying(false)
+                },
+                onstop: () => {
+                    setIsPlaying(false)
+                },
+                onloaderror: (id, error) => {
+                    console.error('Audio load error:', error)
+                    setIsLoading(false)
+                    setIsPlaying(false)
+                    alert('Failed to load audio stream. Please try again.')
+                },
+                onplayerror: (id, error) => {
+                    console.error('Audio play error:', error)
+                    setIsLoading(false)
+                    setIsPlaying(false)
+                    alert('Failed to play audio stream. Please try again.')
+                }
+            })
 
-        // Start playing
-        howlerRef.current.play()
+            // Start playing
+            try {
+                howlerRef.current.play()
+            } catch (error) {
+                console.error('Error starting playback:', error)
+                setIsLoading(false)
+                setIsPlaying(false)
+                alert('Failed to start playback. Please try again.')
+            }
+        }, 50)
     }
 
     // Pause current audio (completely stops the stream)
     const pauseStation = () => {
         if (howlerRef.current) {
-            howlerRef.current.stop()
-            setIsPlaying(false)
+            try {
+                howlerRef.current.stop()
+                setIsPlaying(false)
+            } catch (error) {
+                console.warn('Error pausing audio:', error)
+                setIsPlaying(false)
+            }
         }
     }
 
@@ -104,8 +127,14 @@ export function AudioProvider({ children }) {
     useEffect(() => {
         return () => {
             if (howlerRef.current) {
-                howlerRef.current.stop()
-                howlerRef.current.unload()
+                try {
+                    howlerRef.current.stop()
+                    howlerRef.current.unload()
+                    howlerRef.current = null
+                } catch (error) {
+                    console.warn('Error during audio cleanup:', error)
+                    howlerRef.current = null
+                }
             }
         }
     }, [])

@@ -3,6 +3,26 @@ import { Head, Link, router, usePage } from '@inertiajs/react'
 import Navbar from '../Components/Navbar'
 import { useAudio } from '../Contexts/AudioContext'
 
+// Safe Station Icon Component - handles image loading errors without DOM manipulation
+function StationIcon({ station, className = "w-32 h-32 rounded-full bg-primary flex items-center justify-center text-white text-4xl overflow-hidden mb-4" }) {
+    const [imageError, setImageError] = useState(false)
+    
+    return (
+        <div className={className}>
+            {station.favicon && !imageError ? (
+                <img 
+                    src={station.favicon} 
+                    alt=""
+                    className="w-full h-full object-cover"
+                    onError={() => setImageError(true)}
+                />
+            ) : (
+                <span>{station.name?.charAt(0).toUpperCase() || '?'}</span>
+            )}
+        </div>
+    )
+}
+
 export default function Station({ station, isFavorited, canVote, nextVoteTime }) {
     const { auth } = usePage().props
     const [isVoting, setIsVoting] = useState(false)
@@ -143,21 +163,7 @@ export default function Station({ station, isFavorited, canVote, nextVoteTime })
                             {/* Station Header */}
                             <div className="flex flex-col items-center text-center">
                                 {/* Station Icon */}
-                                <div className="w-32 h-32 rounded-full bg-primary flex items-center justify-center text-white text-4xl overflow-hidden mb-4">
-                                    {station.favicon ? (
-                                        <img 
-                                            src={station.favicon} 
-                                            alt=""
-                                            className="w-full h-full object-cover"
-                                            onError={(e) => {
-                                                e.target.style.display = 'none';
-                                                e.target.parentElement.innerHTML = station.name?.charAt(0).toUpperCase() || '?';
-                                            }}
-                                        />
-                                    ) : (
-                                        station.name?.charAt(0).toUpperCase() || '?'
-                                    )}
-                                </div>
+                                <StationIcon station={station} />
                                 
                                 {/* Station Name */}
                                 <h1 className="text-3xl font-bold mb-2">{station.name || 'Unknown Station'}</h1>

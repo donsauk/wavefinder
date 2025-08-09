@@ -1,6 +1,26 @@
-import React from 'react'
+import React, { useState } from 'react'
 import { Link } from '@inertiajs/react'
 import { useAudio } from '../Contexts/AudioContext'
+
+// Safe Station Icon Component - handles image loading errors without DOM manipulation
+function StationIcon({ station, className = "w-12 h-12 rounded-lg bg-primary flex items-center justify-center text-white text-lg overflow-hidden flex-shrink-0" }) {
+    const [imageError, setImageError] = useState(false)
+    
+    return (
+        <div className={className}>
+            {station.favicon && !imageError ? (
+                <img 
+                    src={station.favicon} 
+                    alt=""
+                    className="w-full h-full object-cover"
+                    onError={() => setImageError(true)}
+                />
+            ) : (
+                <span>{station.name?.charAt(0).toUpperCase() || '?'}</span>
+            )}
+        </div>
+    )
+}
 
 export default function AudioPlayer() {
     const { 
@@ -33,21 +53,7 @@ export default function AudioPlayer() {
                 {/* Station Info */}
                 <div className="flex items-center gap-3 min-w-0 flex-1">
                     {/* Station Icon */}
-                    <div className="w-12 h-12 rounded-lg bg-primary flex items-center justify-center text-white text-lg overflow-hidden flex-shrink-0">
-                        {currentStation.favicon ? (
-                            <img 
-                                src={currentStation.favicon} 
-                                alt=""
-                                className="w-full h-full object-cover"
-                                onError={(e) => {
-                                    e.target.style.display = 'none';
-                                    e.target.parentElement.innerHTML = currentStation.name?.charAt(0).toUpperCase() || '?';
-                                }}
-                            />
-                        ) : (
-                            currentStation.name?.charAt(0).toUpperCase() || '?'
-                        )}
-                    </div>
+                    <StationIcon station={currentStation} />
                     
                     {/* Station Details */}
                     <div className="min-w-0 flex-1">
