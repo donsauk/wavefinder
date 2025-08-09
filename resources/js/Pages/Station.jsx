@@ -1,8 +1,7 @@
-import React, { useState, useEffect, useRef } from 'react'
+import React, { useState, useEffect } from 'react'
 import { Head, Link, router, usePage } from '@inertiajs/react'
-import { Howl } from 'howler'
 import Navbar from '../Components/Navbar'
-import Footer from '../Components/Footer'
+import { useAudio } from '../Contexts/AudioContext'
 
 export default function Station({ station, isFavorited, canVote, nextVoteTime }) {
     const { auth } = usePage().props
@@ -10,11 +9,19 @@ export default function Station({ station, isFavorited, canVote, nextVoteTime })
     const [voteStatus, setVoteStatus] = useState({ canVote })
     const [countdown, setCountdown] = useState('')
     
-    // Audio player state
-    const [isPlaying, setIsPlaying] = useState(false)
-    const [isLoading, setIsLoading] = useState(false)
-    const [volume, setVolume] = useState(0.05) // Default volume
-    const howlerRef = useRef(null)
+    // Use global audio context instead of local state
+    const { 
+        currentStation, 
+        isPlaying, 
+        isLoading, 
+        volume, 
+        playStation, 
+        pauseStation, 
+        changeVolume 
+    } = useAudio()
+    
+    // Check if this station is currently playing
+    const isCurrentStation = currentStation?.stationuuid === station.stationuuid
     
     // Handle favorite toggle with simple form submission
     const handleFavoriteToggle = () => {
@@ -98,88 +105,18 @@ export default function Station({ station, isFavorited, canVote, nextVoteTime })
         return () => clearInterval(interval);
     }, [nextVoteTime, voteStatus.canVote]);
 
-    // Cleanup audio on component unmount
-    useEffect(() => {
-        return () => {
-            if (howlerRef.current) {
-                howlerRef.current.stop()
-                howlerRef.current.unload()
-            }
-        }
-    }, [])
-
-    // Handle station play/pause - uses station URL directly from props
+    // Handle station play/pause using global audio context
     const handlePlayStation = () => {
-        if (isPlaying && howlerRef.current) {
-            // Pause current audio
-            howlerRef.current.pause()
-            setIsPlaying(false)
-            return
-        }
-
-        if (howlerRef.current && !isPlaying) {
-            // Resume paused audio
-            howlerRef.current.play()
-            setIsPlaying(true)
-            return
-        }
-
-        // Load new audio - use resolved URL or fallback to regular URL
-        const streamUrl = station.url_resolved || station.url
-        if (!streamUrl) {
-            alert('No stream URL available for this station.')
-            return
-        }
-
-        setIsLoading(true)
-        console.log('Playing station:', station.name, 'URL:', streamUrl)
-        
-        // Stop any existing audio
-        if (howlerRef.current) {
-            howlerRef.current.stop()
-            howlerRef.current.unload()
-        }
-
-        // Create new Howler instance with station URL from props
-        howlerRef.current = new Howl({
-            src: [streamUrl],
-            html5: true,
-            format: ['mp3', 'aac'],
-            volume: volume,
-            onload: () => {
-                setIsLoading(false)
-                setIsPlaying(true)
-            },
-            onplay: () => {
-                setIsPlaying(true)
-            },
-            onpause: () => {
-                setIsPlaying(false)
-            },
-            onstop: () => {
-                setIsPlaying(false)
-            },
-            onloaderror: (id, error) => {
-                console.error('Audio load error:', error)
-                setIsLoading(false)
-                alert('Failed to load audio stream. Please try again.')
-            },
-            onplayerror: (id, error) => {
-                console.error('Audio play error:', error)
-                setIsLoading(false)
-                alert('Failed to play audio stream. Please try again.')
-            }
-        })
-
-        // Start playing
-        howlerRef.current.play()
-    }
-
-    // Handle volume change
-    const handleVolumeChange = (newVolume) => {
-        setVolume(newVolume)
-        if (howlerRef.current) {
-            howlerRef.current.volume(newVolume)
+        if (isCurrentStation && isPlaying) {
+            // Pause current station
+            pauseStation()
+        } else if (isCurrentStation && !isPlaying) {
+            // Resume current station (handled by AudioPlayer component)
+            // For consistency, we'll treat this as playing the station again
+            playStation(station)
+        } else {
+            // Play new station
+            playStation(station)
         }
     }
     return (
@@ -189,8 +126,8 @@ export default function Station({ station, isFavorited, canVote, nextVoteTime })
                 {/* Navbar - Fixed height */}
                 <Navbar />
 
-                {/* Main content area */}
-                <div className="flex-1 overflow-y-auto">
+                {/* Main content area - Station content takes available space, with bottom padding for audio player */}
+                <div className="flex-1 pb-20">
                     <div className="max-w-4xl mx-auto p-6">
                         {/* Back button */}
                         <div className="mb-6">
@@ -236,16 +173,16 @@ export default function Station({ station, isFavorited, canVote, nextVoteTime })
                                 {/* Action Buttons */}
                                 <div className="flex gap-4 flex-wrap justify-center">
                                     <button 
-                                        className={`btn btn-lg ${isPlaying ? 'btn-secondary' : 'btn-primary'}`}
+                                        className={`btn btn-lg ${isCurrentStation && isPlaying ? 'btn-secondary' : 'btn-primary'}`}
                                         onClick={handlePlayStation}
                                         disabled={isLoading}
                                     >
-                                        {isLoading ? (
+                                        {isLoading && isCurrentStation ? (
                                             <>
                                                 <span className="loading loading-spinner loading-sm mr-2"></span>
                                                 Loading...
                                             </>
-                                        ) : isPlaying ? (
+                                        ) : isCurrentStation && isPlaying ? (
                                             <>
                                                 <svg className="w-6 h-6 mr-2" fill="currentColor" viewBox="0 0 20 20">
                                                     <path d="M5.5 3.5A1.5 1.5 0 0 1 7 5v10a1.5 1.5 0 0 1-3 0V5A1.5 1.5 0 0 1 5.5 3.5zm6 0A1.5 1.5 0 0 1 13 5v10a1.5 1.5 0 0 1-3 0V5a1.5 1.5 0 0 1 1.5-1.5z"/>
@@ -257,7 +194,7 @@ export default function Station({ station, isFavorited, canVote, nextVoteTime })
                                                 <svg className="w-6 h-6 mr-2" fill="currentColor" viewBox="0 0 20 20">
                                                     <path d="M8 5v10l7-5-7-5z"/>
                                                 </svg>
-                                                Play Station
+                                                {isCurrentStation ? 'Resume' : 'Play Station'}
                                             </>
                                         )}
                                     </button>
@@ -312,7 +249,7 @@ export default function Station({ station, isFavorited, canVote, nextVoteTime })
                                             max="1"
                                             step="0.01"
                                             value={volume}
-                                            onChange={(e) => handleVolumeChange(parseFloat(e.target.value))}
+                                            onChange={(e) => changeVolume(parseFloat(e.target.value))}
                                             className="range range-primary range-sm w-64"
                                         />
                                         <span className="text-sm opacity-70 min-w-[3ch]">{Math.round(volume * 100)}%</span>
@@ -431,8 +368,6 @@ export default function Station({ station, isFavorited, canVote, nextVoteTime })
                     </div>
                 </div>
 
-                {/* Footer - Fixed height */}
-                <Footer />
             </div>
         </>
     )

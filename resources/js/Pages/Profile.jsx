@@ -1,7 +1,6 @@
 import React from 'react'
 import { Head } from '@inertiajs/react'
 import Navbar from '../Components/Navbar'
-import Footer from '../Components/Footer'
 
 export default function Profile({ user, stats }) {
     return (
@@ -11,8 +10,8 @@ export default function Profile({ user, stats }) {
                 {/* Navbar - Fixed height */}
                 <Navbar />
 
-                {/* Main content area - Takes remaining space */}
-                <div className="flex-1 overflow-y-auto min-h-0">
+                {/* Main content area - Takes remaining space, with bottom padding for audio player */}
+                <div className="flex-1 overflow-y-auto min-h-0 pb-20">
                     <div className="max-w-4xl mx-auto p-6">
                         <div className="space-y-6">
                             {/* Profile Header */}
@@ -113,8 +112,6 @@ export default function Profile({ user, stats }) {
                     </div>
                 </div>
 
-                {/* Footer */}
-                <Footer />
             </div>
         </>
     )

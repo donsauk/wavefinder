@@ -1,7 +1,6 @@
 import React, { useState } from 'react'
 import { Head, useForm } from '@inertiajs/react'
 import Navbar from '../Components/Navbar'
-import Footer from '../Components/Footer'
 
 export default function Settings({ user }) {
     const { data, setData, put, processing, errors, reset } = useForm({
@@ -39,8 +38,8 @@ export default function Settings({ user }) {
                 {/* Navbar - Fixed height */}
                 <Navbar />
 
-                {/* Main content area - Takes remaining space */}
-                <div className="flex-1 overflow-y-auto min-h-0">
+                {/* Main content area - Takes remaining space, with bottom padding for audio player */}
+                <div className="flex-1 overflow-y-auto min-h-0 pb-20">
                     <div className="max-w-4xl mx-auto p-6">
                         <div className="space-y-6">
                             {/* Settings Header */}
@@ -263,8 +262,6 @@ export default function Settings({ user }) {
                     </div>
                 </div>
 
-                {/* Footer */}
-                <Footer />
             </div>
         </>
     )
