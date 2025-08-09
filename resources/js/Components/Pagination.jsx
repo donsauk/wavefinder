@@ -22,8 +22,20 @@ export default function Pagination({ data, itemName = 'items' }) {
         }
     };
 
+    // Navigate to a random page when ellipsis dots are clicked
+    const handleRandomPage = (e) => {
+        e.preventDefault();
+        const randomPage = Math.floor(Math.random() * data.last_page) + 1;
+        const currentUrl = new URL(window.location);
+        currentUrl.searchParams.set('page', randomPage);
+        router.get(currentUrl.toString(), {}, {
+            preserveState: true,
+            preserveScroll: true
+        });
+    };
+
     return (
-        <div className="flex-shrink-0 bg-base-100 border-t border-base-300 h-16">
+        <div className="flex-shrink-0 bg-base-100 h-16">
             <div className="max-w-8xl mx-auto px-8 h-full">
                 <div className="flex items-center justify-between h-full">
                     {/* Page Info - Left */}
@@ -54,17 +66,31 @@ export default function Pagination({ data, itemName = 'items' }) {
                                         return null;
                                     }
 
+                                    // Check if this is an ellipsis (...) link
+                                if (link.label === '...' || link.label.includes('…')) {
                                     return (
-                                        <Link
+                                        <button
                                             key={index}
-                                            href={link.url || '#'}
-                                            className={`join-item btn btn-sm ${link.active ? 'btn-primary' : 'btn-outline'}`}
-                                            preserveState
-                                            preserveScroll
+                                            onClick={handleRandomPage}
+                                            className="join-item btn btn-sm btn-outline hover:btn-secondary"
+                                            title="Click to go to a random page! 🎲"
                                         >
                                             {link.label}
-                                        </Link>
+                                        </button>
                                     );
+                                }
+
+                                return (
+                                    <Link
+                                        key={index}
+                                        href={link.url || '#'}
+                                        className={`join-item btn btn-sm ${link.active ? 'btn-primary' : 'btn-outline'}`}
+                                        preserveState
+                                        preserveScroll
+                                    >
+                                        {link.label}
+                                    </Link>
+                                );
                                 })}
                             </div>
                         )}

@@ -114,7 +114,7 @@ export default function Browse({ stations }) {
                     </div>
                     
                     {/* Pagination - positioned at bottom of content, moves up when player is active */}
-                    <div className={`${hasActivePlayer ? 'fixed bottom-20 left-0 right-0 z-40' : 'sticky bottom-0'} bg-base-100 border-t border-base-300`}>
+                    <div className={`${hasActivePlayer ? 'fixed bottom-20 left-0 right-0 z-40' : 'sticky bottom-0'} bg-base-100`}>
                         <Pagination data={stations} itemName="stations" />
                     </div>
                 </div>

@@ -76,27 +76,21 @@ export function AudioProvider({ children }) {
         howlerRef.current.play()
     }
 
-    // Pause current audio
+    // Pause current audio (completely stops the stream)
     const pauseStation = () => {
-        if (howlerRef.current && isPlaying) {
-            howlerRef.current.pause()
-        }
-    }
-
-    // Resume current audio
-    const resumeStation = () => {
-        if (howlerRef.current && !isPlaying) {
-            howlerRef.current.play()
-        }
-    }
-
-    // Stop current audio
-    const stopStation = () => {
         if (howlerRef.current) {
             howlerRef.current.stop()
             setIsPlaying(false)
         }
     }
+
+    // Resume current audio (restarts the stream from beginning)
+    const resumeStation = () => {
+        if (currentStation) {
+            playStation(currentStation)
+        }
+    }
+
 
     // Handle volume change
     const changeVolume = (newVolume) => {
@@ -127,7 +121,6 @@ export function AudioProvider({ children }) {
         playStation,
         pauseStation,
         resumeStation,
-        stopStation,
         changeVolume
     }
 

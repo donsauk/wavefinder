@@ -10,7 +10,6 @@ export default function AudioPlayer() {
         volume, 
         pauseStation, 
         resumeStation, 
-        stopStation, 
         changeVolume 
     } = useAudio()
 
@@ -75,32 +74,23 @@ export default function AudioPlayer() {
                 {/* Playback Controls */}
                 <div className="flex items-center gap-4 px-8">
                     <button 
-                        className="btn btn-circle btn-sm"
+                        className="btn btn-circle btn-primary"
                         onClick={handlePlayPause}
                         disabled={isLoading}
                     >
                         {isLoading ? (
                             <span className="loading loading-spinner loading-xs"></span>
                         ) : isPlaying ? (
-                            <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-                                <path d="M5.5 3.5A1.5 1.5 0 0 1 7 5v10a1.5 1.5 0 0 1-3 0V5A1.5 1.5 0 0 1 5.5 3.5zm6 0A1.5 1.5 0 0 1 13 5v10a1.5 1.5 0 0 1-3 0V5a1.5 1.5 0 0 1 1.5-1.5z"/>
+                            <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
+                                <path d="M6 4h4v16H6V4zm8 0h4v16h-4V4z"/>
                             </svg>
                         ) : (
-                            <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-                                <path d="M8 5v10l7-5-7-5z"/>
+                            <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
+                                <path d="M8 5v14l11-7z"/>
                             </svg>
                         )}
                     </button>
                     
-                    <button 
-                        className="btn btn-circle btn-sm btn-outline"
-                        onClick={stopStation}
-                        title="Stop"
-                    >
-                        <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-                            <path d="M5.25 3A2.25 2.25 0 0 0 3 5.25v9.5A2.25 2.25 0 0 0 5.25 17h9.5A2.25 2.25 0 0 0 17 14.75v-9.5A2.25 2.25 0 0 0 14.75 3h-9.5z"/>
-                        </svg>
-                    </button>
                 </div>
 
                 {/* Volume Control */}
