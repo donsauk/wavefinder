@@ -17,6 +17,10 @@ Route::get('/browse', [BrowseController::class, 'index'])->name('browse');
 Route::get('/random', [StationController::class, 'random'])->name('random');
 Route::get('/station/{stationuuid}', [StationController::class, 'show'])->name('station');
 
+// Station interaction routes
+Route::post('/station/{stationuuid}/click', [StationController::class, 'click'])->name('station.click');
+Route::post('/station/{stationuuid}/vote', [StationController::class, 'vote'])->name('station.vote');
+
 // Authentication Routes
 Route::middleware('guest')->group(function () {
     Route::get('/login', [AuthController::class, 'showLogin'])->name('login');

@@ -6,6 +6,26 @@ import Footer from '../Components/Footer'
 import Pagination from '../Components/Pagination'
 
 export default function Browse({ stations }) {
+    // Handle station click - tracks click and navigates to station page
+    const handleStationClick = async (stationuuid) => {
+        try {
+            // Track the click with radio-browser API
+            await fetch(`/station/${stationuuid}/click`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '',
+                },
+            });
+        } catch (error) {
+            // Silently fail - don't let API issues affect navigation
+            console.warn('Failed to track station click:', error);
+        }
+        
+        // Navigate to station page
+        router.get(`/station/${stationuuid}`);
+    };
+
     return (
         <>
             <Head title="Browse - WAVEFINDER" />
@@ -31,7 +51,7 @@ export default function Browse({ stations }) {
                                         <div className="flex justify-center my-2">
                                             <div 
                                                 className="relative w-24 h-24 rounded-full bg-primary flex items-center justify-center text-white text-2xl overflow-hidden cursor-pointer group transition-all duration-300 hover:ring-4 hover:ring-secondary hover:ring-opacity-80"
-                                                onClick={() => router.get(`/station/${station.stationuuid}`)}
+                                                onClick={() => handleStationClick(station.stationuuid)}
                                             >
                                                 {station.favicon ? (
                                                     <img 

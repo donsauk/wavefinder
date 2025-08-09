@@ -34,11 +34,6 @@ export default function Navbar() {
                             Random
                         </Link>
                     </li>
-                    {auth.user && (
-                        <li>
-                            <a className="btn btn-ghost">Favorites</a>
-                        </li>
-                    )}
                 </ul>
             </div>
             

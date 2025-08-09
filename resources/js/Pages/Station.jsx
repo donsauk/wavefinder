@@ -1,10 +1,13 @@
-import React from 'react'
+import React, { useState, useEffect } from 'react'
 import { Head, Link, router, usePage } from '@inertiajs/react'
 import Navbar from '../Components/Navbar'
 import Footer from '../Components/Footer'
 
-export default function Station({ station, isFavorited }) {
+export default function Station({ station, isFavorited, canVote, nextVoteTime }) {
     const { auth } = usePage().props
+    const [isVoting, setIsVoting] = useState(false)
+    const [voteStatus, setVoteStatus] = useState({ canVote })
+    const [countdown, setCountdown] = useState('')
     
     // Handle favorite toggle with simple form submission
     const handleFavoriteToggle = () => {
@@ -13,6 +16,105 @@ export default function Station({ station, isFavorited }) {
         }, {
             preserveScroll: true, // Don't scroll to top after toggle
         })
+    }
+
+    // Handle voting for station
+    const handleVoteStation = async () => {
+        if (!auth?.user || isVoting || !voteStatus.canVote) {
+            return;
+        }
+
+        setIsVoting(true);
+
+        try {
+            const response = await fetch(`/station/${station.stationuuid}/vote`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '',
+                },
+            });
+
+            if (response.ok) {
+                const data = await response.json();
+                setVoteStatus({ canVote: false });
+                
+                if (data.api_down) {
+                    alert('Thank you for voting! Your vote has been recorded locally.\n\n(Note: Radio Browser API is temporarily unavailable, but your vote still counts!)');
+                } else {
+                    alert('Thank you for voting! Your vote helps improve the Radio Browser database for everyone.');
+                }
+            } else {
+                const data = await response.json();
+                if (response.status === 429) {
+                    // Rate limited
+                    setVoteStatus({ canVote: false });
+                    alert(`Rate limit exceeded. Please wait ${data.minutes_left} more minutes before voting again.`);
+                } else {
+                    alert(data.error || 'Failed to vote. Please try again.');
+                }
+            }
+        } catch (error) {
+            console.error('Error voting for station:', error);
+            alert('Error voting for station. Please check your connection.');
+        } finally {
+            setIsVoting(false);
+        }
+    };
+
+    // Update countdown timer for when user can vote again
+    useEffect(() => {
+        if (!nextVoteTime || voteStatus.canVote) {
+            setCountdown('');
+            return;
+        }
+
+        const updateCountdown = () => {
+            const now = new Date();
+            const nextVote = new Date(nextVoteTime);
+            const diff = nextVote - now;
+
+            if (diff <= 0) {
+                setCountdown('');
+                setVoteStatus({ ...voteStatus, canVote: true });
+                return;
+            }
+
+            const minutes = Math.floor(diff / 60000);
+            const seconds = Math.floor((diff % 60000) / 1000);
+            setCountdown(`${minutes}:${seconds.toString().padStart(2, '0')}`);
+        };
+
+        updateCountdown();
+        const interval = setInterval(updateCountdown, 1000);
+
+        return () => clearInterval(interval);
+    }, [nextVoteTime, voteStatus.canVote]);
+
+    // Handle station play - tracks click and gets stream URL
+    const handlePlayStation = async () => {
+        try {
+            const response = await fetch(`/station/${station.stationuuid}/click`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '',
+                },
+            });
+
+            if (response.ok) {
+                const data = await response.json();
+                console.log('Playing station:', data.name, 'URL:', data.url);
+                alert(`Playing: ${data.name}\nURL: ${data.url}\n\n(Audio player implementation coming soon!)`);
+            } else {
+                console.error('Failed to get station URL, status:', response.status);
+                alert('Failed to play station. Please try again.');
+            }
+        } catch (error) {
+            console.error('Error playing station:', error);
+            alert('Error playing station. Please check your connection.');
+        }
     }
     return (
         <>
@@ -66,8 +168,11 @@ export default function Station({ station, isFavorited }) {
                                 )}
 
                                 {/* Action Buttons */}
-                                <div className="flex gap-4">
-                                    <button className="btn btn-primary btn-lg">
+                                <div className="flex gap-4 flex-wrap justify-center">
+                                    <button 
+                                        className="btn btn-primary btn-lg"
+                                        onClick={handlePlayStation}
+                                    >
                                         <svg className="w-6 h-6 mr-2" fill="currentColor" viewBox="0 0 20 20">
                                             <path d="M8 5v10l7-5-7-5z"/>
                                         </svg>
@@ -82,6 +187,32 @@ export default function Station({ station, isFavorited }) {
                                             title={isFavorited ? 'Remove from favorites' : 'Add to favorites'}
                                         >
                                             {isFavorited ? '❤️' : '🤍'}
+                                        </button>
+                                    )}
+                                    
+                                    {/* Vote Button - only show if user is authenticated */}
+                                    {auth?.user && (
+                                        <button
+                                            onClick={handleVoteStation}
+                                            disabled={isVoting || !voteStatus.canVote}
+                                            className={`btn btn-lg ${voteStatus.canVote ? 'btn-accent' : 'btn-disabled'}`}
+                                            title={
+                                                voteStatus.canVote 
+                                                    ? 'Vote for this station to help Radio Browser' 
+                                                    : `Please wait ${countdown} before voting again`
+                                            }
+                                        >
+                                            {isVoting ? (
+                                                <>
+                                                    <span className="loading loading-spinner loading-sm mr-2"></span>
+                                                    Voting...
+                                                </>
+                                            ) : (
+                                                <>
+                                                    👍 Vote
+                                                    {countdown && <span className="ml-1 text-xs">({countdown})</span>}
+                                                </>
+                                            )}
                                         </button>
                                     )}
                                 </div>

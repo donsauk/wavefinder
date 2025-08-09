@@ -26,7 +26,7 @@ class DownloadRadioStations extends Command
             try {
                 $response = Http::timeout(30)
                     ->withHeaders([
-                        'User-Agent' => 'Laravel Radio App/1.0'
+                        'User-Agent' => 'WAVEFINDER/1.0 (Laravel Radio App)'
                     ])
                     ->get("http://de2.api.radio-browser.info/json/stations", [
                         'offset' => $offset,
