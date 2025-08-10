@@ -12,7 +12,7 @@ use App\Http\Controllers\UserController;
 
 Route::get('/', function () {
     return Inertia::render('Landing');
-});
+})->name('home');
 
 Route::get('/browse', [BrowseController::class, 'index'])->name('browse');
 Route::get('/random', [StationController::class, 'random'])->name('random');
@@ -25,8 +25,8 @@ Route::post('/station/{stationuuid}/vote', [StationController::class, 'vote'])->
 // Comment routes - public read access, authenticated write/delete access
 Route::get('/station/{stationuuid}/comments', [CommentController::class, 'index'])->name('comments.index');
 Route::middleware('auth')->group(function () {
-    Route::post('/station/{stationuuid}/comments', [CommentController::class, 'store'])->name('comments.store');
-    Route::delete('/station/{stationuuid}/comments/{comment}', [CommentController::class, 'destroy'])->name('comments.destroy');
+    Route::post('/station/{stationuuid}/comments', [CommentController::class, 'store'])->name('station.comments.store');
+    Route::delete('/station/{stationuuid}/comments/{comment}', [CommentController::class, 'destroy'])->name('station.comments.destroy');
 });
 
 // Authentication Routes

@@ -24,7 +24,7 @@ export default function StationComments({ stationUuid, comments = [] }) {
         if (!data.content.trim()) return
 
         // Use global route() function for dynamic route generation
-        post(route('station.comments.store', { station: stationUuid }), {
+        post(route('station.comments.store', { stationuuid: stationUuid }), {
             preserveScroll: true,
             onSuccess: () => {
                 reset('content')
@@ -45,7 +45,7 @@ export default function StationComments({ stationUuid, comments = [] }) {
         if (!confirm('Are you sure you want to delete this comment?')) return
 
         // Use global route() function for dynamic route generation
-        router.delete(route('station.comments.destroy', { station: stationUuid, comment: commentId }), {
+        router.delete(route('station.comments.destroy', { stationuuid: stationUuid, comment: commentId }), {
             preserveScroll: true,
             preserveState: true,
             onSuccess: () => {
