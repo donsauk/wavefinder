@@ -5,6 +5,7 @@ use Inertia\Inertia;
 use App\Models\RadioStation;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\BrowseController;
+use App\Http\Controllers\CommentController;
 use App\Http\Controllers\FavoriteController;
 use App\Http\Controllers\StationController;
 use App\Http\Controllers\UserController;
@@ -20,6 +21,13 @@ Route::get('/station/{stationuuid}', [StationController::class, 'show'])->name('
 // Station interaction routes
 Route::post('/station/{stationuuid}/click', [StationController::class, 'click'])->name('station.click');
 Route::post('/station/{stationuuid}/vote', [StationController::class, 'vote'])->name('station.vote');
+
+// Comment routes - public read access, authenticated write/delete access
+Route::get('/station/{stationuuid}/comments', [CommentController::class, 'index'])->name('comments.index');
+Route::middleware('auth')->group(function () {
+    Route::post('/station/{stationuuid}/comments', [CommentController::class, 'store'])->name('comments.store');
+    Route::delete('/station/{stationuuid}/comments/{comment}', [CommentController::class, 'destroy'])->name('comments.destroy');
+});
 
 // Authentication Routes
 Route::middleware('guest')->group(function () {

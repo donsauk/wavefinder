@@ -50,4 +50,10 @@ class User extends Authenticatable
     {
         return $this->hasMany(UserFavorite::class);
     }
+
+    // Relationship: User has many Comments (comments authored by this user)
+    public function comments()
+    {
+        return $this->hasMany(Comment::class);
+    }
 }

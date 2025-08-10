@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import { Head, Link, router, usePage } from '@inertiajs/react'
 import Navbar from '../Components/Navbar'
+import StationComments from '../Components/StationComments'
 import { useAudio } from '../Contexts/AudioContext'
 
 // Safe Station Icon Component - handles image loading errors without DOM manipulation
@@ -370,6 +371,11 @@ export default function Station({ station, isFavorited, canVote, nextVoteTime })
                                     </div>
                                 )}
                             </div>
+                        </div>
+
+                        {/* Comments Section - Full width below station details */}
+                        <div className="mt-8">
+                            <StationComments stationUuid={station.stationuuid} />
                         </div>
                     </div>
                 </div>
