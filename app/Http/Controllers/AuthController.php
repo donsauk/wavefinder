@@ -29,7 +29,7 @@ class AuthController extends Controller
 
         if (Auth::attempt($credentials, $request->boolean('remember'))) {
             $request->session()->regenerate();
-            return redirect()->intended(route('browse'));
+            return to_route('browse');
         }
 
         return back()->withErrors([
@@ -53,7 +53,7 @@ class AuthController extends Controller
 
         Auth::login($user);
 
-        return redirect(route('browse'));
+        return to_route('browse');
     }
 
     public function logout(Request $request)

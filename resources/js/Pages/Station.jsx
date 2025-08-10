@@ -3,12 +3,15 @@ import { Head, Link } from '@inertiajs/react'
 import Navbar from '../Components/Navbar'
 import StationComments from '../Components/StationComments'
 import StationHeader from '../Components/StationHeader'
+import FlashMessage from '../Components/FlashMessage'
 
 
-export default function Station({ station, isFavorited, canVote, nextVoteTime }) {
+export default function Station({ station, isFavorited, canVote, nextVoteTime, comments }) {
+    
     return (
         <>
             <Head title={`${station.name} - WAVEFINDER`} />
+            <FlashMessage />
             <div className="min-h-screen bg-base-100 flex flex-col">
                 {/* Navbar - Fixed height */}
                 <Navbar />
@@ -16,9 +19,9 @@ export default function Station({ station, isFavorited, canVote, nextVoteTime })
                 {/* Main content area - Station content takes available space, with bottom padding for audio player */}
                 <div className="flex-1 pb-20">
                     <div className="max-w-4xl mx-auto p-6">
-                        {/* Back button */}
+                        {/* Back button - Using global route() function */}
                         <div className="mb-6">
-                            <Link href="/browse" className="btn btn-outline btn-sm">
+                            <Link href={route('browse')} className="btn btn-outline btn-sm">
                                 <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 19l-7-7 7-7" />
                                 </svg>
@@ -146,7 +149,7 @@ export default function Station({ station, isFavorited, canVote, nextVoteTime })
 
                         {/* Comments Section - Full width below station details */}
                         <div className="mt-8">
-                            <StationComments stationUuid={station.stationuuid} />
+                            <StationComments stationUuid={station.stationuuid} comments={comments} />
                         </div>
                     </div>
                 </div>

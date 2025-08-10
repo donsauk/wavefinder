@@ -1,94 +1,60 @@
-import React, { useState, useEffect } from 'react'
-import { usePage } from '@inertiajs/react'
+import React from 'react'
+import { usePage, useForm, router } from '@inertiajs/react'
 
-export default function StationComments({ stationUuid }) {
-    const { auth } = usePage().props
-    const [comments, setComments] = useState([])
-    const [newComment, setNewComment] = useState('')
-    const [isLoading, setIsLoading] = useState(true)
-    const [isSubmitting, setIsSubmitting] = useState(false)
+export default function StationComments({ stationUuid, comments = [] }) {
+    const { auth, flash, errors } = usePage().props
+    
+    // Use form remembering with dynamic key for each station
+    const { data, setData, post, processing, reset, clearErrors } = useForm(`StationComment:${stationUuid}`, {
+        content: '',
+    })
 
-    // Fetch comments from API when component mounts
-    useEffect(() => {
-        fetchComments()
-    }, [stationUuid])
-
-    // Fetch comments from backend API - gets comments with user data eagerly loaded
-    const fetchComments = async () => {
-        setIsLoading(true)
-        try {
-            const response = await fetch(`/station/${stationUuid}/comments`)
-            const data = await response.json()
-            if (data.success) {
-                setComments(data.comments)
-            }
-        } catch (error) {
-            console.error('Failed to fetch comments:', error)
-        } finally {
-            setIsLoading(false)
-        }
-    }
-
-    // Submit new comment - requires authentication, validates content, and updates UI
-    const handleSubmitComment = async (e) => {
+    // Enhanced form submission with latest Inertia.js patterns
+    const handleSubmitComment = (e) => {
         e.preventDefault()
         if (!auth.user) {
-            alert('Please login to comment')
+            // Use global route() function for login redirect
+            router.visit(route('login'), {
+                data: { intended: window.location.pathname },
+                preserveScroll: true
+            })
             return
         }
         
-        if (!newComment.trim()) return
+        if (!data.content.trim()) return
 
-        setIsSubmitting(true)
-        try {
-            const response = await fetch(`/station/${stationUuid}/comments`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '',
-                },
-                body: JSON.stringify({ content: newComment.trim() })
-            })
-
-            const data = await response.json()
-            if (data.success) {
-                // Add new comment to the beginning of the list (newest first)
-                setComments([data.comment, ...comments])
-                setNewComment('')
-            } else {
-                alert('Failed to post comment')
+        // Use global route() function for dynamic route generation
+        post(route('station.comments.store', { station: stationUuid }), {
+            preserveScroll: true,
+            onSuccess: () => {
+                reset('content')
+                clearErrors()
+                // Flash success message handled by backend
+            },
+            onError: (errors) => {
+                // Focus textarea if there's a content error
+                if (errors.content) {
+                    document.querySelector('textarea[name="content"]')?.focus()
+                }
             }
-        } catch (error) {
-            console.error('Failed to submit comment:', error)
-            alert('Failed to post comment')
-        } finally {
-            setIsSubmitting(false)
-        }
+        })
     }
 
-    // Delete comment - only allows users to delete their own comments
-    const handleDeleteComment = async (commentId) => {
+    // Enhanced comment deletion with better UX
+    const handleDeleteComment = (commentId) => {
         if (!confirm('Are you sure you want to delete this comment?')) return
 
-        try {
-            const response = await fetch(`/station/${stationUuid}/comments/${commentId}`, {
-                method: 'DELETE',
-                headers: {
-                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '',
-                }
-            })
-
-            const data = await response.json()
-            if (data.success) {
-                // Remove deleted comment from state
-                setComments(comments.filter(comment => comment.id !== commentId))
-            } else {
-                alert(data.message || 'Failed to delete comment')
+        // Use global route() function for dynamic route generation
+        router.delete(route('station.comments.destroy', { station: stationUuid, comment: commentId }), {
+            preserveScroll: true,
+            preserveState: true,
+            onSuccess: () => {
+                // Success handled by flash message from backend
+            },
+            onError: (errors) => {
+                console.error('Failed to delete comment:', errors)
             }
-        } catch (error) {
-            console.error('Failed to delete comment:', error)
-            alert('Failed to delete comment')
-        }
+        })
     }
 
     // Generate initials from username for placeholder avatar
@@ -126,24 +92,31 @@ export default function StationComments({ stationUuid }) {
                             {/* Comment Input */}
                             <div className="flex-1">
                                 <textarea
-                                    className="textarea textarea-bordered w-full resize-none"
+                                    name="content"
+                                    className={`textarea textarea-bordered w-full resize-none ${errors.content ? 'textarea-error' : ''}`}
                                     placeholder="Add a comment..."
-                                    value={newComment}
-                                    onChange={(e) => setNewComment(e.target.value)}
+                                    value={data.content}
+                                    onChange={(e) => setData('content', e.target.value)}
+                                    onFocus={() => clearErrors('content')} 
                                     rows="3"
                                     maxLength="1000"
-                                    disabled={isSubmitting}
+                                    disabled={processing}
                                 />
+                                
+                                {/* Show validation error */}
+                                {errors.content && (
+                                    <div className="text-error text-xs mt-1">{errors.content}</div>
+                                )}
                                 
                                 {/* Submit Button and Character Count */}
                                 <div className="flex justify-between items-center mt-2">
-                                    <span className="text-xs opacity-60">{newComment.length}/1000</span>
+                                    <span className="text-xs opacity-60">{data.content.length}/1000</span>
                                     <button
                                         type="submit"
-                                        className={`btn btn-primary btn-sm ${isSubmitting ? 'loading' : ''}`}
-                                        disabled={!newComment.trim() || isSubmitting}
+                                        className={`btn btn-primary btn-sm ${processing ? 'loading' : ''}`}
+                                        disabled={!data.content.trim() || processing}
                                     >
-                                        {isSubmitting ? 'Posting...' : 'Post Comment'}
+                                        {processing ? 'Posting...' : 'Post Comment'}
                                     </button>
                                 </div>
                             </div>
@@ -159,11 +132,7 @@ export default function StationComments({ stationUuid }) {
                 )}
 
                 {/* Comments List */}
-                {isLoading ? (
-                    <div className="flex justify-center py-8">
-                        <span className="loading loading-spinner loading-md"></span>
-                    </div>
-                ) : comments.length > 0 ? (
+                {comments.length > 0 ? (
                     <div className="space-y-4 max-h-96 overflow-y-auto">
                         {comments.map((comment) => (
                             <div key={comment.id} className="chat chat-start">

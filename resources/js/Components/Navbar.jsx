@@ -6,15 +6,21 @@ export default function Navbar() {
     const { auth } = usePage().props;
     const { post } = useForm();
 
+    // Enhanced logout with better UX patterns
     const handleLogout = (e) => {
         e.preventDefault();
-        post(route('logout'));
+        post(route('logout'), {
+            preserveScroll: true,
+            onSuccess: () => {
+                // Logout success handled by backend redirect
+            }
+        });
     };
 
     return (
         <div className="navbar bg-base-200 border-b border-base-300 h-16 flex-shrink-0">
             <div className="navbar-start">
-                <Link href="/" className="btn btn-ghost text-xl font-black tracking-wider bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
+                <Link href={route('home')} className="btn btn-ghost text-xl font-black tracking-wider bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
                     WAVEFINDER
                 </Link>
             </div>

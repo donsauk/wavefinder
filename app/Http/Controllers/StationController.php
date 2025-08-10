@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\RadioStation;
 use App\Models\UserFavorite;
 use App\Models\UserStationVote;
+use App\Models\Comment;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
@@ -43,11 +44,18 @@ class StationController extends Controller
             }
         }
 
+        // Fetch comments for this station with user relationships
+        $comments = Comment::where('station_uuid', $stationuuid)
+            ->with('user:id,name') // Eager load user data (id and name only)
+            ->orderBy('created_at', 'desc')
+            ->get();
+
         return Inertia::render('Station', [
             'station' => $station,
             'isFavorited' => $isFavorited,
             'canVote' => $canVote,
             'nextVoteTime' => $nextVoteTime?->toISOString(),
+            'comments' => $comments,
         ]);
     }
 
@@ -70,11 +78,8 @@ class StationController extends Controller
             \Log::warning("Failed to report station click to radio-browser API: " . $e->getMessage());
         }
 
-        // Return the station URL for the frontend to play
-        return response()->json([
-            'url' => $station->url_resolved ?: $station->url,
-            'name' => $station->name
-        ]);
+        // Return redirect back - Inertia pattern, no JSON response needed
+        return back()->with('flash.message', 'Station click tracked successfully');
     }
 
     // Redirect to a random working station
@@ -85,10 +90,10 @@ class StationController extends Controller
             ->first();
 
         if (!$randomStation) {
-            return redirect()->route('browse');
+            return to_route('browse');
         }
 
-        return redirect()->route('station', ['stationuuid' => $randomStation->stationuuid]);
+        return to_route('station', ['stationuuid' => $randomStation->stationuuid]);
     }
 
     // Vote for a station - helps Radio Browser API track popular stations
@@ -96,7 +101,7 @@ class StationController extends Controller
     {
         // Ensure user is authenticated
         if (!auth()->check()) {
-            return response()->json(['error' => 'Authentication required'], 401);
+            return back()->withErrors(['vote' => 'Please log in to vote for stations.']);
         }
 
         $station = RadioStation::where('stationuuid', $stationuuid)
@@ -114,13 +119,11 @@ class StationController extends Controller
 
         if ($recentVote) {
             $nextVoteTime = $recentVote->created_at->addMinutes(10);
-            $minutesLeft = now()->diffInMinutes($nextVoteTime, false);
+            $minutesLeft = ceil(now()->diffInMinutes($nextVoteTime, false));
             
-            return response()->json([
-                'error' => 'Rate limit exceeded. Please wait before voting again.',
-                'next_vote_time' => $nextVoteTime->toISOString(),
-                'minutes_left' => ceil($minutesLeft)
-            ], 429);
+            return back()->withErrors([
+                'vote' => "Please wait {$minutesLeft} more minutes before voting again."
+            ]);
         }
 
         // Submit vote to Radio Browser API
@@ -131,37 +134,19 @@ class StationController extends Controller
                 ])
                 ->get("http://de2.api.radio-browser.info/json/vote/{$stationuuid}");
 
-            if (!$response->successful()) {
-                Log::warning("Radio Browser API vote failed: " . $response->status() . " " . $response->body());
-                
-                // Still record the vote in our database even if Radio Browser API is down
-                UserStationVote::create([
-                    'user_id' => $userId,
-                    'station_uuid' => $stationuuid,
-                    'ip_address' => $ipAddress,
-                ]);
-                
-                return response()->json([
-                    'success' => true,
-                    'message' => 'Vote recorded! (Radio Browser API temporarily unavailable)',
-                    'api_down' => true
-                ]);
-            }
-
-            $apiResponse = $response->json();
-            
-            // Record the vote in our database
+            // Record the vote in our database regardless of API response
             UserStationVote::create([
                 'user_id' => $userId,
                 'station_uuid' => $stationuuid,
                 'ip_address' => $ipAddress,
             ]);
 
-            return response()->json([
-                'success' => true,
-                'message' => 'Vote submitted successfully!',
-                'api_response' => $apiResponse
-            ]);
+            if (!$response->successful()) {
+                Log::warning("Radio Browser API vote failed: " . $response->status() . " " . $response->body());
+                return back()->with('flash.message', 'Vote recorded! (Radio Browser API temporarily unavailable)');
+            }
+
+            return back()->with('flash.message', 'Thank you for voting! Your vote has been submitted successfully.');
 
         } catch (\Exception $e) {
             Log::error("Failed to vote for station: " . $e->getMessage());
@@ -174,14 +159,10 @@ class StationController extends Controller
                     'ip_address' => $ipAddress,
                 ]);
                 
-                return response()->json([
-                    'success' => true,
-                    'message' => 'Vote recorded locally! (Network error with Radio Browser API)',
-                    'api_down' => true
-                ]);
+                return back()->with('flash.message', 'Vote recorded locally! (Network error with Radio Browser API)');
             } catch (\Exception $dbError) {
                 Log::error("Failed to record vote in database: " . $dbError->getMessage());
-                return response()->json(['error' => 'Failed to submit vote'], 500);
+                return back()->withErrors(['vote' => 'Failed to submit vote. Please try again.']);
             }
         }
     }

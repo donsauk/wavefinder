@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react'
-import { router, usePage } from '@inertiajs/react'
+import { router, usePage, useForm } from '@inertiajs/react'
 import { useAudio } from '../Contexts/AudioContext'
 
 // Safe Station Icon Component - handles image loading errors without DOM manipulation
@@ -24,7 +24,6 @@ function StationIcon({ station, className = "w-32 h-32 rounded-full bg-primary f
 
 export default function StationHeader({ station, isFavorited, canVote, nextVoteTime }) {
     const { auth } = usePage().props
-    const [isVoting, setIsVoting] = useState(false)
     const [voteStatus, setVoteStatus] = useState({ canVote })
     const [countdown, setCountdown] = useState('')
     
@@ -51,48 +50,27 @@ export default function StationHeader({ station, isFavorited, canVote, nextVoteT
         })
     }
 
-    // Handle voting for station
-    const handleVoteStation = async () => {
+    // Use Inertia form for voting - handles CSRF and errors automatically
+    const { post: submitVote, processing: isVoting } = useForm()
+
+    // Handle voting for station using Inertia form submission
+    const handleVoteStation = () => {
         if (!auth?.user || isVoting || !voteStatus.canVote) {
             return;
         }
 
-        setIsVoting(true);
-
-        try {
-            const response = await fetch(`/station/${station.stationuuid}/vote`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '',
-                },
-            });
-
-            if (response.ok) {
-                const data = await response.json();
+        // Submit vote using Inertia - handles CSRF, loading state, and errors automatically
+        submitVote(`/station/${station.stationuuid}/vote`, {}, {
+            preserveScroll: true,
+            onSuccess: () => {
+                // Update local vote status - page will refresh with new data
                 setVoteStatus({ canVote: false });
-                
-                if (data.api_down) {
-                    alert('Thank you for voting! Your vote has been recorded locally.\n\n(Note: Radio Browser API is temporarily unavailable, but your vote still counts!)');
-                } else {
-                    alert('Thank you for voting! Your vote helps improve the Radio Browser database for everyone.');
-                }
-            } else {
-                const data = await response.json();
-                if (response.status === 429) {
-                    // Rate limited
-                    setVoteStatus({ canVote: false });
-                    alert(`Rate limit exceeded. Please wait ${data.minutes_left} more minutes before voting again.`);
-                } else {
-                    alert(data.error || 'Failed to vote. Please try again.');
-                }
+            },
+            onError: (errors) => {
+                // Inertia will handle error display via flash messages or error props
+                console.error('Vote submission failed:', errors);
             }
-        } catch (error) {
-            console.error('Error voting for station:', error);
-            alert('Error voting for station. Please check your connection.');
-        } finally {
-            setIsVoting(false);
-        }
+        });
     };
 
     // Update countdown timer for when user can vote again

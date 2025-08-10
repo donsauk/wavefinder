@@ -9,24 +9,20 @@ export default function StationCard({ station }) {
     const isCurrentStation = currentStation?.stationuuid === station.stationuuid
     const isStationLoading = isCurrentStation && isLoading
 
-    // Handle station card click - tracks click and navigates to station page
-    const handleStationCardClick = async (stationuuid) => {
-        try {
-            // Track the click with radio-browser API
-            await fetch(`/station/${stationuuid}/click`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '',
-                },
-            });
-        } catch (error) {
-            // Silently fail - don't let API issues affect navigation
-            console.warn('Failed to track station click:', error);
-        }
-        
-        // Navigate to station page
-        router.get(`/station/${stationuuid}`);
+    // Handle station card click - tracks click and navigates to station page using Inertia
+    const handleStationCardClick = (stationuuid) => {
+        // Track click via Inertia POST and then navigate - Inertia handles CSRF automatically
+        router.post(`/station/${stationuuid}/click`, {}, {
+            preserveScroll: true,
+            onSuccess: () => {
+                // Navigate to station page after successful click tracking
+                router.get(`/station/${stationuuid}`)
+            },
+            onError: () => {
+                // Navigate anyway even if click tracking fails - don't block user
+                router.get(`/station/${stationuuid}`)
+            }
+        })
     };
 
     // Handle play button click on station icon - plays station directly without navigation

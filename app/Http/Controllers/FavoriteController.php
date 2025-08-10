@@ -24,24 +24,17 @@ class FavoriteController extends Controller
         if ($favorite) {
             // Remove from favorites
             $favorite->delete();
-            $isFavorited = false;
+            $message = 'Station removed from favorites!';
         } else {
             // Add to favorites
             UserFavorite::create([
                 'user_id' => $userId,
                 'station_uuid' => $stationUuid,
             ]);
-            $isFavorited = true;
-        }
-
-        // If it's an AJAX request, return JSON
-        if ($request->expectsJson()) {
-            return response()->json([
-                'favorited' => $isFavorited,
-            ]);
+            $message = 'Station added to favorites!';
         }
         
-        // For form submissions, redirect back
-        return back()->with('success', $isFavorited ? 'Station added to favorites!' : 'Station removed from favorites!');
+        // Always redirect back with flash message - Inertia way
+        return back()->with('flash.message', $message);
     }
 }

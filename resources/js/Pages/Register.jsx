@@ -2,16 +2,36 @@ import React from 'react';
 import { Head, Link, useForm } from '@inertiajs/react';
 
 export default function Register() {
-    const { data, setData, post, processing, errors } = useForm({
+    
+    // Use form remembering with unique key for state persistence
+    const { data, setData, post, processing, errors, reset } = useForm('RegisterForm', {
         name: '',
         email: '',
         password: '',
         password_confirmation: '',
     });
 
+    // Enhanced form submission with latest Inertia.js patterns
     const submit = (e) => {
         e.preventDefault();
-        post(route('register'));
+        post(route('register'), {
+            preserveScroll: true,
+            onSuccess: () => {
+                reset('password', 'password_confirmation'); // Clear sensitive data on success
+            },
+            onError: (errors) => {
+                // Focus first error field for better UX
+                if (errors.name) {
+                    document.querySelector('input[name="name"]')?.focus();
+                } else if (errors.email) {
+                    document.querySelector('input[type="email"]')?.focus();
+                } else if (errors.password) {
+                    document.querySelector('input[name="password"]')?.focus();
+                } else if (errors.password_confirmation) {
+                    document.querySelector('input[name="password_confirmation"]')?.focus();
+                }
+            }
+        });
     };
 
     return (
@@ -29,7 +49,7 @@ export default function Register() {
                     <div className="w-full max-w-sm px-4">
                     {/* Logo */}
                     <div className="text-center mb-8">
-                        <Link href="/" className="text-4xl font-black tracking-wider bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
+                        <Link href={route('home')} className="text-4xl font-black tracking-wider bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
                             WAVEFINDER
                         </Link>
                         <p className="text-base-content/70 mt-2">Join the radio wave community</p>
@@ -47,6 +67,7 @@ export default function Register() {
                                         <span className="label-text">Name</span>
                                     </label>
                                     <input
+                                        name="name"
                                         type="text"
                                         className={`input input-bordered w-full ${errors.name ? 'input-error' : ''}`}
                                         value={data.name}
@@ -85,6 +106,7 @@ export default function Register() {
                                         <span className="label-text">Password</span>
                                     </label>
                                     <input
+                                        name="password"
                                         type="password"
                                         className={`input input-bordered w-full ${errors.password ? 'input-error' : ''}`}
                                         value={data.password}
@@ -104,6 +126,7 @@ export default function Register() {
                                         <span className="label-text">Confirm Password</span>
                                     </label>
                                     <input
+                                        name="password_confirmation"
                                         type="password"
                                         className={`input input-bordered w-full ${errors.password_confirmation ? 'input-error' : ''}`}
                                         value={data.password_confirmation}

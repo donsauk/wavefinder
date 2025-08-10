@@ -1,16 +1,33 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { Head, Link, useForm } from '@inertiajs/react';
 
 export default function Login() {
-    const { data, setData, post, processing, errors } = useForm({
+    
+    // Use form remembering with unique key for state persistence
+    const { data, setData, post, processing, errors, reset } = useForm('LoginForm', {
         email: '',
         password: '',
         remember: false,
     });
 
+    // Enhanced form submission with latest Inertia.js patterns
     const submit = (e) => {
         e.preventDefault();
-        post(route('login'));
+        // Using global route() function from @routes directive
+        post(route('login'), {
+            preserveScroll: true,
+            onSuccess: () => {
+                reset('password'); // Clear sensitive data on success
+            },
+            onError: (errors) => {
+                // Focus first error field for better UX
+                if (errors.email) {
+                    document.querySelector('input[type="email"]')?.focus();
+                } else if (errors.password) {
+                    document.querySelector('input[type="password"]')?.focus();
+                }
+            }
+        });
     };
 
     return (
@@ -102,7 +119,7 @@ export default function Login() {
                                 </div>
                             </form>
 
-                            {/* Login Link */}
+                            {/* Register Link */}
                             <div className="text-center mt-4">
                                 <span className="text-base-content/70">Don't have an account? </span>
                                 <Link href={route('register')} className="link link-primary">

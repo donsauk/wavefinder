@@ -1,105 +1,68 @@
-import React, { useState } from 'react'
-import { router, usePage } from '@inertiajs/react'
+import React from 'react'
+import { router, usePage, useRemember } from '@inertiajs/react'
 
 export default function FilterBar() {
     // Get props from Laravel backend via Inertia.js
     const { countries, filters, auth } = usePage().props
     
-    // Initialize search state from backend filters to preserve search across page loads
-    const [searchQuery, setSearchQuery] = useState(filters?.search || '')
-
-    // Initialize sort state from backend filters - default to votes descending
-    const [sortBy, setSortBy] = useState(filters?.sort_by || 'votes')
-    const [sortDirection, setSortDirection] = useState(filters?.sort_direction || 'desc')
+    // Use useRemember for persistent filter state across navigation
+    const [filterState, setFilterState] = useRemember({
+        searchQuery: filters?.search || '',
+        sortBy: filters?.sort_by || 'votes',
+        sortDirection: filters?.sort_direction || 'desc',
+        showFavoritesOnly: filters?.favorites_only || false,
+        country: filters?.country || 'all'
+    }, 'BrowseFilters')
     
-    // Initialize favorites filter state from backend filters
-    const [showFavoritesOnly, setShowFavoritesOnly] = useState(filters?.favorites_only || false)
-    
-    // Handle country dropdown change - preserves all other filters
-    const handleCountryChange = (e) => {
-        // Send Inertia request to /browse with all current filters preserved
-        router.get('/browse', { 
-            country: e.target.value, 
-            search: searchQuery,
-            sort_by: sortBy,
-            sort_direction: sortDirection,
-            favorites_only: showFavoritesOnly
+    // Helper function to update filter state and navigate
+    const updateFilters = (newFilters) => {
+        const updatedState = { ...filterState, ...newFilters }
+        setFilterState(updatedState)
+        
+        // Use global route() function for consistent routing
+        router.get(route('browse'), {
+            country: updatedState.country,
+            search: updatedState.searchQuery,
+            sort_by: updatedState.sortBy,
+            sort_direction: updatedState.sortDirection,
+            favorites_only: updatedState.showFavoritesOnly
         }, {
-            preserveState: true,    // Keep component state intact
-            preserveScroll: true,   // Maintain scroll position
+            preserveState: true,
+            preserveScroll: true,
+            replace: true // Replace URL instead of adding to history for filters
         })
+    }
+    
+    // Handle country dropdown change
+    const handleCountryChange = (e) => {
+        updateFilters({ country: e.target.value })
     }
 
     // Handle search form submission (Enter key press)
     const handleSearchSubmit = (e) => {
         e.preventDefault()
-        // Send Inertia request to /browse with all current filters preserved
-        router.get('/browse', { 
-            country: filters?.country || 'all',
-            search: searchQuery,
-            sort_by: sortBy,
-            sort_direction: sortDirection,
-            favorites_only: showFavoritesOnly
-        }, {
-            preserveState: true,    // Keep component state intact
-            preserveScroll: true,   // Maintain scroll position
-        })
+        updateFilters({ searchQuery: filterState.searchQuery })
     }
 
     // Handle sort field change (votes, clickcount, clicktrend)
     const handleSortChange = (e) => {
-        const newSortBy = e.target.value
-        setSortBy(newSortBy)
-        // Send Inertia request with new sort field
-        router.get('/browse', {
-            country: filters?.country || 'all',
-            search: searchQuery,
-            sort_by: newSortBy,
-            sort_direction: sortDirection,
-            favorites_only: showFavoritesOnly
-        }, {
-            preserveState: true,
-            preserveScroll: true,
-        })
+        updateFilters({ sortBy: e.target.value })
     }
 
     // Handle sort direction toggle (asc/desc)
     const handleSortDirectionToggle = () => {
-        const newDirection = sortDirection === 'desc' ? 'asc' : 'desc'
-        setSortDirection(newDirection)
-        // Send Inertia request with new sort direction
-        router.get('/browse', {
-            country: filters?.country || 'all',
-            search: searchQuery,
-            sort_by: sortBy,
-            sort_direction: newDirection,
-            favorites_only: showFavoritesOnly
-        }, {
-            preserveState: true,
-            preserveScroll: true,
-        })
+        const newDirection = filterState.sortDirection === 'desc' ? 'asc' : 'desc'
+        updateFilters({ sortDirection: newDirection })
     }
 
     // Handle favorites filter toggle - only show if user is authenticated
     const handleFavoritesToggle = () => {
-        const newShowFavorites = !showFavoritesOnly
-        setShowFavoritesOnly(newShowFavorites)
-        // Send Inertia request with new favorites filter
-        router.get('/browse', {
-            country: filters?.country || 'all',
-            search: searchQuery,
-            sort_by: sortBy,
-            sort_direction: sortDirection,
-            favorites_only: newShowFavorites
-        }, {
-            preserveState: true,
-            preserveScroll: true,
-        })
+        updateFilters({ showFavoritesOnly: !filterState.showFavoritesOnly })
     }
 
     // Update local search state as user types
     const handleSearchChange = (e) => {
-        setSearchQuery(e.target.value)
+        setFilterState(prev => ({ ...prev, searchQuery: e.target.value }))
     }
     return (
         <div className="bg-base-200 border-b border-base-300 h-14 flex-shrink-0">
@@ -115,7 +78,7 @@ export default function FilterBar() {
                                 type="search"
                                 className="input input-bordered input-sm w-64 pl-10 relative z-0"
                                 placeholder="Search stations..."
-                                value={searchQuery}
+                                value={filterState.searchQuery}
                                 onChange={handleSearchChange}
                             />
                         </div>
@@ -125,7 +88,7 @@ export default function FilterBar() {
                     <div className="form-control">
                         <select 
                             className="select select-bordered select-sm w-48"
-                            value={filters?.country || 'all'}
+                            value={filterState.country}
                             onChange={handleCountryChange}
                         >
                             <option value="all">All Countries</option>
@@ -142,7 +105,7 @@ export default function FilterBar() {
                         <div className="flex gap-1">
                             <select 
                                 className="select select-bordered select-sm w-32"
-                                value={sortBy}
+                                value={filterState.sortBy}
                                 onChange={handleSortChange}
                             >
                                 <option value="votes">Votes</option>
@@ -153,9 +116,9 @@ export default function FilterBar() {
                                 type="button"
                                 className="btn btn-secondary ml-2 btn-sm w-10"
                                 onClick={handleSortDirectionToggle}
-                                title={sortDirection === 'desc' ? 'Descending' : 'Ascending'}
+                                title={filterState.sortDirection === 'desc' ? 'Descending' : 'Ascending'}
                             >
-                                {sortDirection === 'desc' ? '↓' : '↑'}
+                                {filterState.sortDirection === 'desc' ? '↓' : '↑'}
                             </button>
                         </div>
                     </div>
@@ -165,7 +128,7 @@ export default function FilterBar() {
                         <div className="form-control">
                             <button
                                 type="button"
-                                className={`btn btn-sm ${showFavoritesOnly ? 'btn-primary' : 'btn-outline btn-primary'}`}
+                                className={`btn btn-sm ${filterState.showFavoritesOnly ? 'btn-primary' : 'btn-outline btn-primary'}`}
                                 onClick={handleFavoritesToggle}
                                 title="Show favorites only"
                             >

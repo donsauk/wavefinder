@@ -1,36 +1,49 @@
-import React, { useState } from 'react'
-import { Link, router } from '@inertiajs/react'
+import React from 'react'
+import { Link, router, useRemember } from '@inertiajs/react'
 
 export default function Pagination({ data, itemName = 'items' }) {
-    const [customPage, setCustomPage] = useState('');
+    
+    // Remember pagination jump state for better UX
+    const [paginationState, setPaginationState] = useRemember({
+        customPage: ''
+    }, 'PaginationState');
 
     if (!data || !data.links) {
         return null;
     }
 
+    // Enhanced page jump with better validation and UX
     const handlePageJump = (e) => {
         e.preventDefault();
-        const pageNumber = parseInt(customPage);
+        const pageNumber = parseInt(paginationState.customPage);
         if (pageNumber && pageNumber >= 1 && pageNumber <= data.last_page) {
-            const currentUrl = new URL(window.location);
-            currentUrl.searchParams.set('page', pageNumber);
-            router.get(currentUrl.toString(), {}, {
+            // Use current URL params and only update page
+            const currentParams = new URLSearchParams(window.location.search);
+            currentParams.set('page', pageNumber);
+            
+            // Use global route() function for consistent routing
+            router.get(route('browse'), Object.fromEntries(currentParams), {
                 preserveState: true,
-                preserveScroll: true
+                preserveScroll: true,
+                replace: true // Replace URL for pagination
             });
-            setCustomPage('');
+            setPaginationState({ customPage: '' });
         }
     };
 
-    // Navigate to a random page when ellipsis dots are clicked
+    // Navigate to a random page when ellipsis dots are clicked (Easter egg)
     const handleRandomPage = (e) => {
         e.preventDefault();
         const randomPage = Math.floor(Math.random() * data.last_page) + 1;
-        const currentUrl = new URL(window.location);
-        currentUrl.searchParams.set('page', randomPage);
-        router.get(currentUrl.toString(), {}, {
+        
+        // Preserve current search/filter params while changing page
+        const currentParams = new URLSearchParams(window.location.search);
+        currentParams.set('page', randomPage);
+        
+        router.get(route('browse'), Object.fromEntries(currentParams), {
             preserveState: true,
-            preserveScroll: true
+            preserveScroll: true,
+            replace: true
         });
     };
 
@@ -113,15 +126,15 @@ export default function Pagination({ data, itemName = 'items' }) {
                                 type="number"
                                 min="1"
                                 max={data.last_page}
-                                value={customPage}
-                                onChange={(e) => setCustomPage(e.target.value)}
+                                value={paginationState.customPage}
+                                onChange={(e) => setPaginationState({ customPage: e.target.value })}
                                 placeholder="Page"
                                 className="input input-sm w-16 input-bordered"
                             />
                             <button
                                 type="submit"
                                 className="btn btn-primary btn-sm"
-                                disabled={!customPage}
+                                disabled={!paginationState.customPage || parseInt(paginationState.customPage) < 1 || parseInt(paginationState.customPage) > data.last_page}
                             >
                                 Go
                             </button>
