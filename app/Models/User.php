@@ -23,6 +23,8 @@ class User extends Authenticatable
         'password',
         'xp',
         'level',
+        'country_code',
+        'country_name',
     ];
 
     /**
