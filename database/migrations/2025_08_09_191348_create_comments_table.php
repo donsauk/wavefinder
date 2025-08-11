@@ -21,6 +21,9 @@ return new class extends Migration
             $table->text('content');
             $table->timestamps();
             
+            // Foreign key constraint - delete comments when station is deleted
+            $table->foreign('station_uuid')->references('stationuuid')->on('radio_stations')->onDelete('cascade');
+            
             // Index for efficient queries by station
             $table->index(['station_uuid', 'created_at']);
         });

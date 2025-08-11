@@ -71,6 +71,9 @@ return new class extends Migration
             // Extended info
             $table->boolean('has_extended_info')->default(false);
             
+            // Sync tracking
+            $table->boolean('seen_in_current_sync')->default(false);
+            
             $table->timestamps();
             
             // Indexes for common searches

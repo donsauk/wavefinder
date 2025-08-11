@@ -43,6 +43,7 @@ class RadioStation extends Model
         'geo_long',
         'geo_distance',
         'has_extended_info',
+        'seen_in_current_sync',
     ];
 
     protected $casts = [
@@ -50,6 +51,7 @@ class RadioStation extends Model
         'lastcheckok' => 'boolean',
         'ssl_error' => 'boolean',
         'has_extended_info' => 'boolean',
+        'seen_in_current_sync' => 'boolean',
         'votes' => 'integer',
         'bitrate' => 'integer',
         'clickcount' => 'integer',

@@ -11,7 +11,9 @@ export default function FilterBar() {
         sortBy: filters?.sort_by || 'votes',
         sortDirection: filters?.sort_direction || 'desc',
         showFavoritesOnly: filters?.favorites_only || false,
-        country: filters?.country || 'all'
+        showHistoryOnly: filters?.history_only || false,
+        country: filters?.country || 'all',
+        countrycode: filters?.countrycode || 'all'
     }, 'BrowseFilters')
     
     // Helper function to update filter state and navigate
@@ -22,10 +24,12 @@ export default function FilterBar() {
         // Use global route() function for consistent routing
         router.get(route('browse'), {
             country: updatedState.country,
+            countrycode: updatedState.countrycode,
             search: updatedState.searchQuery,
             sort_by: updatedState.sortBy,
             sort_direction: updatedState.sortDirection,
-            favorites_only: updatedState.showFavoritesOnly
+            favorites_only: updatedState.showFavoritesOnly,
+            history_only: updatedState.showHistoryOnly
         }, {
             preserveState: true,
             preserveScroll: true,
@@ -60,6 +64,18 @@ export default function FilterBar() {
         updateFilters({ showFavoritesOnly: !filterState.showFavoritesOnly })
     }
 
+    const handleHistoryToggle = () => {
+        updateFilters({ showHistoryOnly: !filterState.showHistoryOnly })
+    }
+
+    const handleLocalStationsToggle = () => {
+        const isCurrentlyLocal = filterState.countrycode !== 'all'
+        updateFilters({ 
+            countrycode: isCurrentlyLocal ? 'all' : (auth?.user?.country_code || 'all'),
+            country: 'all'
+        })
+    }
+
     // Update local search state as user types
     const handleSearchChange = (e) => {
         setFilterState(prev => ({ ...prev, searchQuery: e.target.value }))
@@ -68,6 +84,54 @@ export default function FilterBar() {
         <div className="bg-base-200 border-b border-base-300 h-14 flex-shrink-0">
             <div className="max-w-8xl mx-auto px-8 h-full">
                 <div className="flex items-center justify-center gap-4 h-full">
+                    {/* Local Stations Toggle - only show if user is authenticated and has country */}
+                    {auth?.user?.country_name && (
+                        <div className="form-control">
+                            <label className="label cursor-pointer gap-2">
+                                <span className="label-text text-sm">🌍 Local</span>
+                                <input
+                                    type="checkbox"
+                                    className="toggle toggle-accent toggle-sm"
+                                    checked={filterState.countrycode !== 'all'}
+                                    onChange={handleLocalStationsToggle}
+                                    title="Show stations from your country"
+                                />
+                            </label>
+                        </div>
+                    )}
+
+                    {/* Favorites Toggle - only show if user is authenticated */}
+                    {auth?.user && (
+                        <div className="form-control">
+                            <label className="label cursor-pointer gap-2">
+                                <span className="label-text text-sm">❤️ Favorites</span>
+                                <input
+                                    type="checkbox"
+                                    className="toggle toggle-primary toggle-sm"
+                                    checked={filterState.showFavoritesOnly}
+                                    onChange={handleFavoritesToggle}
+                                    title="Show favorites only"
+                                />
+                            </label>
+                        </div>
+                    )}
+
+                    {/* History Toggle - only show if user is authenticated */}
+                    {auth?.user && (
+                        <div className="form-control">
+                            <label className="label cursor-pointer gap-2">
+                                <span className="label-text text-sm">🎵 History</span>
+                                <input
+                                    type="checkbox"
+                                    className="toggle toggle-secondary toggle-sm"
+                                    checked={filterState.showHistoryOnly}
+                                    onChange={handleHistoryToggle}
+                                    title="Show your listening history"
+                                />
+                            </label>
+                        </div>
+                    )}
+
                     {/* Search Bar */}
                     <form onSubmit={handleSearchSubmit} className="form-control">
                         <div className="relative">
@@ -84,21 +148,23 @@ export default function FilterBar() {
                         </div>
                     </form>
 
-                    {/* Country Filter */}
-                    <div className="form-control">
-                        <select 
-                            className="select select-bordered select-sm w-48"
-                            value={filterState.country}
-                            onChange={handleCountryChange}
-                        >
-                            <option value="all">All Countries</option>
-                            {countries && Object.entries(countries).map(([country, name]) => (
-                                <option key={country} value={country}>
-                                    {country}
-                                </option>
-                            ))}
-                        </select>
-                    </div>
+                    {/* Country Filter - hide when local stations filter is active */}
+                    {filterState.countrycode === 'all' && (
+                        <div className="form-control">
+                            <select 
+                                className="select select-bordered select-sm w-48"
+                                value={filterState.country}
+                                onChange={handleCountryChange}
+                            >
+                                <option value="all">All Countries</option>
+                                {countries && Object.entries(countries).map(([country, name]) => (
+                                    <option key={country} value={country}>
+                                        {country}
+                                    </option>
+                                ))}
+                            </select>
+                        </div>
+                    )}
 
                     {/* Sort Options */}
                     <div className="form-control">
@@ -122,20 +188,6 @@ export default function FilterBar() {
                             </button>
                         </div>
                     </div>
-
-                    {/* Favorites Filter - only show if user is authenticated */}
-                    {auth?.user && (
-                        <div className="form-control">
-                            <button
-                                type="button"
-                                className={`btn btn-sm ${filterState.showFavoritesOnly ? 'btn-primary' : 'btn-outline btn-primary'}`}
-                                onClick={handleFavoritesToggle}
-                                title="Show favorites only"
-                            >
-                                ❤️ Favorites
-                            </button>
-                        </div>
-                    )}
                 </div>
             </div>
         </div>

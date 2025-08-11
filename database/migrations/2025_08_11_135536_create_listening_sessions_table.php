@@ -14,7 +14,8 @@ return new class extends Migration
         Schema::create('listening_sessions', function (Blueprint $table) {
             $table->id();
             $table->unsignedBigInteger('user_id');
-            $table->string('station_uuid');
+            $table->string('station_uuid')->nullable();
+            $table->string('station_name')->nullable();
             $table->timestamp('started_at');
             $table->timestamp('ended_at')->nullable();
             $table->integer('duration_seconds')->default(0); // Cache calculated duration
@@ -22,6 +23,7 @@ return new class extends Migration
             $table->timestamps();
             
             $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
+            $table->foreign('station_uuid')->references('stationuuid')->on('radio_stations')->onDelete('set null');
             $table->index(['user_id', 'station_uuid']);
             $table->index('started_at');
         });

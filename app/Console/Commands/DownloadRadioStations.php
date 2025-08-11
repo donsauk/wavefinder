@@ -16,51 +16,77 @@ class DownloadRadioStations extends Command
     {
         $this->info('Starting radio stations download...');
         
+        $servers = $this->discoverApiServers();
+        if (empty($servers)) {
+            $this->error('No available API servers found. Using fallback server.');
+            $servers = ['de2.api.radio-browser.info'];
+        }
+        
+        $this->info('Available servers: ' . implode(', ', $servers));
+        
         $offset = 0;
-        $limit = 500; // Reduced batch size to use less memory
+        $limit = 500;
         $totalProcessed = 0;
+        
+        // Reset sync flag for all stations before starting
+        $this->info('Resetting sync flags...');
+        DB::table('radio_stations')->update(['seen_in_current_sync' => false]);
         
         do {
             $this->info("Downloading stations {$offset} to " . ($offset + $limit) . " (Memory: " . round(memory_get_usage(true)/1024/1024, 2) . " MB)");
             
-            try {
-                $response = Http::timeout(30)
-                    ->withHeaders([
-                        'User-Agent' => 'WAVEFINDER/1.0 (Laravel Radio App)'
-                    ])
-                    ->get("http://de2.api.radio-browser.info/json/stations", [
-                        'offset' => $offset,
-                        'limit' => $limit
-                    ]);
-                
-                if (!$response->successful()) {
-                    $this->error("API request failed: " . $response->status());
-                    break;
+            $response = null;
+            $lastException = null;
+            
+            foreach ($servers as $server) {
+                try {
+                    $this->line("Trying server: {$server}");
+                    $response = Http::timeout(30)
+                        ->withHeaders([
+                            'User-Agent' => 'WAVEFINDER/1.0 (Laravel Radio App)'
+                        ])
+                        ->get("https://{$server}/json/stations", [
+                            'offset' => $offset,
+                            'limit' => $limit
+                        ]);
+                    
+                    if ($response->successful()) {
+                        break;
+                    }
+                } catch (\Exception $e) {
+                    $lastException = $e;
+                    $this->warn("Server {$server} failed: " . $e->getMessage());
+                    continue;
                 }
-                
-                $stations = $response->json();
-                
-                if (empty($stations)) {
-                    $this->info('No more stations to download.');
-                    break;
-                }
-                
-                $this->processStations($stations);
-                $totalProcessed += count($stations);
-                
-                $offset += $limit;
-                
-                // Small delay to be nice to the API
-                sleep(0.2);
-                
-            } catch (\Exception $e) {
-                $this->error("Error downloading stations: " . $e->getMessage());
+            }
+            
+            if (!$response || !$response->successful()) {
+                $this->error("All servers failed. Last error: " . ($lastException ? $lastException->getMessage() : 'Unknown error'));
                 break;
             }
             
+            $stations = $response->json();
+            
+            if (empty($stations)) {
+                $this->info('No more stations to download.');
+                break;
+            }
+            
+            $this->processStations($stations);
+            $totalProcessed += count($stations);
+            
+            $offset += $limit;
+            
+            // Small delay to be nice to the API
+            sleep(0.2);
+            
         } while (count($stations) == $limit);
         
-        $this->info("Download complete! Processed {$totalProcessed} stations.");
+        // Delete stations that were not seen in this sync (no longer in API)
+        $this->info('Cleaning up stations no longer in API...');
+        $deletedCount = RadioStation::where('seen_in_current_sync', false)->delete();
+        
+        $this->info("Download complete! Processed {$totalProcessed} stations, deleted {$deletedCount} removed stations.");
     }
     
     private function processStations($stations)
@@ -105,6 +131,7 @@ class DownloadRadioStations extends Command
                         'geo_long' => $station['geo_long'] ?? null,
                         'geo_distance' => $station['geo_distance'] ?? null,
                         'has_extended_info' => $station['has_extended_info'] ?? 0,
+                        'seen_in_current_sync' => true,
                     ]
                 );
             } catch (\Exception $e) {
@@ -115,5 +142,34 @@ class DownloadRadioStations extends Command
         // Clear memory after each batch
         unset($stations);
         gc_collect_cycles();
+    }
+    
+    private function discoverApiServers()
+    {
+        $this->info('Discovering available API servers...');
+        
+        try {
+            $response = Http::timeout(10)
+                ->withHeaders([
+                    'User-Agent' => 'WAVEFINDER/1.0 (Laravel Radio App)'
+                ])
+                ->get('http://all.api.radio-browser.info/json/servers');
+            
+            if (!$response->successful()) {
+                $this->warn('Failed to fetch server list from all.api.radio-browser.info');
+                return [];
+            }
+            
+            $serverList = $response->json();
+            $servers = collect($serverList)->pluck('name')->toArray();
+            
+            $this->info('Found ' . count($servers) . ' API servers');
+            
+            return $servers;
+            
+        } catch (\Exception $e) {
+            $this->warn('Server discovery failed: ' . $e->getMessage());
+            return [];
+        }
     }
 }

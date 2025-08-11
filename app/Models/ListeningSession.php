@@ -10,7 +10,8 @@ class ListeningSession extends Model
 {
     protected $fillable = [
         'user_id',
-        'station_uuid', 
+        'station_uuid',
+        'station_name',
         'started_at',
         'ended_at',
         'duration_seconds',

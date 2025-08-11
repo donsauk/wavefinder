@@ -19,6 +19,9 @@ return new class extends Migration
             $table->text('message');
             $table->timestamps();
 
+            // Foreign key constraint - delete chat messages when station is deleted
+            $table->foreign('station_uuid')->references('stationuuid')->on('radio_stations')->onDelete('cascade');
+
             $table->index(['station_uuid', 'created_at']);
         });
     }

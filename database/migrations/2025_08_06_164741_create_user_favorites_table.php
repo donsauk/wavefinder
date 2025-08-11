@@ -17,6 +17,9 @@ return new class extends Migration
             $table->string('station_uuid');
             $table->timestamps();
             
+            // Foreign key constraint - delete favorites when station is deleted
+            $table->foreign('station_uuid')->references('stationuuid')->on('radio_stations')->onDelete('cascade');
+            
             // Prevent duplicate favorites for same user-station combination
             $table->unique(['user_id', 'station_uuid']);
             

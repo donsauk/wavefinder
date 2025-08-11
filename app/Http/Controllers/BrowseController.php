@@ -19,6 +19,11 @@ class BrowseController extends Controller
         if ($request->filled('country') && $request->country !== 'all') {
             $query->where('country', $request->country);
         }
+        
+        // Apply country code filter (for Local Stations button)
+        if ($request->filled('countrycode') && $request->countrycode !== 'all') {
+            $query->where('countrycode', $request->countrycode);
+        }
 
         // Apply search filter - searches both station name and tags with LIKE queries
         if ($request->filled('search')) {
@@ -39,6 +44,15 @@ class BrowseController extends Controller
             });
         }
 
+        // Apply history filter - only show stations user has listened to
+        $isHistoryFilter = $request->boolean('history_only') && auth()->check();
+        if ($isHistoryFilter) {
+            $query->join('listening_sessions', function($join) {
+                $join->on('radio_stations.stationuuid', '=', 'listening_sessions.station_uuid')
+                     ->where('listening_sessions.user_id', auth()->id());
+            })->distinct();
+        }
+
         // Get unique countries for the dropdown filter - exclude empty/null values
         $countries = RadioStation::whereNotNull('country')
             ->where('country', '!=', '')
@@ -47,22 +61,30 @@ class BrowseController extends Controller
             ->sort()
             ->mapWithKeys(fn($country) => [$country => $country]);
 
-        // Apply sorting - default to votes descending
+        // Get sort parameters for both history and normal filtering
         $sortBy = $request->get('sort_by', 'votes');
         $sortDirection = $request->get('sort_direction', 'desc');
         
-        // Map frontend sort field names to database column names
-        $sortFieldMap = [
-            'votes' => 'votes',
-            'clickcount' => 'clickcount',
-            'clicktrend' => 'clicktrend',
-        ];
+        // Apply sorting - for history filter, sort by most recent listening session
+        if ($isHistoryFilter) {
+            $stations = $query->orderBy('listening_sessions.started_at', 'desc')->paginate(12);
+        } else {
+            // Map frontend sort field names to database column names
+            $sortFieldMap = [
+                'votes' => 'votes',
+                'clickcount' => 'clickcount',
+                'clicktrend' => 'clicktrend',
+            ];
+            
+            // Use mapped field name or default to votes
+            $sortColumn = $sortFieldMap[$sortBy] ?? 'votes';
+            
+            // Execute query with dynamic sorting and pagination
+            $stations = $query->orderBy($sortColumn, $sortDirection)->paginate(12);
+        }
         
-        // Use mapped field name or default to votes
-        $sortColumn = $sortFieldMap[$sortBy] ?? 'votes';
-        
-        // Execute query with dynamic sorting and pagination
-        $stations = $query->orderBy($sortColumn, $sortDirection)->paginate(12);
+        // Append current query parameters to pagination links
+        $stations->appends($request->query());
 
         // Return Inertia response with data and current filter state
         return Inertia::render('Browse', [
@@ -70,10 +92,12 @@ class BrowseController extends Controller
             'countries' => $countries,            // Country options for dropdown
             'filters' => [                        // Current filter state (sent back to frontend)
                 'country' => $request->country ?? 'all',
+                'countrycode' => $request->countrycode ?? 'all',
                 'search' => $request->search ?? '',
                 'sort_by' => $sortBy,
                 'sort_direction' => $sortDirection,
                 'favorites_only' => $request->boolean('favorites_only'),
+                'history_only' => $request->boolean('history_only'),
             ],
         ]);
     }

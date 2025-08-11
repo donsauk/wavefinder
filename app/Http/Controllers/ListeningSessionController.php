@@ -27,10 +27,14 @@ class ListeningSessionController extends Controller
                 $session->endSession();
             });
 
+        // Get station name for permanent storage
+        $station = RadioStation::where('stationuuid', $stationUuid)->first();
+        
         // Create new session
         $session = ListeningSession::create([
             'user_id' => $userId,
             'station_uuid' => $stationUuid,
+            'station_name' => $station?->name,
             'started_at' => now(),
             'is_active' => true
         ]);
@@ -96,51 +100,43 @@ class ListeningSessionController extends Controller
         $totalSeconds = ListeningSession::where('user_id', $userId)
             ->sum('duration_seconds');
 
-        // Get listening time per station with station details
-        $stationStats = ListeningSession::where('listening_sessions.user_id', $userId)
-            ->join('radio_stations', 'listening_sessions.station_uuid', '=', 'radio_stations.stationuuid')
+        // Get listening time per station using stored station names
+        $stationStats = ListeningSession::where('user_id', $userId)
             ->selectRaw('
-                listening_sessions.station_uuid,
-                radio_stations.name,
-                radio_stations.country,
-                radio_stations.language,
-                SUM(listening_sessions.duration_seconds) as total_seconds,
+                station_uuid,
+                station_name,
+                SUM(duration_seconds) as total_seconds,
                 COUNT(*) as session_count
             ')
-            ->groupBy('listening_sessions.station_uuid', 'radio_stations.name', 'radio_stations.country', 'radio_stations.language')
+            ->groupBy('station_uuid', 'station_name')
             ->orderByDesc('total_seconds')
             ->get()
             ->map(function ($stat) {
                 return [
                     'station_uuid' => $stat->station_uuid,
-                    'station_name' => $stat->name,
-                    'country' => $stat->country,
-                    'language' => $stat->language,
+                    'station_name' => $stat->station_name ?? 'Unknown Station',
                     'total_seconds' => $stat->total_seconds,
                     'session_count' => $stat->session_count,
                     'formatted_duration' => $this->formatDuration($stat->total_seconds)
                 ];
             });
 
-        // Get recent sessions with station details
-        $recentSessions = ListeningSession::where('listening_sessions.user_id', $userId)
-            ->leftJoin('radio_stations', 'listening_sessions.station_uuid', '=', 'radio_stations.stationuuid')
+        // Get recent sessions using stored station names
+        $recentSessions = ListeningSession::where('user_id', $userId)
             ->select(
-                'listening_sessions.station_uuid',
-                'listening_sessions.started_at',
-                'listening_sessions.duration_seconds',
-                'listening_sessions.is_active',
-                'radio_stations.name as station_name',
-                'radio_stations.country'
+                'station_uuid',
+                'station_name',
+                'started_at',
+                'duration_seconds',
+                'is_active'
             )
-            ->orderByDesc('listening_sessions.started_at')
+            ->orderByDesc('started_at')
             ->limit(10)
             ->get()
             ->map(function ($session) {
                 return [
                     'station_uuid' => $session->station_uuid,
                     'station_name' => $session->station_name ?? 'Unknown Station',
-                    'country' => $session->country,
                     'started_at' => $session->started_at,
                     'duration_seconds' => $session->duration_seconds,
                     'formatted_duration' => $this->formatDuration($session->duration_seconds),

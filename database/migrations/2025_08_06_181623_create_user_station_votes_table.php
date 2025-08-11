@@ -14,9 +14,12 @@ return new class extends Migration
         Schema::create('user_station_votes', function (Blueprint $table) {
             $table->id();
             $table->foreignId('user_id')->constrained()->onDelete('cascade');
-            $table->string('station_uuid'); // Radio station UUID
+            $table->string('station_uuid')->nullable(); // Radio station UUID
             $table->ipAddress('ip_address'); // Track IP for rate limiting
             $table->timestamps();
+            
+            // Foreign key constraint - nullify vote when station is deleted (preserve voting history)
+            $table->foreign('station_uuid')->references('stationuuid')->on('radio_stations')->onDelete('set null');
             
             // Index for rate limiting queries
             $table->index(['ip_address', 'created_at']);
