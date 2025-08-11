@@ -8,6 +8,7 @@ use App\Http\Controllers\BrowseController;
 use App\Http\Controllers\ChatController;
 use App\Http\Controllers\CommentController;
 use App\Http\Controllers\FavoriteController;
+use App\Http\Controllers\ListeningSessionController;
 use App\Http\Controllers\StationController;
 use App\Http\Controllers\UserController;
 
@@ -33,6 +34,14 @@ Route::middleware('auth')->group(function () {
 // Chat routes
 Route::get('/api/chat/{stationUuid}/messages', [ChatController::class, 'getMessages'])->name('chat.messages');
 Route::middleware('auth')->post('/chat/messages', [ChatController::class, 'store'])->name('chat.store');
+
+// Listening session routes (time tracking)
+Route::middleware('auth')->group(function () {
+    Route::post('/api/listening/start', [ListeningSessionController::class, 'start'])->name('listening.start');
+    Route::post('/api/listening/stop', [ListeningSessionController::class, 'stop'])->name('listening.stop');
+    Route::post('/api/listening/heartbeat', [ListeningSessionController::class, 'heartbeat'])->name('listening.heartbeat');
+    Route::get('/api/listening/stats', [ListeningSessionController::class, 'getStats'])->name('listening.stats');
+});
 
 // Authentication Routes
 Route::middleware('guest')->group(function () {

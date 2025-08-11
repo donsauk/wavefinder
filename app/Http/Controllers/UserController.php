@@ -9,8 +9,14 @@ class UserController extends Controller
 {
     public function profile()
     {
+        $user = auth()->user();
+        
         return Inertia::render('Profile', [
-            'user' => auth()->user()
+            'user' => array_merge($user->toArray(), [
+                'xp_to_next_level' => $user->getXpToNextLevel(),
+                'xp_progress_percent' => $user->getXpProgressPercent(),
+                'total_listening_hours' => $user->getTotalListeningHours(),
+            ])
         ]);
     }
 

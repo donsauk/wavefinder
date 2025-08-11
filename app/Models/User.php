@@ -21,6 +21,8 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
+        'xp',
+        'level',
     ];
 
     /**
@@ -43,6 +45,8 @@ class User extends Authenticatable
         return [
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
+            'xp' => 'integer',
+            'level' => 'integer',
         ];
     }
     
@@ -55,5 +59,70 @@ class User extends Authenticatable
     public function comments()
     {
         return $this->hasMany(Comment::class);
+    }
+
+    // Relationship: User has many listening sessions
+    public function listeningSessions()
+    {
+        return $this->hasMany(ListeningSession::class);
+    }
+
+    public function getXpForLevel($level)
+    {
+        if ($level <= 1) return 0;
+        
+        $xp = 0;
+        for ($i = 1; $i < $level; $i++) {
+            $xp += floor($i + 300 * pow(2, $i / 7.0));
+        }
+        return floor($xp / 4);
+    }
+
+    public function getLevelFromXp($xp)
+    {
+        $level = 1;
+        while ($level < 99 && $this->getXpForLevel($level + 1) <= $xp) {
+            $level++;
+        }
+        return $level;
+    }
+
+    public function addXp($minutes)
+    {
+        $xpGained = $minutes;
+        $this->xp += $xpGained;
+        $this->level = $this->getLevelFromXp($this->xp);
+        $this->save();
+        
+        return $xpGained;
+    }
+
+    public function getXpToNextLevel()
+    {
+        if ($this->level >= 99) return 0;
+        
+        $currentLevelXp = $this->getXpForLevel($this->level);
+        $nextLevelXp = $this->getXpForLevel($this->level + 1);
+        
+        return $nextLevelXp - $this->xp;
+    }
+
+    public function getXpProgressPercent()
+    {
+        if ($this->level >= 99) return 100;
+        
+        $currentLevelXp = $this->getXpForLevel($this->level);
+        $nextLevelXp = $this->getXpForLevel($this->level + 1);
+        $currentProgress = $this->xp - $currentLevelXp;
+        $totalNeeded = $nextLevelXp - $currentLevelXp;
+        
+        if ($totalNeeded <= 0) return 100;
+        
+        return round(($currentProgress / $totalNeeded) * 100);
+    }
+
+    public function getTotalListeningHours()
+    {
+        return round($this->xp / 60, 1);
     }
 }

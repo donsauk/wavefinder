@@ -12,7 +12,7 @@ createInertiaApp({
     setup({ el, App, props }) {
         const root = createRoot(el)
         root.render(
-            <AudioProvider>
+            <AudioProvider auth={props.initialPage.props.auth}>
                 <App {...props} />
                 <AudioPlayer />
             </AudioProvider>
