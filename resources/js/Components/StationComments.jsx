@@ -4,8 +4,8 @@ import { usePage, useForm, router } from '@inertiajs/react'
 export default function StationComments({ stationUuid, comments = [] }) {
     const { auth, flash, errors } = usePage().props
     
-    // Use form remembering with dynamic key for each station
-    const { data, setData, post, processing, reset, clearErrors } = useForm(`StationComment:${stationUuid}`, {
+    // Don't use form remembering for comments to prevent old text from persisting
+    const { data, setData, post, processing, reset, clearErrors } = useForm({
         content: '',
     })
 
@@ -27,8 +27,9 @@ export default function StationComments({ stationUuid, comments = [] }) {
         post(route('station.comments.store', { stationuuid: stationUuid }), {
             preserveScroll: true,
             onSuccess: () => {
-                reset('content')
+                reset()
                 clearErrors()
+                setData('content', '')
                 // Flash success message handled by backend
             },
             onError: (errors) => {
