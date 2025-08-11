@@ -5,6 +5,7 @@ use Inertia\Inertia;
 use App\Models\RadioStation;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\BrowseController;
+use App\Http\Controllers\ChatController;
 use App\Http\Controllers\CommentController;
 use App\Http\Controllers\FavoriteController;
 use App\Http\Controllers\StationController;
@@ -28,6 +29,10 @@ Route::middleware('auth')->group(function () {
     Route::post('/station/{stationuuid}/comments', [CommentController::class, 'store'])->name('station.comments.store');
     Route::delete('/station/{stationuuid}/comments/{comment}', [CommentController::class, 'destroy'])->name('station.comments.destroy');
 });
+
+// Chat routes
+Route::get('/api/chat/{stationUuid}/messages', [ChatController::class, 'getMessages'])->name('chat.messages');
+Route::middleware('auth')->post('/chat/messages', [ChatController::class, 'store'])->name('chat.store');
 
 // Authentication Routes
 Route::middleware('guest')->group(function () {
