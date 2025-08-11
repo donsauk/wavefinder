@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Comment;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Http\RedirectResponse;
 
 class CommentController extends Controller
@@ -12,6 +13,13 @@ class CommentController extends Controller
     // Store a new comment and redirect back with fresh data
     public function store(Request $request, string $stationUuid): RedirectResponse
     {
+        // Check rate limit: 3 comments per minute per user
+        $rateLimitKey = 'comment:' . Auth::id();
+        
+        if (RateLimiter::tooManyAttempts($rateLimitKey, 3)) {
+            return back()->with('flash.error', 'You\'re posting too fast!');
+        }
+
         // Validate comment content (required, max 1000 characters)
         $request->validate([
             'content' => 'required|string|max:1000|min:1'
@@ -23,6 +31,9 @@ class CommentController extends Controller
             'user_id' => Auth::id(),
             'content' => trim($request->input('content'))
         ]);
+
+        // Hit the rate limiter (60 seconds = 1 minute)
+        RateLimiter::hit($rateLimitKey, 60);
 
         // Redirect back to station page with success message
         return back()->with('flash.message', 'Comment posted successfully!');

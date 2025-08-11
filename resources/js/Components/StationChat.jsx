@@ -6,6 +6,7 @@ export default function StationChat({ stationUuid }) {
     const { auth } = usePage().props
     const [messages, setMessages] = useState([])
     const [isConnected, setIsConnected] = useState(false)
+    const [isInitialLoad, setIsInitialLoad] = useState(true)
     const messagesEndRef = useRef(null)
     const echoRef = useRef(null)
 
@@ -14,13 +15,20 @@ export default function StationChat({ stationUuid }) {
         message: '',
     })
 
-    const scrollToBottom = () => {
-        messagesEndRef.current?.scrollIntoView({ behavior: "smooth" })
+    const scrollToBottom = (smooth = true) => {
+        messagesEndRef.current?.scrollIntoView({ 
+            behavior: smooth ? "smooth" : "instant" 
+        })
     }
 
     useEffect(() => {
-        scrollToBottom()
-    }, [messages])
+        if (messages.length > 0) {
+            scrollToBottom(!isInitialLoad)
+            if (isInitialLoad) {
+                setIsInitialLoad(false)
+            }
+        }
+    }, [messages, isInitialLoad])
 
     useEffect(() => {
         // Fetch initial messages
@@ -84,6 +92,11 @@ export default function StationChat({ stationUuid }) {
                 setMessages(prev => prev.filter(msg => msg.id !== tempMessage.id))
                 // Restore the message if sending failed
                 setData('message', messageText)
+                
+                // Show flash error message for rate limiting
+                if (errors.message) {
+                    // The error will be handled by the global flash message system
+                }
             }
         })
     }

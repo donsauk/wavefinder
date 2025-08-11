@@ -6,11 +6,21 @@ use App\Events\MessageSent;
 use App\Models\ChatMessage;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\RateLimiter;
 
 class ChatController extends Controller
 {
     public function store(Request $request)
     {
+        // Check rate limit: 2 messages per second per user
+        $rateLimitKey = 'chat:' . Auth::id();
+        
+        if (RateLimiter::tooManyAttempts($rateLimitKey, 2)) {
+            return back()
+                ->withErrors(['message' => 'You\'re posting too fast!'])
+                ->with('flash.error', 'You\'re posting too fast!');
+        }
+
         $request->validate([
             'station_uuid' => 'required|string',
             'message' => 'required|string|max:500',
@@ -24,6 +34,9 @@ class ChatController extends Controller
             'username' => $user->name,
             'message' => $request->message,
         ]);
+
+        // Hit the rate limiter (1 second window)
+        RateLimiter::hit($rateLimitKey, 1);
 
         broadcast(new MessageSent($chatMessage))->toOthers();
 
