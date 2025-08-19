@@ -51,10 +51,10 @@ export default function StationCard({ station }) {
     return (
         <div 
             key={station.stationuuid} 
-            className={`card bg-base-200 cursor-pointer transition-all duration-200 relative ${
+            className={`card bg-base-200 cursor-pointer duration-200 relative ${
                 isStationLoading 
                     ? 'border-4 border-primary animate-pulse shadow-2xl shadow-primary/50' 
-                    : 'hover:border hover:border-secondary hover:border-opacity-60'
+                    : 'hover:border hover:border-primary'
             }`}
             onClick={() => handleStationCardClick(station.stationuuid)}
         >
