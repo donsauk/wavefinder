@@ -39,8 +39,13 @@ class ListeningSession extends Model
             $this->save();
             
             // Award XP to user (1 XP per minute listened)
-            $minutes = ceil($this->duration_seconds / 60);
-            $this->user->addXp($minutes);
+            // Only award XP if listened for at least 30 seconds
+            if ($this->duration_seconds >= 30) {
+                $minutes = floor($this->duration_seconds / 60);
+                if ($minutes > 0) {
+                    $this->user->addXp($minutes);
+                }
+            }
         }
     }
 

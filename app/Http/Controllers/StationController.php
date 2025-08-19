@@ -50,12 +50,27 @@ class StationController extends Controller
             ->orderBy('created_at', 'desc')
             ->get();
 
+        // Get user XP data if authenticated
+        $userXP = null;
+        
+        if (auth()->check()) {
+            $user = auth()->user();
+            $userXP = [
+                'level' => $user->level ?? 1,
+                'xp' => $user->xp ?? 0,
+                'xpToNextLevel' => $user->getXpToNextLevel(),
+                'progressPercent' => $user->getXpProgressPercent(),
+                'totalListeningHours' => $user->getTotalListeningHours(),
+            ];
+        }
+
         return Inertia::render('Station', [
             'station' => $station,
             'isFavorited' => $isFavorited,
             'canVote' => $canVote,
             'nextVoteTime' => $nextVoteTime?->toISOString(),
             'comments' => $comments,
+            'userXP' => $userXP,
         ]);
     }
 

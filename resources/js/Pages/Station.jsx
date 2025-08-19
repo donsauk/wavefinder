@@ -7,9 +7,10 @@ import StationComments from '../Components/StationComments'
 import StationHeader from '../Components/StationHeader'
 import StationChat from '../Components/StationChat'
 import FlashMessage from '../Components/FlashMessage'
+import XPStats from '../Components/XPStats'
 
 
-export default function Station({ station, isFavorited, canVote, nextVoteTime, comments }) {
+export default function Station({ station, isFavorited, canVote, nextVoteTime, comments, userXP }) {
     
     return (
         <>
@@ -47,6 +48,11 @@ export default function Station({ station, isFavorited, canVote, nextVoteTime, c
 
                                     {/* Station Details */}
                                     <div className="space-y-6">
+                                        {/* XP Stats - Only show if user is authenticated */}
+                                        {userXP && (
+                                            <XPStats user={userXP} />
+                                        )}
+
                                         {/* Statistics */}
                                         <div className="card bg-base-200">
                                             <div className="card-body">
