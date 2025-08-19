@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Http\RedirectResponse;
+use ConsoleTVs\Profanity\Facades\Profanity;
 
 class CommentController extends Controller
 {
@@ -34,11 +35,20 @@ class CommentController extends Controller
                 ->with('flash.error', 'You are currently muted and cannot post comments.');
         }
 
+        // Check for profanity in comment content
+        $content = trim($request->input('content'));
+        if (!Profanity::blocker($content)->clean()) {
+            return back()
+                ->withErrors(['content' => 'Your comment contains inappropriate language. Please keep it respectful.'])
+                ->withInput()
+                ->with('flash.error', 'Comment rejected due to inappropriate language.');
+        }
+
         // Create comment with authenticated user and station UUID
         Comment::create([
             'station_uuid' => $stationUuid,
             'user_id' => Auth::id(),
-            'content' => trim($request->input('content'))
+            'content' => $content
         ]);
 
         // Hit the rate limiter (60 seconds = 1 minute)

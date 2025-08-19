@@ -7,6 +7,7 @@ use App\Models\ChatMessage;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\RateLimiter;
+use ConsoleTVs\Profanity\Facades\Profanity;
 
 class ChatController extends Controller
 {
@@ -35,11 +36,19 @@ class ChatController extends Controller
                 ->with('flash.error', 'You are currently muted and cannot send messages.');
         }
 
+        // Check for profanity in message content
+        $message = trim($request->message);
+        if (!Profanity::blocker($message)->clean()) {
+            return back()
+                ->withErrors(['message' => 'Your message contains inappropriate language. Please keep it respectful.'])
+                ->with('flash.error', 'Message rejected due to inappropriate language.');
+        }
+
         $chatMessage = ChatMessage::create([
             'station_uuid' => $request->station_uuid,
             'user_id' => $user->id,
             'username' => $user->name,
-            'message' => $request->message,
+            'message' => $message,
         ]);
 
         // Load the user relationship for broadcasting
