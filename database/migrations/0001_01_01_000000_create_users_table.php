@@ -19,6 +19,12 @@ return new class extends Migration
             $table->string('password');
             $table->string('country_code', 2)->nullable();
             $table->string('country_name')->nullable();
+            $table->bigInteger('xp')->default(0);
+            $table->tinyInteger('level')->default(1);
+            $table->boolean('isModerator')->default(false);
+            $table->timestamp('muted_until')->nullable();
+            $table->foreignId('muted_by')->nullable()->constrained('users')->onDelete('set null');
+            $table->text('mute_reason')->nullable();
             $table->rememberToken();
             $table->timestamps();
         });
