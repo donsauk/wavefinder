@@ -1,6 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react'
 import { useForm, router } from '@inertiajs/react'
 import { usePage } from '@inertiajs/react'
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import { faComments, faWaveSquare, faTrashCan, faVolumeMute, faVolumeHigh } from '@fortawesome/free-solid-svg-icons'
 import MuteUserModal from './MuteUserModal'
 
 export default function StationChat({ stationUuid }) {
@@ -180,7 +182,7 @@ export default function StationChat({ stationUuid }) {
         <div className="card bg-base-200 h-full flex flex-col">
             <div className="card-header p-4 border-b border-base-300">
                 <h3 className="card-title text-lg flex items-center gap-2">
-                    <span className="text-2xl">💬</span>
+                    <FontAwesomeIcon icon={faComments} className="text-xl" />
                     Station Chat
                     <div className={`badge badge-sm ${isConnected ? 'badge-success' : 'badge-error'}`}>
                         {isConnected ? 'Online' : 'Offline'}
@@ -193,7 +195,7 @@ export default function StationChat({ stationUuid }) {
                 <div className="flex-1 overflow-y-auto p-4 space-y-3 min-h-0">
                     {messages.length === 0 ? (
                         <div className="text-center text-base-content/60 py-8">
-                            <div className="text-4xl mb-2">👋</div>
+                            <div className="text-4xl mb-2"><FontAwesomeIcon icon={faWaveSquare} /></div>
                             <p>No messages yet. Be the first to say hello!</p>
                         </div>
                     ) : (
@@ -223,7 +225,7 @@ export default function StationChat({ stationUuid }) {
                                                 className="btn btn-xs btn-error"
                                                 title="Delete message"
                                             >
-                                                🗑️
+                                                <FontAwesomeIcon icon={faTrashCan} />
                                             </button>
                                             {message.user_id && (
                                                 <>
@@ -232,14 +234,14 @@ export default function StationChat({ stationUuid }) {
                                                         className="btn btn-xs btn-warning"
                                                         title="Mute user"
                                                     >
-                                                        🔇
+                                                        <FontAwesomeIcon icon={faVolumeMute} />
                                                     </button>
                                                     <button
                                                         onClick={() => router.post(route('moderation.users.unmute', message.user_id))}
                                                         className="btn btn-xs btn-success"
                                                         title="Unmute user"
                                                     >
-                                                        🔊
+                                                        <FontAwesomeIcon icon={faVolumeHigh} />
                                                     </button>
                                                 </>
                                             )}
@@ -261,7 +263,7 @@ export default function StationChat({ stationUuid }) {
                         timeRemaining ? (
                             <div className="text-center py-4">
                                 <div className="alert alert-warning">
-                                    <span>🔇</span>
+                                    <FontAwesomeIcon icon={faVolumeMute} />
                                     <div>
                                         <h3 className="font-bold">You are muted</h3>
                                         <div className="text-sm">Unmuted in {timeRemaining}</div>

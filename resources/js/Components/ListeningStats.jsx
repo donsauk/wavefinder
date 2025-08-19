@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import { usePage, Link } from '@inertiajs/react'
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import { faMusic, faSync, faTrophy, faChartBar, faGlobe, faHeadphones } from '@fortawesome/free-solid-svg-icons'
 
 export default function ListeningStats() {
     const { auth } = usePage().props
@@ -42,7 +44,7 @@ export default function ListeningStats() {
         return (
             <div className="card bg-base-200">
                 <div className="card-body text-center">
-                    <h3 className="card-title">🎵 Listening Stats</h3>
+                    <h3 className="card-title"><FontAwesomeIcon icon={faMusic} /> Listening Stats</h3>
                     <p className="text-base-content/60">
                         Sign in to track your listening time!
                     </p>
@@ -58,7 +60,7 @@ export default function ListeningStats() {
         return (
             <div className="card bg-base-200">
                 <div className="card-body">
-                    <h3 className="card-title">🎵 Listening Stats</h3>
+                    <h3 className="card-title"><FontAwesomeIcon icon={faMusic} /> Listening Stats</h3>
                     <div className="flex justify-center py-4">
                         <span className="loading loading-spinner loading-md"></span>
                     </div>
@@ -71,7 +73,7 @@ export default function ListeningStats() {
         return (
             <div className="card bg-base-200">
                 <div className="card-body">
-                    <h3 className="card-title">🎵 Listening Stats</h3>
+                    <h3 className="card-title"><FontAwesomeIcon icon={faMusic} /> Listening Stats</h3>
                     <div className="alert alert-error">
                         <span>Failed to load stats: {error}</span>
                     </div>
@@ -87,13 +89,13 @@ export default function ListeningStats() {
         <div className="card bg-base-200">
             <div className="card-body">
                 <h3 className="card-title flex items-center gap-2">
-                    🎵 Listening Stats
+                    <FontAwesomeIcon icon={faMusic} /> Listening Stats
                     <button 
                         onClick={fetchStats} 
                         className="btn btn-ghost btn-xs"
                         title="Refresh stats"
                     >
-                        🔄
+                        <FontAwesomeIcon icon={faSync} />
                     </button>
                 </h3>
 
@@ -112,7 +114,7 @@ export default function ListeningStats() {
                 {stats?.station_stats && stats.station_stats.length > 0 && (
                     <div className="space-y-3">
                         <h4 className="font-semibold flex items-center gap-2">
-                            🏆 Top Stations
+                            <FontAwesomeIcon icon={faTrophy} /> Top Stations
                         </h4>
                         <div className="space-y-2 max-h-64 overflow-y-auto">
                             {stats.station_stats.slice(0, 10).map((station, index) => (
@@ -127,7 +129,7 @@ export default function ListeningStats() {
                                             </div>
                                             <div className="text-xs text-base-content/60">
                                                 {station.country && (
-                                                    <span className="mr-2">🌍 {station.country}</span>
+                                                    <span className="mr-2"><FontAwesomeIcon icon={faGlobe} /> {station.country}</span>
                                                 )}
                                                 {station.session_count} session{station.session_count !== 1 ? 's' : ''}
                                             </div>
@@ -148,7 +150,7 @@ export default function ListeningStats() {
                 {stats?.recent_sessions && stats.recent_sessions.length > 0 && (
                     <div className="space-y-3 mt-4">
                         <h4 className="font-semibold flex items-center gap-2">
-                            📊 Recent Sessions
+                            <FontAwesomeIcon icon={faChartBar} /> Recent Sessions
                         </h4>
                         <div className="space-y-2 max-h-48 overflow-y-auto">
                             {stats.recent_sessions.slice(0, 5).map((session, index) => (
@@ -159,7 +161,7 @@ export default function ListeningStats() {
                                         </div>
                                         <div className="text-xs text-base-content/60">
                                             {session.country && (
-                                                <span className="mr-2">🌍 {session.country}</span>
+                                                <span className="mr-2"><FontAwesomeIcon icon={faGlobe} /> {session.country}</span>
                                             )}
                                             {new Date(session.started_at).toLocaleDateString()} {new Date(session.started_at).toLocaleTimeString()}
                                         </div>
@@ -183,7 +185,7 @@ export default function ListeningStats() {
                 {/* Empty state */}
                 {(!stats?.station_stats || stats.station_stats.length === 0) && (
                     <div className="text-center py-8 text-base-content/60">
-                        <div className="text-4xl mb-2">🎧</div>
+                        <div className="text-4xl mb-2"><FontAwesomeIcon icon={faHeadphones} size="3x" /></div>
                         <p>Start listening to see your stats!</p>
                     </div>
                 )}

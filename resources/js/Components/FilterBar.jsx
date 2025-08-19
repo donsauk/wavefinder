@@ -1,5 +1,7 @@
 import React from 'react'
 import { router, usePage, useRemember } from '@inertiajs/react'
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import { faGlobe, faHeart, faMusic, faSearch } from '@fortawesome/free-solid-svg-icons'
 
 export default function FilterBar() {
     // Get props from Laravel backend via Inertia.js
@@ -88,7 +90,7 @@ export default function FilterBar() {
                     {auth?.user?.country_name && (
                         <div className="form-control">
                             <label className="label cursor-pointer gap-2">
-                                <span className="label-text text-sm">🌍 Local</span>
+                                <span className="label-text text-sm"><FontAwesomeIcon icon={faGlobe} /> Local</span>
                                 <input
                                     type="checkbox"
                                     className="toggle toggle-accent toggle-sm"
@@ -104,7 +106,7 @@ export default function FilterBar() {
                     {auth?.user && (
                         <div className="form-control">
                             <label className="label cursor-pointer gap-2">
-                                <span className="label-text text-sm">❤️ Favorites</span>
+                                <span className="label-text text-sm"><FontAwesomeIcon icon={faHeart} /> Favorites</span>
                                 <input
                                     type="checkbox"
                                     className="toggle toggle-primary toggle-sm"
@@ -120,7 +122,7 @@ export default function FilterBar() {
                     {auth?.user && (
                         <div className="form-control">
                             <label className="label cursor-pointer gap-2">
-                                <span className="label-text text-sm">🎵 History</span>
+                                <span className="label-text text-sm"><FontAwesomeIcon icon={faMusic} /> History</span>
                                 <input
                                     type="checkbox"
                                     className="toggle toggle-secondary toggle-sm"
@@ -136,7 +138,7 @@ export default function FilterBar() {
                     <form onSubmit={handleSearchSubmit} className="form-control">
                         <div className="relative">
                             <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none z-10">
-                                <span className="text-base-content opacity-70 text-base">🔍</span>
+                                <FontAwesomeIcon icon={faSearch} className="text-base-content opacity-70" />
                             </div>
                             <input
                                 type="search"

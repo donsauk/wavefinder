@@ -1,5 +1,7 @@
 import React from 'react'
 import { router } from '@inertiajs/react'
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import { faThumbsUp, faHandPointer, faFire } from '@fortawesome/free-solid-svg-icons'
 import { useAudio } from '../Contexts/AudioContext'
 
 export default function StationCard({ station }) {
@@ -127,9 +129,9 @@ export default function StationCard({ station }) {
 
                 {/* Stats - Bigger */}
                 <div className="h-5 flex justify-center items-center gap-3 text-sm opacity-60">
-                    <span>👍 {station.votes}</span>
-                    <span>👆 {station.clickcount}</span>
-                    <span>🔥 {station.clicktrend}</span>
+                    <span><FontAwesomeIcon icon={faThumbsUp} /> {station.votes}</span>
+                    <span><FontAwesomeIcon icon={faHandPointer} /> {station.clickcount}</span>
+                    <span><FontAwesomeIcon icon={faFire} /> {station.clicktrend}</span>
                 </div>
             </div>
         </div>

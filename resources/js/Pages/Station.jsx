@@ -1,5 +1,7 @@
 import React from 'react'
 import { Head, Link } from '@inertiajs/react'
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import { faThumbsUp, faHandPointer, faFire } from '@fortawesome/free-solid-svg-icons'
 import Navbar from '../Components/Navbar'
 import StationComments from '../Components/StationComments'
 import StationHeader from '../Components/StationHeader'
@@ -52,21 +54,21 @@ export default function Station({ station, isFavorited, canVote, nextVoteTime, c
                                                 <div className="grid grid-cols-3 gap-4 text-center">
                                                     <div>
                                                         <div className="text-2xl font-bold text-primary flex items-center justify-center">
-                                                            <span className="mr-2">👍</span>
+                                                            <FontAwesomeIcon icon={faThumbsUp} className="mr-2" />
                                                             <span className="min-w-[80px] text-right">{station.votes}</span>
                                                         </div>
                                                         <div className="text-sm opacity-70">Votes</div>
                                                     </div>
                                                     <div>
                                                         <div className="text-2xl font-bold text-secondary flex items-center justify-center">
-                                                            <span className="mr-2">👆</span>
+                                                            <FontAwesomeIcon icon={faHandPointer} className="mr-2" />
                                                             <span className="min-w-[80px] text-right">{station.clickcount}</span>
                                                         </div>
                                                         <div className="text-sm opacity-70">Clicks</div>
                                                     </div>
                                                     <div>
                                                         <div className="text-2xl font-bold text-accent flex items-center justify-center">
-                                                            <span className="mr-2">🔥</span>
+                                                            <FontAwesomeIcon icon={faFire} className="mr-2" />
                                                             <span className="min-w-[80px] text-right">{station.clicktrend}</span>
                                                         </div>
                                                         <div className="text-sm opacity-70">Trend</div>

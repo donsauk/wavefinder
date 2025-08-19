@@ -1,5 +1,7 @@
 import React from 'react'
 import { Link, router, useRemember } from '@inertiajs/react'
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import { faDice } from '@fortawesome/free-solid-svg-icons'
 
 export default function Pagination({ data, itemName = 'items' }) {
     
@@ -86,7 +88,7 @@ export default function Pagination({ data, itemName = 'items' }) {
                                             key={index}
                                             onClick={handleRandomPage}
                                             className="join-item btn btn-sm btn-outline hover:btn-secondary"
-                                            title="Click to go to a random page! 🎲"
+                                            title="Click to go to a random page!"
                                         >
                                             {link.label}
                                         </button>
