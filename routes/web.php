@@ -9,6 +9,7 @@ use App\Http\Controllers\ChatController;
 use App\Http\Controllers\CommentController;
 use App\Http\Controllers\FavoriteController;
 use App\Http\Controllers\ListeningSessionController;
+use App\Http\Controllers\ModerationController;
 use App\Http\Controllers\StationController;
 use App\Http\Controllers\UserController;
 
@@ -58,4 +59,12 @@ Route::middleware('auth')->group(function () {
     
     // Favorites routes
     Route::post('/favorites/toggle', [FavoriteController::class, 'toggle'])->name('favorites.toggle');
+    
+    // Moderation routes (moderators only)
+    Route::middleware('moderator')->group(function () {
+        Route::delete('/moderation/comments/{comment}', [ModerationController::class, 'deleteComment'])->name('moderation.comments.delete');
+        Route::delete('/moderation/chat/{chatMessage}', [ModerationController::class, 'deleteChatMessage'])->name('moderation.chat.delete');
+        Route::post('/moderation/users/{user}/mute', [ModerationController::class, 'muteUser'])->name('moderation.users.mute');
+        Route::post('/moderation/users/{user}/unmute', [ModerationController::class, 'unmuteUser'])->name('moderation.users.unmute');
+    });
 });

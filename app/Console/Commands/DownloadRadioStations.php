@@ -42,6 +42,7 @@ class DownloadRadioStations extends Command
                 try {
                     $this->line("Trying server: {$server}");
                     $response = Http::timeout(30)
+                        ->withOptions(['verify' => false])
                         ->withHeaders([
                             'User-Agent' => 'WAVEFINDER/1.0 (Laravel Radio App)'
                         ])
@@ -150,6 +151,7 @@ class DownloadRadioStations extends Command
         
         try {
             $response = Http::timeout(10)
+                ->withOptions(['verify' => false])
                 ->withHeaders([
                     'User-Agent' => 'WAVEFINDER/1.0 (Laravel Radio App)'
                 ])

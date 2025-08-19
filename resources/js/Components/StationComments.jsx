@@ -42,11 +42,15 @@ export default function StationComments({ stationUuid, comments = [] }) {
     }
 
     // Enhanced comment deletion with better UX
-    const handleDeleteComment = (commentId) => {
+    const handleDeleteComment = (commentId, isModerator = false) => {
         if (!confirm('Are you sure you want to delete this comment?')) return
 
-        // Use global route() function for dynamic route generation
-        router.delete(route('station.comments.destroy', { stationuuid: stationUuid, comment: commentId }), {
+        // Use moderation route for moderators, regular route for comment authors
+        const deleteRoute = isModerator 
+            ? route('moderation.comments.delete', commentId)
+            : route('station.comments.destroy', { stationuuid: stationUuid, comment: commentId })
+
+        router.delete(deleteRoute, {
             preserveScroll: true,
             preserveState: true,
             onSuccess: () => {
@@ -157,16 +161,28 @@ export default function StationComments({ stationUuid, comments = [] }) {
                                     {comment.content}
                                 </div>
                                 
-                                {/* Delete Button - only show for comment author */}
-                                {auth.user && auth.user.id === comment.user.id && (
-                                    <div className="chat-footer opacity-50">
+                                {/* Delete Button - show for comment author or moderators */}
+                                {auth.user && (auth.user.id === comment.user.id || auth.user.isModerator) && (
+                                    <div className="chat-footer opacity-50 flex gap-2">
                                         <button
-                                            onClick={() => handleDeleteComment(comment.id)}
+                                            onClick={() => handleDeleteComment(comment.id, auth.user.isModerator && auth.user.id !== comment.user.id)}
                                             className="btn btn-ghost btn-xs text-error hover:text-error"
                                             title="Delete comment"
                                         >
                                             Delete
                                         </button>
+                                        {auth.user.isModerator && auth.user.id !== comment.user.id && (
+                                            <button
+                                                onClick={() => router.post(route('moderation.users.mute', comment.user.id), {
+                                                    hours: 1,
+                                                    reason: 'Inappropriate comment'
+                                                })}
+                                                className="btn btn-ghost btn-xs text-warning hover:text-warning"
+                                                title="Mute user"
+                                            >
+                                                Mute
+                                            </button>
+                                        )}
                                     </div>
                                 )}
                             </div>

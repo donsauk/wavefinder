@@ -28,6 +28,13 @@ class ChatController extends Controller
 
         $user = Auth::user();
 
+        // Check if user is muted
+        if ($user->isMuted()) {
+            return back()
+                ->withErrors(['message' => 'You are currently muted and cannot send messages.'])
+                ->with('flash.error', 'You are currently muted and cannot send messages.');
+        }
+
         $chatMessage = ChatMessage::create([
             'station_uuid' => $request->station_uuid,
             'user_id' => $user->id,
@@ -35,17 +42,21 @@ class ChatController extends Controller
             'message' => $request->message,
         ]);
 
+        // Load the user relationship for broadcasting
+        $chatMessage->load('user:id,name,isModerator');
+
         // Hit the rate limiter (1 second window)
         RateLimiter::hit($rateLimitKey, 1);
 
-        broadcast(new MessageSent($chatMessage))->toOthers();
+        broadcast(new MessageSent($chatMessage));
 
         return back();
     }
 
     public function getMessages(Request $request, string $stationUuid)
     {
-        $messages = ChatMessage::where('station_uuid', $stationUuid)
+        $messages = ChatMessage::with('user:id,name,isModerator')
+            ->where('station_uuid', $stationUuid)
             ->orderBy('created_at', 'desc')
             ->limit(50)
             ->get()

@@ -1,14 +1,19 @@
 import React, { useState, useEffect, useRef } from 'react'
-import { useForm } from '@inertiajs/react'
+import { useForm, router } from '@inertiajs/react'
 import { usePage } from '@inertiajs/react'
+import MuteUserModal from './MuteUserModal'
 
 export default function StationChat({ stationUuid }) {
     const { auth } = usePage().props
     const [messages, setMessages] = useState([])
     const [isConnected, setIsConnected] = useState(false)
     const [isInitialLoad, setIsInitialLoad] = useState(true)
+    const [timeRemaining, setTimeRemaining] = useState(null)
+    const [isSending, setIsSending] = useState(false)
     const messagesEndRef = useRef(null)
     const echoRef = useRef(null)
+    const sendingTimeoutRef = useRef(null)
+    const pendingMessageRef = useRef(null)
 
     const { data, setData, post, processing, reset } = useForm({
         station_uuid: stationUuid,
@@ -46,9 +51,32 @@ export default function StationChat({ stationUuid }) {
                         message: e.message,
                         username: e.username,
                         user_id: e.user_id,
+                        user: e.user,
                         created_at: e.created_at
                     }])
+                    
+                    // Clear loading state when our own message appears
+                    if (e.user_id === auth.user?.id && pendingMessageRef.current === e.message) {
+                        setIsSending(false)
+                        pendingMessageRef.current = null
+                    }
                 })
+                .listen('.chat.message.deleted', (e) => {
+                    setMessages(prev => prev.filter(msg => msg.id !== e.messageId))
+                })
+
+            // Listen for user mute/unmute events on private channel
+            if (auth.user) {
+                window.Echo.private(`user.${auth.user.id}`)
+                    .listen('.user.muted', (e) => {
+                        // Reload page immediately when user gets muted
+                        window.location.reload()
+                    })
+                    .listen('.user.unmuted', (e) => {
+                        // Reload page immediately when user gets unmuted
+                        window.location.reload()
+                    })
+            }
 
             setIsConnected(true)
         }
@@ -56,43 +84,32 @@ export default function StationChat({ stationUuid }) {
         return () => {
             if (echoRef.current) {
                 window.Echo.leave(`station-chat.${stationUuid}`)
+                if (auth.user) {
+                    window.Echo.leave(`user.${auth.user.id}`)
+                }
             }
         }
-    }, [stationUuid])
+    }, [stationUuid, auth.user?.id])
 
     const handleSubmit = (e) => {
         e.preventDefault()
-        if (!data.message.trim()) return
+        if (!data.message.trim() || isSending) return
 
-        // Store the message before clearing
         const messageText = data.message
-
-        // Add message optimistically to UI
-        const tempMessage = {
-            id: Date.now(),
-            message: messageText,
-            username: auth.user?.name || 'Anonymous',
-            user_id: auth.user?.id || null,
-            created_at: new Date().toISOString()
-        }
-        setMessages(prev => [...prev, tempMessage])
-
-        // Clear the input immediately for better UX
-        reset('message')
+        setIsSending(true)
+        pendingMessageRef.current = messageText
 
         post(route('chat.store'), {
             preserveScroll: true,
             onSuccess: () => {
                 reset()
                 setData('message', '')
+                // Don't clear isSending here - wait for WebSocket confirmation
             },
             onError: (errors) => {
                 console.error('Chat error:', errors)
-                // Remove the optimistic message if send failed
-                setMessages(prev => prev.filter(msg => msg.id !== tempMessage.id))
-                // Restore the message if sending failed
-                setData('message', messageText)
-                
+                setIsSending(false)
+                pendingMessageRef.current = null
                 // Show flash error message for rate limiting
                 if (errors.message) {
                     // The error will be handled by the global flash message system
@@ -108,6 +125,56 @@ export default function StationChat({ stationUuid }) {
             hour12: false
         })
     }
+
+    const deleteChatMessage = (messageId) => {
+        // Remove from UI immediately
+        setMessages(prev => prev.filter(msg => msg.id !== messageId))
+        
+        router.delete(route('moderation.chat.delete', messageId), {
+            preserveScroll: true,
+            onError: (errors) => {
+                console.log('Delete error:', errors)
+                // If delete failed, we could restore the message here if needed
+            }
+        })
+    }
+
+    const showMuteModal = (userId, username) => {
+        const modal = document.getElementById(`mute_modal_${userId}`)
+        if (modal) modal.showModal()
+    }
+
+    // Update countdown timer for muted users
+    useEffect(() => {
+        if (!auth.user?.muted_until) {
+            setTimeRemaining(null)
+            return
+        }
+
+        const updateTimer = () => {
+            const mutedUntil = new Date(auth.user.muted_until)
+            const now = new Date()
+            const diff = mutedUntil - now
+
+            if (diff <= 0) {
+                setTimeRemaining(null)
+                // Reload page to refresh user auth data
+                window.location.reload()
+                return
+            }
+
+            const hours = Math.floor(diff / (1000 * 60 * 60))
+            const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60))
+            const seconds = Math.floor((diff % (1000 * 60)) / 1000)
+
+            setTimeRemaining(`${hours}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`)
+        }
+
+        updateTimer()
+        const interval = setInterval(updateTimer, 1000)
+
+        return () => clearInterval(interval)
+    }, [auth.user?.muted_until])
 
     return (
         <div className="card bg-base-200 h-full flex flex-col">
@@ -143,9 +210,41 @@ export default function StationChat({ stationUuid }) {
                                     <span className="font-semibold">
                                         {message.username || 'Anonymous'}
                                     </span>
+                                    {message.user?.isModerator && (
+                                        <span className="badge badge-warning badge-xs">MOD</span>
+                                    )}
                                     <time className="text-xs opacity-50">
                                         {formatTime(message.created_at)}
                                     </time>
+                                    {auth.user?.isModerator && (
+                                        <div className="flex gap-1">
+                                            <button
+                                                onClick={() => deleteChatMessage(message.id)}
+                                                className="btn btn-xs btn-error"
+                                                title="Delete message"
+                                            >
+                                                🗑️
+                                            </button>
+                                            {message.user_id && (
+                                                <>
+                                                    <button
+                                                        onClick={() => showMuteModal(message.user_id, message.username)}
+                                                        className="btn btn-xs btn-warning"
+                                                        title="Mute user"
+                                                    >
+                                                        🔇
+                                                    </button>
+                                                    <button
+                                                        onClick={() => router.post(route('moderation.users.unmute', message.user_id))}
+                                                        className="btn btn-xs btn-success"
+                                                        title="Unmute user"
+                                                    >
+                                                        🔊
+                                                    </button>
+                                                </>
+                                            )}
+                                        </div>
+                                    )}
                                 </div>
                                 <div className="chat-bubble bg-base-100 text-base-content border border-base-300">
                                     {message.message}
@@ -159,30 +258,50 @@ export default function StationChat({ stationUuid }) {
                 {/* Message Input */}
                 <div className="p-4 border-t border-base-300">
                     {auth.user ? (
-                        <form onSubmit={handleSubmit} className="flex gap-2">
-                            <input
-                                type="text"
-                                placeholder="Type your message..."
-                                className="input input-bordered flex-1"
-                                value={data.message}
-                                onChange={(e) => setData('message', e.target.value)}
-                                maxLength={500}
-                                disabled={processing}
-                            />
-                            <button
-                                type="submit"
-                                className={`btn btn-primary ${processing ? 'loading' : ''}`}
-                                disabled={processing || !data.message.trim()}
-                            >
-                                {processing ? (
-                                    <span className="loading loading-spinner loading-sm"></span>
-                                ) : (
-                                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
-                                    </svg>
-                                )}
-                            </button>
-                        </form>
+                        timeRemaining ? (
+                            <div className="text-center py-4">
+                                <div className="alert alert-warning">
+                                    <span>🔇</span>
+                                    <div>
+                                        <h3 className="font-bold">You are muted</h3>
+                                        <div className="text-sm">Unmuted in {timeRemaining}</div>
+                                        {auth.user.isModerator && (
+                                            <button
+                                                onClick={() => router.post(route('moderation.users.unmute', auth.user.id))}
+                                                className="btn btn-sm btn-success mt-2"
+                                            >
+                                                Unmute Myself
+                                            </button>
+                                        )}
+                                    </div>
+                                </div>
+                            </div>
+                        ) : (
+                            <form onSubmit={handleSubmit} className="flex gap-2">
+                                <input
+                                    type="text"
+                                    placeholder="Type your message..."
+                                    className={`input input-bordered flex-1 ${isSending ? 'input-disabled opacity-50' : ''}`}
+                                    value={data.message}
+                                    onChange={(e) => setData('message', e.target.value)}
+                                    maxLength={500}
+                                    disabled={isSending}
+                                />
+                                <button
+                                    type="submit"
+                                    className={`btn btn-primary ${isSending ? 'loading' : ''}`}
+                                    disabled={isSending || !data.message.trim()}
+                                >
+                                    {isSending ? (
+                                        <span className="loading loading-spinner loading-sm"></span>
+                                    ) : (
+                                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
+                                        </svg>
+                                    )}
+                                </button>
+                            </form>
+                        )
                     ) : (
                         <div className="text-center py-4">
                             <p className="text-base-content/60 mb-3">Sign in to join the chat</p>
@@ -193,6 +312,18 @@ export default function StationChat({ stationUuid }) {
                     )}
                 </div>
             </div>
+            
+            {/* Mute User Modals - only create one per unique user */}
+            {auth.user?.isModerator && 
+                [...new Map(messages.filter(m => m.user_id).map(m => [m.user_id, m])).values()]
+                .map((message) => (
+                    <MuteUserModal 
+                        key={`mute-${message.user_id}`}
+                        userId={message.user_id} 
+                        username={message.username}
+                    />
+                ))
+            }
         </div>
     )
 }

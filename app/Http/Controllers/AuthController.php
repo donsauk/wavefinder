@@ -61,6 +61,9 @@ class AuthController extends Controller
         ]);
 
         Auth::login($user);
+        
+        // Detect and store user's country
+        $this->detectAndStoreCountry($request, $user);
 
         return to_route('browse');
     }

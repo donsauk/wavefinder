@@ -25,6 +25,10 @@ class User extends Authenticatable
         'level',
         'country_code',
         'country_name',
+        'isModerator',
+        'muted_until',
+        'muted_by',
+        'mute_reason',
     ];
 
     /**
@@ -49,6 +53,8 @@ class User extends Authenticatable
             'password' => 'hashed',
             'xp' => 'integer',
             'level' => 'integer',
+            'isModerator' => 'boolean',
+            'muted_until' => 'datetime',
         ];
     }
     
@@ -67,6 +73,32 @@ class User extends Authenticatable
     public function listeningSessions()
     {
         return $this->hasMany(ListeningSession::class);
+    }
+
+    public function mutedBy()
+    {
+        return $this->belongsTo(User::class, 'muted_by');
+    }
+
+    public function isMuted()
+    {
+        return $this->muted_until && $this->muted_until > now();
+    }
+
+    public function muteUser($hours, $reason = null, $moderatorId)
+    {
+        $this->muted_until = now()->addHours($hours);
+        $this->muted_by = $moderatorId;
+        $this->mute_reason = $reason;
+        $this->save();
+    }
+
+    public function unmute()
+    {
+        $this->muted_until = null;
+        $this->muted_by = null;
+        $this->mute_reason = null;
+        $this->save();
     }
 
     public function getXpForLevel($level)

@@ -25,6 +25,15 @@ class CommentController extends Controller
             'content' => 'required|string|max:1000|min:1'
         ]);
 
+        $user = Auth::user();
+
+        // Check if user is muted
+        if ($user->isMuted()) {
+            return back()
+                ->withErrors(['content' => 'You are currently muted and cannot post comments.'])
+                ->with('flash.error', 'You are currently muted and cannot post comments.');
+        }
+
         // Create comment with authenticated user and station UUID
         Comment::create([
             'station_uuid' => $stationUuid,
