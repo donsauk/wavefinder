@@ -50,15 +50,10 @@ export default function FilterBar() {
         updateFilters({ searchQuery: filterState.searchQuery })
     }
 
-    // Handle sort field change (votes, clickcount, clicktrend)
+    // Handle combined sort change (field + direction)
     const handleSortChange = (e) => {
-        updateFilters({ sortBy: e.target.value })
-    }
-
-    // Handle sort direction toggle (asc/desc)
-    const handleSortDirectionToggle = () => {
-        const newDirection = filterState.sortDirection === 'desc' ? 'asc' : 'desc'
-        updateFilters({ sortDirection: newDirection })
+        const [sortBy, sortDirection] = e.target.value.split('-')
+        updateFilters({ sortBy, sortDirection })
     }
 
     // Handle favorites filter toggle - only show if user is authenticated
@@ -170,25 +165,18 @@ export default function FilterBar() {
 
                     {/* Sort Options */}
                     <div className="form-control">
-                        <div className="flex gap-1">
-                            <select 
-                                className="select select-bordered select-sm w-32"
-                                value={filterState.sortBy}
-                                onChange={handleSortChange}
-                            >
-                                <option value="votes">Votes</option>
-                                <option value="clickcount">Clicks</option>
-                                <option value="clicktrend">Trending</option>
-                            </select>
-                            <button
-                                type="button"
-                                className="btn btn-secondary ml-2 btn-sm w-10"
-                                onClick={handleSortDirectionToggle}
-                                title={filterState.sortDirection === 'desc' ? 'Descending' : 'Ascending'}
-                            >
-                                {filterState.sortDirection === 'desc' ? '↓' : '↑'}
-                            </button>
-                        </div>
+                        <select 
+                            className="select select-bordered select-sm w-40"
+                            value={`${filterState.sortBy}-${filterState.sortDirection}`}
+                            onChange={handleSortChange}
+                        >
+                            <option value="votes-desc">Most Voted</option>
+                            <option value="votes-asc">Least Voted</option>
+                            <option value="clickcount-desc">Most Popular</option>
+                            <option value="clickcount-asc">Least Popular</option>
+                            <option value="clicktrend-desc">Trending Up</option>
+                            <option value="clicktrend-asc">Trending Down</option>
+                        </select>
                     </div>
                 </div>
             </div>

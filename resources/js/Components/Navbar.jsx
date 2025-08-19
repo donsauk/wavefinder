@@ -60,11 +60,6 @@ export default function Navbar() {
                             </div>
                         </div>
                         <ul tabIndex={0} className="menu menu-sm dropdown-content bg-base-100 rounded-box z-[1] mt-3 w-52 p-2 shadow">
-                            <li>
-                                <div className="px-4 py-2 text-sm text-base-content/70 border-b border-base-300">
-                                    {auth.user.name}
-                                </div>
-                            </li>
                             <li><Link href={route('profile')}>Profile</Link></li>
                             <li><Link href={route('settings')}>Settings</Link></li>
                             <li>

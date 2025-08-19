@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\RadioStation;
 use App\Models\UserFavorite;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -47,10 +48,13 @@ class BrowseController extends Controller
         // Apply history filter - only show stations user has listened to
         $isHistoryFilter = $request->boolean('history_only') && auth()->check();
         if ($isHistoryFilter) {
-            $query->join('listening_sessions', function($join) {
-                $join->on('radio_stations.stationuuid', '=', 'listening_sessions.station_uuid')
-                     ->where('listening_sessions.user_id', auth()->id());
-            })->distinct();
+            // Use whereIn with subquery to avoid join duplication issues
+            $listenedStationUuids = DB::table('listening_sessions')
+                ->where('user_id', auth()->id())
+                ->distinct()
+                ->pluck('station_uuid');
+            
+            $query->whereIn('stationuuid', $listenedStationUuids);
         }
 
         // Get unique countries for the dropdown filter - exclude empty/null values
@@ -65,20 +69,21 @@ class BrowseController extends Controller
         $sortBy = $request->get('sort_by', 'votes');
         $sortDirection = $request->get('sort_direction', 'desc');
         
-        // Apply sorting - for history filter, sort by most recent listening session
+        // Map frontend sort field names to database column names
+        $sortFieldMap = [
+            'votes' => 'votes',
+            'clickcount' => 'clickcount',
+            'clicktrend' => 'clicktrend',
+        ];
+        
+        // Use mapped field name or default to votes
+        $sortColumn = $sortFieldMap[$sortBy] ?? 'votes';
+
+        // Apply sorting - for history filter, still apply user's chosen sort but on filtered stations
         if ($isHistoryFilter) {
-            $stations = $query->orderBy('listening_sessions.started_at', 'desc')->paginate(12);
+            // Apply the user's chosen sorting to the history-filtered stations
+            $stations = $query->orderBy($sortColumn, $sortDirection)->paginate(12);
         } else {
-            // Map frontend sort field names to database column names
-            $sortFieldMap = [
-                'votes' => 'votes',
-                'clickcount' => 'clickcount',
-                'clicktrend' => 'clicktrend',
-            ];
-            
-            // Use mapped field name or default to votes
-            $sortColumn = $sortFieldMap[$sortBy] ?? 'votes';
-            
             // Execute query with dynamic sorting and pagination
             $stations = $query->orderBy($sortColumn, $sortDirection)->paginate(12);
         }

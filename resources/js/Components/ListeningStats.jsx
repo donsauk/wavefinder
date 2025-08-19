@@ -90,13 +90,6 @@ export default function ListeningStats() {
             <div className="card-body">
                 <h3 className="card-title flex items-center gap-2">
                     <FontAwesomeIcon icon={faMusic} /> Listening Stats
-                    <button 
-                        onClick={fetchStats} 
-                        className="btn btn-ghost btn-xs"
-                        title="Refresh stats"
-                    >
-                        <FontAwesomeIcon icon={faSync} />
-                    </button>
                 </h3>
 
                 {/* Total listening time */}
