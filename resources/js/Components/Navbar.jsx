@@ -25,7 +25,7 @@ export default function Navbar() {
                 </Link>
             </div>
             
-            <div className="navbar-center hidden lg:flex">
+            <div className="navbar-center flex">
                 <ul className="menu menu-horizontal px-1">
                     <li>
                         <Link href={route('browse')} className="btn btn-ghost">

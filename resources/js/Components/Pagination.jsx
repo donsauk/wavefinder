@@ -52,46 +52,44 @@ export default function Pagination({ data, itemName = 'items' }) {
     return (
         <div className="sticky bottom-0 z-10 bg-base-100/95">
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                <div className="grid grid-cols-3 items-center py-4">
+                <div className="flex flex-col lg:grid lg:grid-cols-3 lg:items-center gap-4 py-4">
                     
                     {/* Results Info - Left */}
-                    <div className="flex justify-start">
+                    <div className="flex justify-center lg:justify-start order-1 lg:order-none">
                         <div className="text-sm text-base-content/70">
-                            <span className="hidden sm:inline">Showing </span>
+                            <span className="hidden md:inline">Showing </span>
                             <span className="font-medium text-base-content">{data.from?.toLocaleString()}</span>
                             {' '}-{' '}
                             <span className="font-medium text-base-content">{data.to?.toLocaleString()}</span>
-                            <span className="hidden sm:inline"> of </span>
+                            <span className="hidden md:inline"> of </span>
                             <span className="sm:hidden"> / </span>
                             <span className="font-medium text-base-content">{data.total?.toLocaleString()}</span>
-                            <span className="hidden sm:inline"> {itemName}</span>
+                            <span className="hidden md:inline"> {itemName}</span>
                         </div>
                     </div>
 
                     {/* Main Pagination Controls - Center */}
-                    <div className="relative flex items-center justify-center justify-self-center">
+                    <div className="flex items-center justify-center gap-2 lg:justify-self-center order-2 lg:order-none z-10">
                         
-                        {/* Previous Button - Positioned to the left */}
-                        <div className="absolute right-full mr-2">
-                            {data.prev_page_url ? (
-                                <Link
-                                    href={data.prev_page_url}
-                                    className="btn btn-outline btn-sm gap-1 hover:btn-primary"
-                                    preserveState
-                                    preserveScroll
-                                >
-                                    <FontAwesomeIcon icon={faChevronLeft} className="w-3 h-3" />
-                                    <span className="hidden sm:inline">Previous</span>
-                                </Link>
-                            ) : (
-                                <button className="btn btn-outline btn-sm btn-disabled gap-1 opacity-50" disabled>
-                                    <FontAwesomeIcon icon={faChevronLeft} className="w-3 h-3" />
-                                    <span className="hidden sm:inline">Previous</span>
-                                </button>
-                            )}
-                        </div>
+                        {/* Previous Button */}
+                        {data.prev_page_url ? (
+                            <Link
+                                href={data.prev_page_url}
+                                className="btn btn-outline btn-sm gap-1 hover:btn-primary"
+                                preserveState
+                                preserveScroll
+                            >
+                                <FontAwesomeIcon icon={faChevronLeft} className="w-3 h-3" />
+                                <span className="hidden sm:inline">Previous</span>
+                            </Link>
+                        ) : (
+                            <button className="btn btn-outline btn-sm btn-disabled gap-1 opacity-50" disabled>
+                                <FontAwesomeIcon icon={faChevronLeft} className="w-3 h-3" />
+                                <span className="hidden sm:inline">Previous</span>
+                            </button>
+                        )}
 
-                        {/* Page Numbers - Perfectly Centered */}
+                        {/* Page Numbers */}
                         {data.links && data.links.length > 3 && (
                             <div className="join">
                                 {data.links.map((link, index) => {
@@ -133,29 +131,27 @@ export default function Pagination({ data, itemName = 'items' }) {
                             </div>
                         )}
 
-                        {/* Next Button - Positioned to the right */}
-                        <div className="absolute left-full ml-2">
-                            {data.next_page_url ? (
-                                <Link
-                                    href={data.next_page_url}
-                                    className="btn btn-outline btn-sm gap-1 hover:btn-primary"
-                                    preserveState
-                                    preserveScroll
-                                >
-                                    <span className="hidden sm:inline">Next</span>
-                                    <FontAwesomeIcon icon={faChevronRight} className="w-3 h-3" />
-                                </Link>
-                            ) : (
-                                <button className="btn btn-outline btn-sm btn-disabled gap-1 opacity-50" disabled>
-                                    <span className="hidden sm:inline">Next</span>
-                                    <FontAwesomeIcon icon={faChevronRight} className="w-3 h-3" />
-                                </button>
-                            )}
-                        </div>
+                        {/* Next Button */}
+                        {data.next_page_url ? (
+                            <Link
+                                href={data.next_page_url}
+                                className="btn btn-outline btn-sm gap-1 hover:btn-primary"
+                                preserveState
+                                preserveScroll
+                            >
+                                <span className="hidden sm:inline">Next</span>
+                                <FontAwesomeIcon icon={faChevronRight} className="w-3 h-3" />
+                            </Link>
+                        ) : (
+                            <button className="btn btn-outline btn-sm btn-disabled gap-1 opacity-50" disabled>
+                                <span className="hidden sm:inline">Next</span>
+                                <FontAwesomeIcon icon={faChevronRight} className="w-3 h-3" />
+                            </button>
+                        )}
                     </div>
 
                     {/* Jump to Page - Right */}
-                    <div className="flex justify-end">
+                    <div className="flex justify-center lg:justify-end order-3 lg:order-none">
                         <form onSubmit={handlePageJump} className="join">
                             <input
                                 type="number"
