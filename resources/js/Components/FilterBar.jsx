@@ -156,7 +156,7 @@ export default function FilterBar() {
                                 <option value="all">All Countries</option>
                                 {countries && Object.entries(countries).map(([country, name]) => (
                                     <option key={country} value={country}>
-                                        {country}
+                                        {country.length > 24 ? country.substring(0, 24) + '...' : country}
                                     </option>
                                 ))}
                             </select>
