@@ -200,12 +200,22 @@ export default function StationChat({ stationUuid }) {
                         </div>
                     ) : (
                         messages.map((message) => (
-                            <div key={message.id} className="chat chat-start">
-                                <div className="chat-image avatar placeholder">
-                                    <div className="bg-primary text-primary-content w-8 h-8 rounded-full">
-                                        <span className="text-xs">
-                                            {message.username ? message.username[0].toUpperCase() : 'A'}
-                                        </span>
+                            <div key={message.id} className={`chat ${message.user_id === auth.user?.id ? 'chat-end' : 'chat-start'}`}>
+                                <div className="chat-image avatar">
+                                    <div className="w-8 h-8 rounded-full overflow-hidden">
+                                        {message.user?.avatar_url ? (
+                                            <img 
+                                                src={message.user.avatar_url} 
+                                                alt={`${message.username}'s avatar`}
+                                                className="w-full h-full object-cover"
+                                            />
+                                        ) : (
+                                            <div className={`${message.user_id === auth.user?.id ? 'bg-secondary text-secondary-content' : 'bg-primary text-primary-content'} w-full h-full flex items-center justify-center`}>
+                                                <span className="text-xs">
+                                                    {message.username ? message.username[0].toUpperCase() : 'A'}
+                                                </span>
+                                            </div>
+                                        )}
                                     </div>
                                 </div>
                                 <div className="chat-header flex items-center gap-2">
@@ -248,7 +258,7 @@ export default function StationChat({ stationUuid }) {
                                         </div>
                                     )}
                                 </div>
-                                <div className="chat-bubble bg-base-100 text-base-content border border-base-300">
+                                <div className={`chat-bubble ${message.user_id === auth.user?.id ? 'chat-bubble-secondary' : 'bg-base-100 text-base-content border border-base-300'}`}>
                                     {message.message}
                                 </div>
                             </div>

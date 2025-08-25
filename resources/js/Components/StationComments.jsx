@@ -88,9 +88,19 @@ export default function StationComments({ stationUuid, comments = [] }) {
                     <form onSubmit={handleSubmitComment} className="mb-6">
                         <div className="flex gap-3">
                             {/* User Avatar */}
-                            <div className="avatar avatar-placeholder">
-                                <div className="bg-neutral text-neutral-content w-10 h-10 rounded-full">
-                                    <span className="text-sm">{getInitials(auth.user.name)}</span>
+                            <div className="avatar">
+                                <div className="w-10 h-10 rounded-full overflow-hidden">
+                                    {auth.user.avatar_url ? (
+                                        <img 
+                                            src={auth.user.avatar_url} 
+                                            alt={`${auth.user.name}'s avatar`}
+                                            className="w-full h-full object-cover"
+                                        />
+                                    ) : (
+                                        <div className="bg-neutral text-neutral-content w-full h-full flex items-center justify-center">
+                                            <span className="text-sm">{getInitials(auth.user.name)}</span>
+                                        </div>
+                                    )}
                                 </div>
                             </div>
                             
@@ -140,11 +150,21 @@ export default function StationComments({ stationUuid, comments = [] }) {
                 {comments.length > 0 ? (
                     <div className="space-y-4 max-h-96 overflow-y-auto">
                         {comments.map((comment) => (
-                            <div key={comment.id} className="chat chat-start">
-                                {/* User Avatar - placeholder with initials */}
-                                <div className="chat-image avatar avatar-placeholder">
-                                    <div className="bg-neutral text-neutral-content w-10 rounded-full">
-                                        <span className="text-sm">{getInitials(comment.user.name)}</span>
+                            <div key={comment.id} className={`chat ${comment.user.id === auth.user?.id ? 'chat-end' : 'chat-start'}`}>
+                                {/* User Avatar */}
+                                <div className="chat-image avatar">
+                                    <div className="w-10 h-10 rounded-full overflow-hidden">
+                                        {comment.user.avatar_url ? (
+                                            <img 
+                                                src={comment.user.avatar_url} 
+                                                alt={`${comment.user.name}'s avatar`}
+                                                className="w-full h-full object-cover"
+                                            />
+                                        ) : (
+                                            <div className={`${comment.user.id === auth.user?.id ? 'bg-secondary text-secondary-content' : 'bg-neutral text-neutral-content'} w-full h-full flex items-center justify-center`}>
+                                                <span className="text-sm">{getInitials(comment.user.name)}</span>
+                                            </div>
+                                        )}
                                     </div>
                                 </div>
                                 
@@ -157,7 +177,7 @@ export default function StationComments({ stationUuid, comments = [] }) {
                                 </div>
                                 
                                 {/* Comment Bubble */}
-                                <div className="chat-bubble chat-bubble-neutral max-w-lg break-words">
+                                <div className={`chat-bubble ${comment.user.id === auth.user?.id ? 'chat-bubble-secondary' : 'chat-bubble-neutral'} max-w-lg break-words`}>
                                     {comment.content}
                                 </div>
                                 

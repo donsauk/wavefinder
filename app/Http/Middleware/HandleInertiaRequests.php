@@ -42,6 +42,7 @@ class HandleInertiaRequests extends Middleware
                     'id' => $request->user()->id,
                     'name' => $request->user()->name,
                     'email' => $request->user()->email,
+                    'avatar_url' => $request->user()->avatar_url,
                     'country_code' => $request->user()->country_code,
                     'country_name' => $request->user()->country_name,
                     'isModerator' => $request->user()->isModerator,
@@ -50,6 +51,7 @@ class HandleInertiaRequests extends Middleware
             ],
             'flash' => [
                 'message' => fn () => $request->session()->get('flash.message'),
+                'success' => fn () => $request->session()->get('flash.success'),
                 'error' => fn () => $request->session()->get('flash.error')
             ],
         ];

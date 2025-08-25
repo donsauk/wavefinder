@@ -53,6 +53,7 @@ class MessageSent implements ShouldBroadcast
                 'id' => $this->message->user->id,
                 'name' => $this->message->user->name,
                 'isModerator' => $this->message->user->isModerator,
+                'avatar_url' => $this->message->user->avatar_url,
             ] : null,
             'created_at' => $this->message->created_at->toISOString(),
         ];

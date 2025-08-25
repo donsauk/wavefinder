@@ -51,11 +51,19 @@ export default function Navbar() {
                         <div tabIndex={0} role="button" className="btn btn-ghost btn-circle">
                             <div className="avatar">
                                 <div className="w-10 rounded-full bg-primary">
-                                    <div className="w-full h-full flex items-center justify-center text-white">
-                                        <span className="text-sm font-bold">
-                                            {auth.user.name.charAt(0).toUpperCase()}
-                                        </span>
-                                    </div>
+                                    {auth.user.avatar_url ? (
+                                        <img 
+                                            src={auth.user.avatar_url} 
+                                            alt={`${auth.user.name}'s avatar`}
+                                            className="w-full h-full object-cover rounded-full"
+                                        />
+                                    ) : (
+                                        <div className="w-full h-full flex items-center justify-center text-white">
+                                            <span className="text-sm font-bold">
+                                                {auth.user.name.charAt(0).toUpperCase()}
+                                            </span>
+                                        </div>
+                                    )}
                                 </div>
                             </div>
                         </div>

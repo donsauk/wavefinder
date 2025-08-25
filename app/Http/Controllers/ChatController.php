@@ -52,7 +52,12 @@ class ChatController extends Controller
         ]);
 
         // Load the user relationship for broadcasting
-        $chatMessage->load('user:id,name,isModerator');
+        $chatMessage->load('user:id,name,isModerator,avatar_path');
+        
+        // Ensure avatar_url is included in the user data for broadcasting
+        if ($chatMessage->user) {
+            $chatMessage->user->append('avatar_url');
+        }
 
         // Hit the rate limiter (1 second window)
         RateLimiter::hit($rateLimitKey, 1);
@@ -64,13 +69,21 @@ class ChatController extends Controller
 
     public function getMessages(Request $request, string $stationUuid)
     {
-        $messages = ChatMessage::with('user:id,name,isModerator')
+        $messages = ChatMessage::with('user:id,name,isModerator,avatar_path')
             ->where('station_uuid', $stationUuid)
             ->orderBy('created_at', 'desc')
             ->limit(50)
             ->get()
             ->reverse()
             ->values();
+
+        // Ensure avatar_url is included in the response
+        $messages->transform(function ($message) {
+            if ($message->user) {
+                $message->user->append('avatar_url');
+            }
+            return $message;
+        });
 
         return response()->json($messages);
     }

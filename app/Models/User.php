@@ -21,6 +21,7 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
+        'avatar_path',
         'xp',
         'level',
         'country_code',
@@ -158,5 +159,13 @@ class User extends Authenticatable
     public function getTotalListeningHours()
     {
         return round($this->xp / 60, 1);
+    }
+
+    public function getAvatarUrlAttribute()
+    {
+        if ($this->avatar_path) {
+            return config('app.url') . '/storage/' . $this->avatar_path;
+        }
+        return null;
     }
 }

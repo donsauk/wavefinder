@@ -46,9 +46,17 @@ class StationController extends Controller
 
         // Fetch comments for this station with user relationships
         $comments = Comment::where('station_uuid', $stationuuid)
-            ->with('user:id,name') // Eager load user data (id and name only)
+            ->with('user:id,name,avatar_path') // Eager load user data including avatar_path
             ->orderBy('created_at', 'desc')
             ->get();
+
+        // Ensure avatar_url is included for comments
+        $comments->transform(function ($comment) {
+            if ($comment->user) {
+                $comment->user->append('avatar_url');
+            }
+            return $comment;
+        });
 
         // Get user XP data if authenticated
         $userXP = null;
