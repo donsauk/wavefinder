@@ -7,7 +7,7 @@ import StationComments from '../Components/StationComments'
 import StationHeader from '../Components/StationHeader'
 import StationChat from '../Components/StationChat'
 import FlashMessage from '../Components/FlashMessage'
-import XPStats from '../Components/XPStats'
+// XPStats no longer used here; replaced with compact level strip
 
 
 export default function Station({ station, isFavorited, canVote, nextVoteTime, comments, userXP }) {
@@ -25,7 +25,7 @@ export default function Station({ station, isFavorited, canVote, nextVoteTime, c
                     <div className="max-w-7xl mx-auto p-6">
                         {/* Back button - Using global route() function */}
                         <div className="mb-6">
-                            <Link href={route('browse')} className="btn btn-outline btn-sm">
+                            <Link href={route('browse')} className="btn btn-ghost btn-sm">
                                 <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 19l-7-7 7-7" />
                                 </svg>
@@ -35,133 +35,139 @@ export default function Station({ station, isFavorited, canVote, nextVoteTime, c
 
                         {/* Main Layout Grid */}
                         <div className="lg:pr-96">
-                            {/* Left Content (Station Details) */}
+                            {/* Content */}
                             <div className="space-y-8">
-                                <div className="grid md:grid-cols-2 gap-8">
-                                    {/* Station Header */}
-                                    <StationHeader 
-                                        station={station} 
-                                        isFavorited={isFavorited} 
-                                        canVote={canVote} 
-                                        nextVoteTime={nextVoteTime} 
-                                    />
+                                {/* Hero Header */}
+                                <div className="hero rounded-box bg-base-200 relative overflow-hidden shadow-xl">
+                                    <div className="absolute -top-24 -left-24 w-72 h-72 bg-primary/10 rounded-full blur-3xl"></div>
+                                    <div className="absolute -bottom-24 -right-24 w-72 h-72 bg-secondary/10 rounded-full blur-3xl"></div>
+                                    <div className="hero-content py-10">
+                                        <StationHeader 
+                                            station={station} 
+                                            isFavorited={isFavorited} 
+                                            canVote={canVote} 
+                                            nextVoteTime={nextVoteTime} 
+                                        />
+                                    </div>
+                                </div>
 
-                                    {/* Station Details */}
-                                    <div className="space-y-6">
-                                        {/* XP Stats - Only show if user is authenticated */}
-                                        {userXP && (
-                                            <XPStats user={userXP} />
-                                        )}
-
-                                        {/* Statistics */}
-                                        <div className="card bg-base-200">
-                                            <div className="card-body">
-                                                <h2 className="card-title text-lg mb-4">Statistics</h2>
-                                                <div className="grid grid-cols-3 gap-4 text-center">
-                                                    <div>
-                                                        <div className="text-2xl font-bold text-primary flex items-center justify-center">
-                                                            <FontAwesomeIcon icon={faThumbsUp} className="mr-2" />
-                                                            <span className="min-w-[80px] text-right">{station.votes}</span>
-                                                        </div>
-                                                        <div className="text-sm opacity-70">Votes</div>
-                                                    </div>
-                                                    <div>
-                                                        <div className="text-2xl font-bold text-secondary flex items-center justify-center">
-                                                            <FontAwesomeIcon icon={faHandPointer} className="mr-2" />
-                                                            <span className="min-w-[80px] text-right">{station.clickcount}</span>
-                                                        </div>
-                                                        <div className="text-sm opacity-70">Clicks</div>
-                                                    </div>
-                                                    <div>
-                                                        <div className="text-2xl font-bold text-accent flex items-center justify-center">
-                                                            <FontAwesomeIcon icon={faFire} className="mr-2" />
-                                                            <span className="min-w-[80px] text-right">{station.clicktrend}</span>
-                                                        </div>
-                                                        <div className="text-sm opacity-70">Trend</div>
-                                                    </div>
+                                {/* Quick Stats */}
+                                <div className="card bg-base-200 shadow-lg">
+                                    <div className="card-body">
+                                        <div className="stats stats-vertical md:stats-horizontal w-full">
+                                            <div className="stat">
+                                                <div className="stat-title">Votes</div>
+                                                <div className="stat-value text-primary flex items-center gap-2">
+                                                    <FontAwesomeIcon icon={faThumbsUp} /> {station.votes}
+                                                </div>
+                                            </div>
+                                            <div className="stat">
+                                                <div className="stat-title">Clicks</div>
+                                                <div className="stat-value text-secondary flex items-center gap-2">
+                                                    <FontAwesomeIcon icon={faHandPointer} /> {station.clickcount}
+                                                </div>
+                                            </div>
+                                            <div className="stat">
+                                                <div className="stat-title">Trend</div>
+                                                <div className="stat-value text-accent flex items-center gap-2">
+                                                    <FontAwesomeIcon icon={faFire} /> {station.clicktrend}
                                                 </div>
                                             </div>
                                         </div>
+                                    </div>
+                                </div>
 
-                                        {/* Technical Information */}
-                                        <div className="card bg-base-200">
+                                {/* Tags Bar */}
+                                {station.tags && (
+                                    <div className="overflow-x-auto -mx-2">
+                                        <div className="flex items-center gap-2 px-2 py-2 whitespace-nowrap">
+                                            {station.tags.split(',').map((raw, index) => {
+                                                const t = raw.trim();
+                                                if (!t) return null;
+                                                return (
+                                                    <Link
+                                                        key={`${t}-${index}`}
+                                                        href={`${route('browse')}?search=${encodeURIComponent(t)}`}
+                                                        className="badge badge-ghost hover:badge-primary cursor-pointer"
+                                                    >
+                                                        {t}
+                                                    </Link>
+                                                );
+                                            })}
+                                        </div>
+                                    </div>
+                                )}
+
+                                {/* Level Strip */}
+                                {userXP && (
+                                    <div className="bg-base-200 rounded-box shadow p-3 flex items-center gap-4">
+                                        <div className="font-semibold">Level {userXP.level || 1}</div>
+                                        <progress
+                                            className="progress progress-primary flex-1"
+                                            value={userXP.progressPercent || 0}
+                                            max="100"
+                                        />
+                                        <div className="badge badge-primary">{(userXP.xp || 0).toLocaleString()} XP</div>
+                                    </div>
+                                )}
+
+                                {/* Details Area */}
+                                <div className="grid lg:grid-cols-12 gap-6">
+                                    <div className="lg:col-span-12">
+                                        <div className="card bg-base-200 shadow-lg">
                                             <div className="card-body">
-                                                <h2 className="card-title text-lg mb-4">Technical Details</h2>
-                                                <div className="space-y-3">
+                                                <h2 className="card-title text-lg">Details</h2>
+                                                <div className="grid sm:grid-cols-2 gap-3 mt-2">
                                                     {station.codec && (
-                                                        <div className="flex justify-between">
-                                                            <span className="opacity-70">Codec:</span>
+                                                        <div className="flex items-center justify-between p-2 rounded-box bg-base-100 border border-base-300">
+                                                            <span className="opacity-70">Codec</span>
                                                             <span className="font-semibold">{station.codec}</span>
                                                         </div>
                                                     )}
                                                     {station.bitrate && (
-                                                        <div className="flex justify-between">
-                                                            <span className="opacity-70">Bitrate:</span>
+                                                        <div className="flex items-center justify-between p-2 rounded-box bg-base-100 border border-base-300">
+                                                            <span className="opacity-70">Bitrate</span>
                                                             <span className="font-semibold">{station.bitrate} kbps</span>
                                                         </div>
                                                     )}
                                                     {station.language && (
-                                                        <div className="flex justify-between">
-                                                            <span className="opacity-70">Language:</span>
-                                                            <span className="font-semibold">{station.language}</span>
+                                                        <div className="flex items-center justify-between p-2 rounded-box bg-base-100 border border-base-300">
+                                                            <span className="opacity-70">Language</span>
+                                                            <span className="font-semibold lowercase">{station.language}</span>
                                                         </div>
                                                     )}
-                                                    <div className="flex justify-between">
-                                                        <span className="opacity-70">HLS:</span>
-                                                        <span className={`badge ${station.hls ? 'badge-success' : 'badge-outline'}`}>
-                                                            {station.hls ? 'Yes' : 'No'}
-                                                        </span>
+                                                    <div className="flex items-center justify-between p-2 rounded-box bg-base-100 border border-base-300">
+                                                        <span className="opacity-70">HLS</span>
+                                                        <span className={`badge ${station.hls ? 'badge-success' : 'badge-outline'}`}>{station.hls ? 'Yes' : 'No'}</span>
                                                     </div>
-                                                    <div className="flex justify-between">
-                                                        <span className="opacity-70">SSL:</span>
-                                                        <span className={`badge ${station.ssl_error ? 'badge-error' : 'badge-success'}`}>
-                                                            {station.ssl_error ? 'Error' : 'OK'}
-                                                        </span>
+                                                    <div className="flex items-center justify-between p-2 rounded-box bg-base-100 border border-base-300">
+                                                        <span className="opacity-70">SSL</span>
+                                                        <span className={`badge ${station.ssl_error ? 'badge-error' : 'badge-success'}`}>{station.ssl_error ? 'Error' : 'OK'}</span>
                                                     </div>
+                                                    {station.homepage && (
+                                                        <div className="sm:col-span-2 flex items-center justify-between p-2 rounded-box bg-base-100 border border-base-300">
+                                                            <span className="opacity-70">Homepage</span>
+                                                            <a 
+                                                                href={station.homepage}
+                                                                target="_blank"
+                                                                rel="noopener noreferrer"
+                                                                className="btn btn-primary btn-sm"
+                                                            >
+                                                                <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                                                                </svg>
+                                                                Visit Homepage
+                                                            </a>
+                                                        </div>
+                                                    )}
                                                 </div>
                                             </div>
                                         </div>
-
-                                        {/* Tags */}
-                                        {station.tags && (
-                                            <div className="card bg-base-200">
-                                                <div className="card-body">
-                                                    <h2 className="card-title text-lg mb-4">Tags</h2>
-                                                    <div className="flex flex-wrap gap-2">
-                                                        {station.tags.split(',').map((tag, index) => (
-                                                            <span key={index} className="badge badge-outline">
-                                                                {tag.trim()}
-                                                            </span>
-                                                        ))}
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        )}
-
-                                        {/* Links */}
-                                        {station.homepage && (
-                                            <div className="card bg-base-200">
-                                                <div className="card-body">
-                                                    <h2 className="card-title text-lg mb-4">Links</h2>
-                                                    <a 
-                                                        href={station.homepage} 
-                                                        target="_blank" 
-                                                        rel="noopener noreferrer"
-                                                        className="btn btn-outline btn-sm"
-                                                    >
-                                                        <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
-                                                        </svg>
-                                                        Visit Homepage
-                                                    </a>
-                                                </div>
-                                            </div>
-                                        )}
                                     </div>
                                 </div>
 
-                                {/* Comments Section - Full width below station details */}
-                                <div className="mt-8">
+                                {/* Comments */}
+                                <div className="mt-2">
                                     <StationComments stationUuid={station.stationuuid} comments={comments} />
                                 </div>
                             </div>
