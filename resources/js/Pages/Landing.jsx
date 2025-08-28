@@ -31,7 +31,7 @@ export default function Landing() {
                         <div className="max-w-md text-center space-y-6 lg:space-y-8">
                             <blockquote className="text-lg sm:text-xl lg:text-2xl text-base-content font-light italic relative">
                                 <span className="text-primary text-4xl sm:text-6xl absolute -top-2 sm:-top-4 -left-2 sm:-left-4 opacity-20">"</span>
-                               Ride your perfect radio wave.
+                               Discover and listen to radio stations from around the world.
                                 <span className="text-primary text-4xl sm:text-6xl absolute -bottom-6 sm:-bottom-8 -right-2 sm:-right-4 opacity-20">"</span>
                             </blockquote>
 

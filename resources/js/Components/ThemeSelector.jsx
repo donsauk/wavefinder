@@ -9,12 +9,27 @@ const THEMES = [
 ];
 
 export default function ThemeSelector() {
-    const [currentTheme, setCurrentTheme] = useState('light');
+    // Initialize with saved theme or default to dark for first-time users
+    const [currentTheme, setCurrentTheme] = useState(() => {
+        try {
+            return (
+                localStorage.getItem('theme') ||
+                (typeof document !== 'undefined' && document.documentElement.getAttribute('data-theme')) ||
+                'dark'
+            );
+        } catch (_) {
+            return 'dark';
+        }
+    });
 
     useEffect(() => {
-        const savedTheme = localStorage.getItem('theme') || 'light';
-        setCurrentTheme(savedTheme);
-        document.documentElement.setAttribute('data-theme', savedTheme);
+        try {
+            const savedTheme = localStorage.getItem('theme') || 'dark';
+            setCurrentTheme(savedTheme);
+            document.documentElement.setAttribute('data-theme', savedTheme);
+        } catch (_) {
+            document.documentElement.setAttribute('data-theme', 'dark');
+        }
     }, []);
 
     const changeTheme = (theme) => {

@@ -108,6 +108,13 @@ export default function Login() {
                                     </label>
                                 </div>
 
+                                {/* Forgot Password Link */}
+                                <div className="text-right mt-2">
+                                    <Link href={route('password.request')} className="link link-primary text-sm">
+                                        Forgot your password?
+                                    </Link>
+                                </div>
+
                                 {/* Submit Button */}
                                 <div className="form-control mt-6 w-full">
                                     <button
