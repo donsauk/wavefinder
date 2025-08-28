@@ -61,18 +61,19 @@ export default function StationHeader({ station, isFavorited, canVote, nextVoteT
             return;
         }
 
-        // Submit vote using Inertia - handles CSRF, loading state, and errors automatically
-        submitVote(`/station/${station.stationuuid}/vote`, {}, {
+        // Submit vote using Inertia - correct signature with options only
+        submitVote(`/station/${station.stationuuid}/vote`, {
             preserveScroll: true,
             onSuccess: () => {
-                // Update local vote status - page will refresh with new data
-                setVoteStatus({ canVote: false });
+                // Immediately prevent further clicks and refresh props to show cooldown
+                setVoteStatus({ canVote: false })
+                router.reload({ preserveScroll: true })
             },
             onError: (errors) => {
                 // Inertia will handle error display via flash messages or error props
-                console.error('Vote submission failed:', errors);
-            }
-        });
+                console.error('Vote submission failed:', errors)
+            },
+        })
     };
 
     // Update countdown timer for when user can vote again

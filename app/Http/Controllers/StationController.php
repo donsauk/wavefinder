@@ -27,13 +27,14 @@ class StationController extends Controller
                 ->exists() 
             : false;
 
-        // Check voting status - users can vote every 10 minutes from same IP
+        // Check voting status - users can vote every 10 minutes per station from same IP
         $canVote = true;
         $nextVoteTime = null;
         
         if (auth()->check()) {
-            // Check 10-minute rate limit for any vote from this IP
+            // Check 10-minute rate limit for this IP on THIS station only
             $recentVote = UserStationVote::where('ip_address', request()->ip())
+                ->where('station_uuid', $stationuuid)
                 ->where('created_at', '>', now()->subMinutes(10))
                 ->latest()
                 ->first();
@@ -134,8 +135,9 @@ class StationController extends Controller
         $userId = auth()->id();
         $ipAddress = $request->ip();
 
-        // Check 10-minute rate limit for this IP address
+        // Check 10-minute rate limit for this IP address on THIS station only
         $recentVote = UserStationVote::where('ip_address', $ipAddress)
+            ->where('station_uuid', $stationuuid)
             ->where('created_at', '>', now()->subMinutes(10))
             ->latest()
             ->first();

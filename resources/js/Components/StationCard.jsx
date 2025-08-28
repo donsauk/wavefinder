@@ -1,7 +1,7 @@
 import React from 'react'
 import { router } from '@inertiajs/react'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faThumbsUp, faHandPointer, faFire } from '@fortawesome/free-solid-svg-icons'
+import { faThumbsUp, faHandPointer, faFire, faPlay, faPause } from '@fortawesome/free-solid-svg-icons'
 import { useAudio } from '../Contexts/AudioContext'
 
 export default function StationCard({ station }) {
@@ -90,15 +90,11 @@ export default function StationCard({ station }) {
                         </span>
                         
                         {/* Hover Play Button Overlay - shows play/pause based on current state */}
-                        <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                        <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none">
                             {isCurrentStation && isPlaying ? (
-                                <svg className="w-16 h-16 text-white drop-shadow-lg" fill="currentColor" viewBox="0 0 20 20">
-                                    <path d="M5.5 3.5A1.5 1.5 0 0 1 7 5v10a1.5 1.5 0 0 1-3 0V5A1.5 1.5 0 0 1 5.5 3.5zm6 0A1.5 1.5 0 0 1 13 5v10a1.5 1.5 0 0 1-3 0V5a1.5 1.5 0 0 1 1.5-1.5z"/>
-                                </svg>
+                                <FontAwesomeIcon icon={faPause} className="w-16 h-16 text-white drop-shadow-lg" />
                             ) : (
-                                <svg className="w-16 h-16 text-white drop-shadow-lg" fill="currentColor" viewBox="0 0 20 20">
-                                    <path d="M8 5v10l7-5-7-5z"/>
-                                </svg>
+                                <FontAwesomeIcon icon={faPlay} className="w-16 h-16 text-white drop-shadow-lg" />
                             )}
                         </div>
                         
