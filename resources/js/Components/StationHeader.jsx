@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react'
 import { router, usePage, useForm } from '@inertiajs/react'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faHeart, faHeartBroken, faThumbsUp } from '@fortawesome/free-solid-svg-icons'
+import { faHeart as faHeartSolid, faThumbsUp } from '@fortawesome/free-solid-svg-icons'
+import { faHeart as faHeartRegular } from '@fortawesome/free-regular-svg-icons'
 import { useAudio } from '../Contexts/AudioContext'
 
 // Safe Station Icon Component - handles image loading errors without DOM manipulation
@@ -172,7 +173,11 @@ export default function StationHeader({ station, isFavorited, canVote, nextVoteT
                         className={`btn btn-lg ${isFavorited ? 'btn-secondary' : 'btn-outline btn-secondary'}`}
                         title={isFavorited ? 'Remove from favorites' : 'Add to favorites'}
                     >
-                        <FontAwesomeIcon icon={isFavorited ? faHeart : faHeartBroken} />
+                        <FontAwesomeIcon 
+                            icon={isFavorited ? faHeartSolid : faHeartRegular} 
+                            className="mr-2"
+                        />
+                        {isFavorited ? 'Favorited' : 'Add to favorites'}
                     </button>
                 )}
                 
