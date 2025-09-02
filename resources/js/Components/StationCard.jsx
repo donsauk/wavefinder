@@ -10,6 +10,8 @@ export default function StationCard({ station }) {
     // Check if this station is currently playing
     const isCurrentStation = currentStation?.stationuuid === station.stationuuid
     const isStationLoading = isCurrentStation && isLoading
+    // When any station is loading, dim and disable interaction for others
+    const isOtherStationDisabled = Boolean(isLoading && currentStation && !isCurrentStation)
 
     // Handle station card click - tracks click and navigates to station page using Inertia
     const handleStationCardClick = (stationuuid) => {
@@ -51,11 +53,16 @@ export default function StationCard({ station }) {
     return (
         <div 
             key={station.stationuuid} 
-            className={`card bg-base-200 cursor-pointer duration-200 relative border border-transparent ${
+            className={`card bg-base-200 duration-200 relative border ${
                 isStationLoading 
-                    ? 'border-4 border-primary animate-pulse shadow-2xl shadow-primary/50' 
-                    : 'hover:border-primary'
+                    ? 'border-primary ring-4 ring-primary/40 animate-pulse shadow-2xl shadow-primary/50 cursor-wait' 
+                    : 'border-transparent hover:border-primary cursor-pointer'
+            } ${
+                isOtherStationDisabled 
+                    ? 'pointer-events-none opacity-60 filter saturate-50 cursor-not-allowed' 
+                    : ''
             }`}
+            aria-disabled={isOtherStationDisabled}
             onClick={() => handleStationCardClick(station.stationuuid)}
         >
             {/* Green Speaker Icon for Currently Playing - Top Right Corner */}
@@ -70,7 +77,7 @@ export default function StationCard({ station }) {
                 {/* Station Icon - Larger with hover play overlay */}
                 <div className="flex justify-center my-2">
                     <div 
-                        className={`relative w-24 h-24 rounded-full bg-primary flex items-center justify-center text-white text-2xl overflow-hidden cursor-pointer group transition-all duration-300 hover:ring-4 hover:ring-secondary hover:ring-opacity-80 ${isCurrentStation && isPlaying ? 'ring-4 ring-accent ring-opacity-100' : ''}`}
+                        className={`relative w-24 h-24 rounded-full bg-primary flex items-center justify-center text-white text-2xl overflow-hidden ${isOtherStationDisabled ? '' : 'cursor-pointer'} group transition-all duration-300 hover:ring-4 hover:ring-secondary hover:ring-opacity-80 ${isCurrentStation && isPlaying ? 'ring-4 ring-accent ring-opacity-100' : ''}`}
                         onClick={(e) => handlePlayButtonClick(e, station)}
                     >
                         {station.favicon ? (
