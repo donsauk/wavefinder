@@ -47,7 +47,7 @@ export default function Station({ station, isFavorited, canVote, nextVoteTime, c
                         </div>
 
                         {/* Main Layout Grid */}
-                        <div className="lg:pr-96">
+                        <div className="grid grid-cols-1 lg:grid-cols-[1fr_24rem] gap-6">
                             {/* Content */}
                             <div className="space-y-8">
                                 {/* Hero Header */}
@@ -171,9 +171,9 @@ export default function Station({ station, isFavorited, canVote, nextVoteTime, c
                                 </div>
                             </div>
 
-                            {/* Right Sidebar - Chat */}
+                            {/* Right Sidebar - Chat (inline with content) */}
                             <div className="hidden lg:block">
-                                <div className="fixed top-16 right-0 w-96 h-[calc(100vh-9rem)] z-30">
+                                <div className="sticky top-20 h-[calc(100vh-9rem)]">
                                     <StationChat stationUuid={station.stationuuid} />
                                 </div>
                             </div>
