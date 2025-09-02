@@ -1,7 +1,7 @@
 import React from 'react'
 import { Head, Link } from '@inertiajs/react'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faThumbsUp, faHandPointer, faFire } from '@fortawesome/free-solid-svg-icons'
+import { faThumbsUp, faHandPointer, faFire, faGlobe } from '@fortawesome/free-solid-svg-icons'
 import Navbar from '../Components/Navbar'
 import StationComments from '../Components/StationComments'
 import StationHeader from '../Components/StationHeader'
@@ -11,6 +11,19 @@ import FlashMessage from '../Components/FlashMessage'
 
 
 export default function Station({ station, isFavorited, canVote, nextVoteTime, comments, userXP }) {
+    const homepageDomain = (() => {
+        try {
+            return station?.homepage ? new URL(station.homepage).hostname.replace(/^www\./, '') : ''
+        } catch (e) {
+            return ''
+        }
+    })()
+    const languageLabel = (() => {
+        if (!station?.language) return ''
+        const s = String(station.language).trim()
+        if (!s) return ''
+        return s.charAt(0).toUpperCase() + s.slice(1)
+    })()
     
     return (
         <>
@@ -51,9 +64,10 @@ export default function Station({ station, isFavorited, canVote, nextVoteTime, c
                                     </div>
                                 </div>
 
-                                {/* Quick Stats */}
+                                {/* Compact Info Panel: Stats + Tags + Details */}
                                 <div className="card bg-base-200 shadow-lg">
-                                    <div className="card-body">
+                                    <div className="card-body gap-4">
+                                        {/* Stats Row (unchanged design) */}
                                         <div className="stats stats-vertical md:stats-horizontal w-full">
                                             <div className="stat">
                                                 <div className="stat-title">Votes</div>
@@ -74,29 +88,67 @@ export default function Station({ station, isFavorited, canVote, nextVoteTime, c
                                                 </div>
                                             </div>
                                         </div>
-                                    </div>
-                                </div>
 
-                                {/* Tags Bar */}
-                                {station.tags && (
-                                    <div className="overflow-x-auto -mx-2">
-                                        <div className="flex items-center gap-2 px-2 py-2 whitespace-nowrap">
-                                            {station.tags.split(',').map((raw, index) => {
-                                                const t = raw.trim();
-                                                if (!t) return null;
-                                                return (
-                                                    <Link
-                                                        key={`${t}-${index}`}
-                                                        href={`${route('browse')}?search=${encodeURIComponent(t)}`}
-                                                        className="badge badge-ghost hover:badge-primary cursor-pointer"
-                                                    >
-                                                        {t}
-                                                    </Link>
-                                                );
-                                            })}
+                                        {/* Tags Row */}
+                                        {station.tags && (
+                                            <div className="flex flex-wrap items-center justify-center gap-2 w-full">
+                                                {station.tags.split(',').map((raw, index) => {
+                                                    const t = raw.trim();
+                                                    if (!t) return null;
+                                                    return (
+                                                        <Link
+                                                            key={`${t}-${index}`}
+                                                            href={`${route('browse')}?search=${encodeURIComponent(t)}`}
+                                                            className="badge badge-primary badge-sm"
+                                                        >
+                                                            {t}
+                                                        </Link>
+                                                    );
+                                                })}
+                                            </div>
+                                        )}
+
+                                        {/* Details Row (no HLS/SSL) */}
+                                        <div className="flex flex-col sm:flex-row sm:flex-nowrap gap-3">
+                                            {station.codec && (
+                                                <div className="flex-1 flex items-center justify-between p-2 rounded-box bg-base-100 border border-base-300">
+                                                    <span className="opacity-70">Codec</span>
+                                                    <span className="font-semibold">{station.codec}</span>
+                                                </div>
+                                            )}
+                                            {station.bitrate && (
+                                                <div className="flex-1 flex items-center justify-between p-2 rounded-box bg-base-100 border border-base-300">
+                                                    <span className="opacity-70">Bitrate</span>
+                                                    <span className="font-semibold">{station.bitrate} kbps</span>
+                                                </div>
+                                            )}
+                                            {languageLabel && (
+                                                <div className="flex-1 flex items-center justify-between p-2 rounded-box bg-base-100 border border-base-300">
+                                                    <span className="opacity-70">Language</span>
+                                                    <span className="font-semibold">{languageLabel}</span>
+                                                </div>
+                                            )}
+                                            {station.homepage && (
+                                                <a
+                                                    href={station.homepage}
+                                                    target="_blank"
+                                                    rel="noopener noreferrer"
+                                                    className="group flex items-center gap-2 p-2 rounded-box border border-primary/30 bg-primary/10 text-primary hover:bg-primary/20 transition-colors w-full sm:w-auto shadow-sm"
+                                                >
+                                                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                                                    </svg>
+                                                    <span className="font-medium truncate max-w-[14rem]">
+                                                        {homepageDomain || 'Visit Homepage'}
+                                                    </span>
+                                                    <svg className="w-4 h-4 ml-auto opacity-60 group-hover:opacity-100 transition" viewBox="0 0 20 20" fill="currentColor">
+                                                        <path fillRule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 111.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clipRule="evenodd" />
+                                                    </svg>
+                                                </a>
+                                            )}
                                         </div>
                                     </div>
-                                )}
+                                </div>
 
                                 {/* Level Strip */}
                                 {userXP && (
@@ -111,60 +163,7 @@ export default function Station({ station, isFavorited, canVote, nextVoteTime, c
                                     </div>
                                 )}
 
-                                {/* Details Area */}
-                                <div className="grid lg:grid-cols-12 gap-6">
-                                    <div className="lg:col-span-12">
-                                        <div className="card bg-base-200 shadow-lg">
-                                            <div className="card-body">
-                                                <h2 className="card-title text-lg">Details</h2>
-                                                <div className="grid sm:grid-cols-2 gap-3 mt-2">
-                                                    {station.codec && (
-                                                        <div className="flex items-center justify-between p-2 rounded-box bg-base-100 border border-base-300">
-                                                            <span className="opacity-70">Codec</span>
-                                                            <span className="font-semibold">{station.codec}</span>
-                                                        </div>
-                                                    )}
-                                                    {station.bitrate && (
-                                                        <div className="flex items-center justify-between p-2 rounded-box bg-base-100 border border-base-300">
-                                                            <span className="opacity-70">Bitrate</span>
-                                                            <span className="font-semibold">{station.bitrate} kbps</span>
-                                                        </div>
-                                                    )}
-                                                    {station.language && (
-                                                        <div className="flex items-center justify-between p-2 rounded-box bg-base-100 border border-base-300">
-                                                            <span className="opacity-70">Language</span>
-                                                            <span className="font-semibold lowercase">{station.language}</span>
-                                                        </div>
-                                                    )}
-                                                    <div className="flex items-center justify-between p-2 rounded-box bg-base-100 border border-base-300">
-                                                        <span className="opacity-70">HLS</span>
-                                                        <span className={`badge ${station.hls ? 'badge-success' : 'badge-outline'}`}>{station.hls ? 'Yes' : 'No'}</span>
-                                                    </div>
-                                                    <div className="flex items-center justify-between p-2 rounded-box bg-base-100 border border-base-300">
-                                                        <span className="opacity-70">SSL</span>
-                                                        <span className={`badge ${station.ssl_error ? 'badge-error' : 'badge-success'}`}>{station.ssl_error ? 'Error' : 'OK'}</span>
-                                                    </div>
-                                                    {station.homepage && (
-                                                        <div className="sm:col-span-2 flex items-center justify-between p-2 rounded-box bg-base-100 border border-base-300">
-                                                            <span className="opacity-70">Homepage</span>
-                                                            <a 
-                                                                href={station.homepage}
-                                                                target="_blank"
-                                                                rel="noopener noreferrer"
-                                                                className="btn btn-primary btn-sm"
-                                                            >
-                                                                <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
-                                                                </svg>
-                                                                Visit Homepage
-                                                            </a>
-                                                        </div>
-                                                    )}
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
+                                {/* (Old separate details/tags/stats removed in favor of compact panel above) */}
 
                                 {/* Comments */}
                                 <div className="mt-2">
