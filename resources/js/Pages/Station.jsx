@@ -36,15 +36,7 @@ export default function Station({ station, isFavorited, canVote, nextVoteTime, c
                 {/* Main content area - Station content takes available space, with bottom padding for audio player */}
                 <div className="flex-1 overflow-y-auto pb-20">
                     <div className="max-w-7xl mx-auto p-6">
-                        {/* Back button - Using global route() function */}
-                        <div className="mb-6">
-                            <Link href={route('browse')} className="btn btn-ghost btn-sm">
-                                <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 19l-7-7 7-7" />
-                                </svg>
-                                Back to Browse
-                            </Link>
-                        </div>
+                        {/* Back button integrated into hero card (removed standalone block) */}
 
                         {/* Main Layout Grid */}
                         <div className="grid grid-cols-1 lg:grid-cols-[1fr_24rem] gap-6">
@@ -52,9 +44,16 @@ export default function Station({ station, isFavorited, canVote, nextVoteTime, c
                             <div className="space-y-8">
                                 {/* Hero Header */}
                                 <div className="hero rounded-box bg-base-200 relative overflow-hidden shadow-xl">
+                                    {/* Inline Back button inside the card */}
+                                    <Link href={route('browse')} className="btn btn-primary btn-sm absolute left-4 top-4 z-10">
+                                        <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 19l-7-7 7-7" />
+                                        </svg>
+                                        Back to Browse
+                                    </Link>
                                     <div className="absolute -top-24 -left-24 w-72 h-72 bg-primary/10 rounded-full blur-3xl"></div>
                                     <div className="absolute -bottom-24 -right-24 w-72 h-72 bg-secondary/10 rounded-full blur-3xl"></div>
-                                    <div className="hero-content py-10">
+                                    <div className="hero-content py-8">
                                         <StationHeader 
                                             station={station} 
                                             isFavorited={isFavorited} 
