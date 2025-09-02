@@ -29,12 +29,12 @@ export default function Station({ station, isFavorited, canVote, nextVoteTime, c
         <>
             <Head title={`${station.name} - WAVEFINDER`} />
             <FlashMessage />
-            <div className="min-h-screen bg-base-100 flex flex-col">
+            <div className="h-screen overflow-hidden bg-base-100 flex flex-col">
                 {/* Navbar - Fixed height */}
                 <Navbar />
 
                 {/* Main content area - Station content takes available space, with bottom padding for audio player */}
-                <div className="flex-1 pb-20">
+                <div className="flex-1 overflow-y-auto pb-20">
                     <div className="max-w-7xl mx-auto p-6">
                         {/* Back button - Using global route() function */}
                         <div className="mb-6">
