@@ -1,5 +1,5 @@
 import React from 'react'
-import { Head, Link } from '@inertiajs/react'
+import { Head, Link, usePage } from '@inertiajs/react'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faThumbsUp, faHandPointer, faFire, faGlobe } from '@fortawesome/free-solid-svg-icons'
 import Navbar from '../Components/Navbar'
@@ -11,6 +11,8 @@ import FlashMessage from '../Components/FlashMessage'
 
 
 export default function Station({ station, isFavorited, canVote, nextVoteTime, comments, userXP }) {
+    const { auth } = usePage().props
+    const getInitials = (name) => name?.split(' ').map(w => w.charAt(0)).join('').toUpperCase() || '?'
     const homepageDomain = (() => {
         try {
             return station?.homepage ? new URL(station.homepage).hostname.replace(/^www\./, '') : ''
@@ -151,14 +153,36 @@ export default function Station({ station, isFavorited, canVote, nextVoteTime, c
 
                                 {/* Level Strip */}
                                 {userXP && (
-                                    <div className="bg-base-200 rounded-box shadow p-3 flex items-center gap-4">
-                                        <div className="font-semibold">Level {userXP.level || 1}</div>
+                                    <div className="bg-base-200 rounded-box shadow p-3 flex items-center gap-3">
+                                        {auth?.user && (
+                                            <div className="flex items-center gap-2 min-w-0">
+                                                <div className="avatar">
+                                                    <div className="w-6 h-6 rounded-full overflow-hidden">
+                                                        {auth.user.avatar_url ? (
+                                                            <img
+                                                                src={auth.user.avatar_url}
+                                                                alt={`${auth.user.name}'s avatar`}
+                                                                className="w-full h-full object-cover"
+                                                            />
+                                                        ) : (
+                                                            <div className="bg-neutral text-neutral-content w-full h-full flex items-center justify-center text-[10px]">
+                                                                {getInitials(auth.user.name)}
+                                                            </div>
+                                                        )}
+                                                    </div>
+                                                </div>
+                                                <span className="text-sm font-medium truncate max-w-[10rem]" title={auth.user.name}>
+                                                    {auth.user.name}
+                                                </span>
+                                            </div>
+                                        )}
+                                        <div className="font-semibold whitespace-nowrap">Level {userXP.level || 1}</div>
                                         <progress
                                             className="progress progress-primary flex-1"
                                             value={userXP.progressPercent || 0}
                                             max="100"
                                         />
-                                        <div className="badge badge-primary">{(userXP.xp || 0).toLocaleString()} XP</div>
+                                        <div className="badge badge-primary whitespace-nowrap">{(userXP.xp || 0).toLocaleString()} XP</div>
                                     </div>
                                 )}
 
