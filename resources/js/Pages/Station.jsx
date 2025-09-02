@@ -173,7 +173,7 @@ export default function Station({ station, isFavorited, canVote, nextVoteTime, c
 
                             {/* Right Sidebar - Chat (inline with content) */}
                             <div className="hidden lg:block">
-                                <div className="sticky top-20 h-[calc(100vh-9rem)]">
+                                <div className="sticky top-20 h-[calc(100vh-15rem)]">
                                     <StationChat stationUuid={station.stationuuid} />
                                 </div>
                             </div>
