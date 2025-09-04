@@ -102,8 +102,8 @@ class StationController extends Controller
             \Log::warning("Failed to report station click to radio-browser API: " . $e->getMessage());
         }
 
-        // Return redirect back - Inertia pattern, no JSON response needed
-        return back()->with('flash.message', 'Station click tracked successfully');
+        // Silent success: no flash messages, just complete the request
+        return back();
     }
 
     // Redirect to a random working station

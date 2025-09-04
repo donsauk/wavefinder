@@ -1,8 +1,7 @@
 import React from 'react'
 import { Head, useForm } from '@inertiajs/react'
-import Navbar from '../Components/Navbar'
-import FlashMessage from '../Components/FlashMessage'
 import FormField from '../Components/FormField'
+import AppLayout from '../Layouts/AppLayout'
 
 export default function Settings({ user }) {
     const { data, setData, post, processing, errors, reset } = useForm({
@@ -24,18 +23,10 @@ export default function Settings({ user }) {
     return (
         <>
             <Head title="Settings - WAVEFINDER" />
-            <div className="h-screen bg-base-100 flex flex-col">
-                <Navbar />
-
-                <div className="flex-1 overflow-y-auto min-h-0 pb-20">
-                    <div className="max-w-lg mx-auto p-6">
+            <AppLayout containerClass="max-w-lg mx-auto p-6">
                         <div className="text-center mb-8">
                             <h1 className="text-3xl font-bold mb-2">Settings</h1>
                             <p className="text-base-content/70">Manage your account preferences</p>
-                        </div>
-
-                        <div className="mb-2">
-                          <FlashMessage />
                         </div>
 
                         {/* Account Information */}
@@ -104,9 +95,7 @@ export default function Settings({ user }) {
                                 </form>
                             </div>
                         </div>
-                    </div>
-                </div>
-            </div>
+            </AppLayout>
         </>
     )
 }

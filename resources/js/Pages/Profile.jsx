@@ -2,12 +2,11 @@ import React, { useRef, useState } from 'react'
 import { Head, router, usePage } from '@inertiajs/react'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faPlus } from '@fortawesome/free-solid-svg-icons'
-import Navbar from '../Components/Navbar'
 import ListeningStats from '../Components/ListeningStats'
-import FlashMessage from '../Components/FlashMessage'
+import AppLayout from '../Layouts/AppLayout'
 
 export default function Profile({ user }) {
-    const { flash, errors } = usePage().props
+    const { errors } = usePage().props
     const fileInputRef = useRef(null)
     const [processing, setProcessing] = useState(false)
 
@@ -47,13 +46,8 @@ export default function Profile({ user }) {
     return (
         <>
             <Head title="Profile - WAVEFINDER" />
-            <div className="h-screen bg-base-100 flex flex-col">
-                <Navbar />
-
-                <div className="flex-1 overflow-y-auto min-h-0 pb-20">
-                    <div className="max-w-4xl mx-auto p-6 space-y-6">
-                        {/* Flash */}
-                        <FlashMessage />
+            <AppLayout containerClass="max-w-4xl mx-auto p-6 space-y-6">
+                        {/* Errors */}
                         {errors?.avatar && (
                             <div className="alert alert-error">
                                 <span>{errors.avatar}</span>
@@ -143,9 +137,7 @@ export default function Profile({ user }) {
 
                         {/* Listening Stats Card */}
                         <ListeningStats />
-                    </div>
-                </div>
-            </div>
+            </AppLayout>
         </>
     )
 }

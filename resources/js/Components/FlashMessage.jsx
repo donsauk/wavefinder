@@ -1,25 +1,32 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useRef } from 'react'
 import { usePage } from '@inertiajs/react'
 
 export default function FlashMessage() {
     const { flash } = usePage().props
     const [visible, setVisible] = useState(false)
+    const [message, setMessage] = useState(null)
+    const [isError, setIsError] = useState(false)
+    const timerRef = useRef(null)
 
+    // Capture flash once and keep it in local state so
+    // it doesn't disappear when Inertia clears flash props
     useEffect(() => {
-        if (flash?.message || flash?.success || flash?.error) {
+        const nextMessage = flash?.error || flash?.success || flash?.message
+        if (nextMessage) {
+            setMessage(nextMessage)
+            setIsError(Boolean(flash?.error))
             setVisible(true)
+            // reset any existing timer
+            if (timerRef.current) clearTimeout(timerRef.current)
             // Auto hide after 5 seconds
-            const timer = setTimeout(() => {
-                setVisible(false)
-            }, 5000)
-            return () => clearTimeout(timer)
+            timerRef.current = setTimeout(() => setVisible(false), 5000)
+        }
+        return () => {
+            if (timerRef.current) clearTimeout(timerRef.current)
         }
     }, [flash?.message, flash?.success, flash?.error])
 
-    if ((!flash?.message && !flash?.success && !flash?.error) || !visible) return null
-
-    const isError = Boolean(flash?.error)
-    const message = flash?.error || flash?.success || flash?.message
+    if (!message || !visible) return null
 
     return (
         <div className="toast toast-top toast-center z-50">
@@ -32,9 +39,10 @@ export default function FlashMessage() {
                     )}
                 </svg>
                 <span>{message}</span>
-                <button 
+                <button
                     onClick={() => setVisible(false)}
                     className="btn btn-sm btn-circle btn-ghost"
+                    aria-label="Close notification"
                 >
                     ✕
                 </button>
