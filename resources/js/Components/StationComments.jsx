@@ -1,5 +1,7 @@
 import React from 'react'
 import { usePage, useForm, router, Link } from '@inertiajs/react'
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import { faTrashCan, faVolumeMute } from '@fortawesome/free-solid-svg-icons'
 
 export default function StationComments({ stationUuid, comments = [] }) {
     const { auth, flash, errors } = usePage().props
@@ -67,10 +69,13 @@ export default function StationComments({ stationUuid, comments = [] }) {
         return name?.split(' ').map(word => word.charAt(0)).join('').toUpperCase() || '?'
     }
 
-    // Format timestamp to readable format
-    const formatDate = (dateString) => {
-        const date = new Date(dateString)
-        return date.toLocaleDateString() + ' ' + date.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})
+    // Match chat's compact time formatting (HH:mm, 24h)
+    const formatTime = (timestamp) => {
+        return new Date(timestamp).toLocaleTimeString([], {
+            hour: '2-digit',
+            minute: '2-digit',
+            hour12: false,
+        })
     }
 
     return (
@@ -89,7 +94,7 @@ export default function StationComments({ stationUuid, comments = [] }) {
                         <div className="flex gap-3">
                             {/* User Avatar */}
                             <div className="avatar">
-                                <div className="w-10 h-10 rounded-full overflow-hidden">
+                                <div className="w-12 h-12 rounded-full overflow-hidden">
                                     {auth.user.avatar_url ? (
                                         <img 
                                             src={auth.user.avatar_url} 
@@ -147,62 +152,67 @@ export default function StationComments({ stationUuid, comments = [] }) {
                 )}
 
                 {/* Comments List */}
+                {/* Align message visuals with StationChat bubbles */}
                 {comments.length > 0 ? (
-                    <div className="space-y-4 max-h-96 overflow-y-auto">
+                    <div className="space-y-3 max-h-96 overflow-y-auto p-1">
                         {comments.map((comment) => (
                             <div key={comment.id} className={`chat ${comment.user.id === auth.user?.id ? 'chat-end' : 'chat-start'}`}>
-                                {/* User Avatar */}
+                                {/* Avatar (match chat sizes/colors) */}
                                 <div className="chat-image avatar">
-                                    <div className="w-10 h-10 rounded-full overflow-hidden">
+                                    <div className="w-12 h-12 rounded-full overflow-hidden">
                                         {comment.user.avatar_url ? (
-                                            <img 
-                                                src={comment.user.avatar_url} 
+                                            <img
+                                                src={comment.user.avatar_url}
                                                 alt={`${comment.user.name}'s avatar`}
                                                 className="w-full h-full object-cover"
                                             />
                                         ) : (
-                                            <div className={`${comment.user.id === auth.user?.id ? 'bg-secondary text-secondary-content' : 'bg-neutral text-neutral-content'} w-full h-full flex items-center justify-center`}>
-                                                <span className="text-sm">{getInitials(comment.user.name)}</span>
+                                            <div className={`${comment.user.id === auth.user?.id ? 'bg-primary text-primary-content' : 'bg-neutral text-neutral-content'} w-full h-full flex items-center justify-center`}>
+                                                <span className="text-xs">{comment.user?.name ? comment.user.name[0].toUpperCase() : 'A'}</span>
                                             </div>
                                         )}
                                     </div>
                                 </div>
-                                
-                                {/* Comment Header - username and timestamp */}
-                                <div className="chat-header text-xs opacity-70">
-                                    <span className="font-medium">{comment.user.name}</span>
-                                    <time className="ml-2">
-                                        {formatDate(comment.created_at)}
-                                    </time>
+
+                                {/* Bubble with username/time header to match chat */}
+                                <div className={`chat-bubble ${comment.user.id === auth.user?.id ? 'chat-bubble-primary' : ''}`}>
+                                    <div className="text-[11px] opacity-80 flex items-center justify-between gap-2">
+                                        <div className="flex items-center gap-2">
+                                            <span className="font-medium text-base-content">{comment.user.name}</span>
+                                            {comment.user?.isModerator && (
+                                                <span className="badge badge-info badge-xs">MOD</span>
+                                            )}
+                                        </div>
+                                        <div className="flex items-center gap-1">
+                                            <time className="opacity-60 ml-2 flex-shrink-0">{formatTime(comment.created_at)}</time>
+                                            {auth.user && (auth.user.id === comment.user.id || auth.user.isModerator) && (
+                                                <button
+                                                    onClick={() => handleDeleteComment(comment.id, auth.user.isModerator && auth.user.id !== comment.user.id)}
+                                                    className="p-1 rounded hover:bg-base-300/50 text-error opacity-80 hover:opacity-100"
+                                                    title="Delete comment"
+                                                    aria-label="Delete comment"
+                                                >
+                                                    <FontAwesomeIcon icon={faTrashCan} />
+                                                </button>
+                                            )}
+                                        </div>
+                                    </div>
+                                    <div className="whitespace-pre-wrap break-words">
+                                        {comment.content}
+                                    </div>
                                 </div>
-                                
-                                {/* Comment Bubble */}
-                                <div className={`chat-bubble ${comment.user.id === auth.user?.id ? 'chat-bubble-secondary' : 'chat-bubble-neutral'} max-w-lg break-words`}>
-                                    {comment.content}
-                                </div>
-                                
-                                {/* Delete Button - show for comment author or moderators */}
-                                {auth.user && (auth.user.id === comment.user.id || auth.user.isModerator) && (
-                                    <div className="chat-footer opacity-50 flex gap-2">
+
+                                {/* Only show moderator actions that remain (mute) below bubble */}
+                                {auth.user && auth.user.isModerator && auth.user.id !== comment.user.id && (
+                                    <div className="chat-footer opacity-60 mt-1 flex gap-1">
                                         <button
-                                            onClick={() => handleDeleteComment(comment.id, auth.user.isModerator && auth.user.id !== comment.user.id)}
-                                            className="btn btn-ghost btn-xs text-error hover:text-error"
-                                            title="Delete comment"
+                                            onClick={() => router.post(route('moderation.users.mute', comment.user.id), { hours: 1, reason: 'Inappropriate comment' })}
+                                            className="btn btn-ghost btn-xs text-warning"
+                                            title="Mute user"
+                                            aria-label="Mute user"
                                         >
-                                            Delete
+                                            <FontAwesomeIcon icon={faVolumeMute} />
                                         </button>
-                                        {auth.user.isModerator && auth.user.id !== comment.user.id && (
-                                            <button
-                                                onClick={() => router.post(route('moderation.users.mute', comment.user.id), {
-                                                    hours: 1,
-                                                    reason: 'Inappropriate comment'
-                                                })}
-                                                className="btn btn-ghost btn-xs text-warning hover:text-warning"
-                                                title="Mute user"
-                                            >
-                                                Mute
-                                            </button>
-                                        )}
                                     </div>
                                 )}
                             </div>
