@@ -1,8 +1,10 @@
 import React from 'react'
 import { Head, useForm } from '@inertiajs/react'
 import Navbar from '../Components/Navbar'
+import FlashMessage from '../Components/FlashMessage'
+import FormField from '../Components/FormField'
 
-export default function Settings({ user, flash }) {
+export default function Settings({ user }) {
     const { data, setData, post, processing, errors, reset } = useForm({
         current_password: '',
         password: '',
@@ -32,19 +34,9 @@ export default function Settings({ user, flash }) {
                             <p className="text-base-content/70">Manage your account preferences</p>
                         </div>
 
-                        {/* Flash Messages */}
-                        {flash?.success && (
-                            <div className="alert alert-success mb-6">
-                                <svg className="stroke-current shrink-0 h-6 w-6" fill="none" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
-                                <span>{flash.success}</span>
-                            </div>
-                        )}
-                        {flash?.error && (
-                            <div className="alert alert-error mb-6">
-                                <svg className="stroke-current shrink-0 h-6 w-6" fill="none" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
-                                <span>{flash.error}</span>
-                            </div>
-                        )}
+                        <div className="mb-2">
+                          <FlashMessage />
+                        </div>
 
                         {/* Account Information */}
                         <div className="card bg-base-200 shadow-xl mb-6 border border-primary/20">
@@ -74,65 +66,38 @@ export default function Settings({ user, flash }) {
                                 <h2 className="text-xl font-bold text-center mb-6">Change Password</h2>
                                 
                                 <form onSubmit={handlePasswordReset} className="space-y-4">
-                                    <div className="form-control w-full">
-                                        <label className="label">
-                                            <span className="label-text">Current Password</span>
-                                        </label>
-                                        <input
-                                            type="password"
-                                            className={`input input-bordered w-full ${errors.current_password ? 'input-error' : ''}`}
-                                            value={data.current_password}
-                                            onChange={(e) => setData('current_password', e.target.value)}
-                                            required
-                                        />
-                                        {errors.current_password && (
-                                            <label className="label">
-                                                <span className="label-text-alt text-error">{errors.current_password}</span>
-                                            </label>
-                                        )}
-                                    </div>
+                                    <FormField
+                                      label="Current Password"
+                                      type="password"
+                                      name="current_password"
+                                      value={data.current_password}
+                                      onChange={(e) => setData('current_password', e.target.value)}
+                                      error={errors.current_password}
+                                      required
+                                    />
 
-                                    <div className="form-control w-full">
-                                        <label className="label">
-                                            <span className="label-text">New Password</span>
-                                        </label>
-                                        <input
-                                            type="password"
-                                            className={`input input-bordered w-full ${errors.password ? 'input-error' : ''}`}
-                                            value={data.password}
-                                            onChange={(e) => setData('password', e.target.value)}
-                                            required
-                                        />
-                                        {errors.password && (
-                                            <label className="label">
-                                                <span className="label-text-alt text-error">{errors.password}</span>
-                                            </label>
-                                        )}
-                                    </div>
+                                    <FormField
+                                      label="New Password"
+                                      type="password"
+                                      name="password"
+                                      value={data.password}
+                                      onChange={(e) => setData('password', e.target.value)}
+                                      error={errors.password}
+                                      required
+                                    />
 
-                                    <div className="form-control w-full">
-                                        <label className="label">
-                                            <span className="label-text">Confirm New Password</span>
-                                        </label>
-                                        <input
-                                            type="password"
-                                            className={`input input-bordered w-full ${errors.password_confirmation ? 'input-error' : ''}`}
-                                            value={data.password_confirmation}
-                                            onChange={(e) => setData('password_confirmation', e.target.value)}
-                                            required
-                                        />
-                                        {errors.password_confirmation && (
-                                            <label className="label">
-                                                <span className="label-text-alt text-error">{errors.password_confirmation}</span>
-                                            </label>
-                                        )}
-                                    </div>
+                                    <FormField
+                                      label="Confirm New Password"
+                                      type="password"
+                                      name="password_confirmation"
+                                      value={data.password_confirmation}
+                                      onChange={(e) => setData('password_confirmation', e.target.value)}
+                                      error={errors.password_confirmation}
+                                      required
+                                    />
 
                                     <div className="form-control mt-6 w-full">
-                                        <button
-                                            className="btn btn-primary w-full bg-gradient-to-r from-primary to-secondary border-none"
-                                            disabled={processing}
-                                        >
+                                        <button className="btn btn-primary w-full" disabled={processing}>
                                             {processing ? 'Updating Password...' : 'Update Password'}
                                         </button>
                                     </div>

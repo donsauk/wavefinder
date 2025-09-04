@@ -6,7 +6,7 @@ export default function FlashMessage() {
     const [visible, setVisible] = useState(false)
 
     useEffect(() => {
-        if (flash?.message || flash?.error) {
+        if (flash?.message || flash?.success || flash?.error) {
             setVisible(true)
             // Auto hide after 5 seconds
             const timer = setTimeout(() => {
@@ -14,12 +14,12 @@ export default function FlashMessage() {
             }, 5000)
             return () => clearTimeout(timer)
         }
-    }, [flash?.message, flash?.error])
+    }, [flash?.message, flash?.success, flash?.error])
 
-    if ((!flash?.message && !flash?.error) || !visible) return null
+    if ((!flash?.message && !flash?.success && !flash?.error) || !visible) return null
 
-    const isError = flash?.error
-    const message = flash?.error || flash?.message
+    const isError = Boolean(flash?.error)
+    const message = flash?.error || flash?.success || flash?.message
 
     return (
         <div className="toast toast-top toast-center z-50">

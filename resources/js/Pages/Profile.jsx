@@ -4,6 +4,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faPlus } from '@fortawesome/free-solid-svg-icons'
 import Navbar from '../Components/Navbar'
 import ListeningStats from '../Components/ListeningStats'
+import FlashMessage from '../Components/FlashMessage'
 
 export default function Profile({ user }) {
     const { flash, errors } = usePage().props
@@ -51,17 +52,8 @@ export default function Profile({ user }) {
 
                 <div className="flex-1 overflow-y-auto min-h-0 pb-20">
                     <div className="max-w-4xl mx-auto p-6 space-y-6">
-                        {/* Flash Messages */}
-                        {flash?.success && (
-                            <div className="alert alert-success">
-                                <span>{flash.success}</span>
-                            </div>
-                        )}
-                        {flash?.error && (
-                            <div className="alert alert-error">
-                                <span>{flash.error}</span>
-                            </div>
-                        )}
+                        {/* Flash */}
+                        <FlashMessage />
                         {errors?.avatar && (
                             <div className="alert alert-error">
                                 <span>{errors.avatar}</span>
