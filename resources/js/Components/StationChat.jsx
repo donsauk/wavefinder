@@ -196,7 +196,7 @@ export default function StationChat({ stationUuid }) {
                     <FontAwesomeIcon icon={faComments} className="text-xl" />
                     Station Chat
                     <div className={`badge badge-sm ${isConnected ? 'badge-success' : 'badge-error'}`}>
-                        {isConnected ? 'Online' : 'Offline'}
+                        {isConnected ? 'LIVE' : 'Offline'}
                     </div>
                 </h3>
             </div>
@@ -221,7 +221,7 @@ export default function StationChat({ stationUuid }) {
                                                 className="w-full h-full object-cover"
                                             />
                                         ) : (
-                                            <div className={`${message.user_id === auth.user?.id ? 'bg-secondary text-secondary-content' : 'bg-primary text-primary-content'} w-full h-full flex items-center justify-center`}>
+                                            <div className={`${message.user_id === auth.user?.id ? 'bg-primary text-primary-content' : 'bg-neutral text-neutral-content'} w-full h-full flex items-center justify-center`}>
                                                 <span className="text-xs">
                                                     {message.username ? message.username[0].toUpperCase() : 'A'}
                                                 </span>
@@ -229,49 +229,53 @@ export default function StationChat({ stationUuid }) {
                                         )}
                                     </div>
                                 </div>
-                                <div className="chat-header flex items-center gap-2">
-                                    <span className="font-semibold">
-                                        {message.username || 'Anonymous'}
-                                    </span>
-                                    {message.user?.isModerator && (
-                                        <span className="badge badge-warning badge-xs">MOD</span>
-                                    )}
-                                    <time className="text-xs opacity-50">
-                                        {formatTime(message.created_at)}
-                                    </time>
-                                    {auth.user?.isModerator && (
-                                        <div className="flex gap-1">
-                                            <button
-                                                onClick={() => deleteChatMessage(message.id)}
-                                                className="btn btn-xs btn-error"
-                                                title="Delete message"
-                                            >
-                                                <FontAwesomeIcon icon={faTrashCan} />
-                                            </button>
-                                            {message.user_id && (
-                                                <>
-                                                    <button
-                                                        onClick={() => showMuteModal(message.user_id, message.username)}
-                                                        className="btn btn-xs btn-warning"
-                                                        title="Mute user"
-                                                    >
-                                                        <FontAwesomeIcon icon={faVolumeMute} />
-                                                    </button>
-                                                    <button
-                                                        onClick={() => router.post(route('moderation.users.unmute', message.user_id))}
-                                                        className="btn btn-xs btn-success"
-                                                        title="Unmute user"
-                                                    >
-                                                        <FontAwesomeIcon icon={faVolumeHigh} />
-                                                    </button>
-                                                </>
+                                <div className={`chat-bubble px-3 py-1 leading-snug ${message.user_id === auth.user?.id ? 'chat-bubble-primary' : 'bg-base-100 text-base-content border border-base-300'}`}>
+                                    <div className="text-[11px] opacity-80 flex items-center justify-between">
+                                        <div className="flex items-center gap-2">
+                                            <span className="font-medium text-base-content">
+                                                {message.username || 'Anonymous'}
+                                            </span>
+                                            {message.user?.isModerator && (
+                                                <span className="badge badge-info badge-xs">MOD</span>
                                             )}
                                         </div>
-                                    )}
+                                        <time className="opacity-60 ml-2 flex-shrink-0">
+                                            {formatTime(message.created_at)}
+                                        </time>
+                                    </div>
+                                    <div className="whitespace-pre-wrap break-words">
+                                        {message.message}
+                                    </div>
                                 </div>
-                                <div className={`chat-bubble ${message.user_id === auth.user?.id ? 'chat-bubble-secondary' : 'bg-base-100 text-base-content border border-base-300'}`}>
-                                    {message.message}
-                                </div>
+                                {auth.user?.isModerator && (
+                                    <div className="chat-footer opacity-60 mt-1 flex gap-1">
+                                        <button
+                                            onClick={() => deleteChatMessage(message.id)}
+                                            className="btn btn-ghost btn-xs text-error"
+                                            title="Delete message"
+                                        >
+                                            <FontAwesomeIcon icon={faTrashCan} />
+                                        </button>
+                                        {message.user_id && (
+                                            <>
+                                                <button
+                                                    onClick={() => showMuteModal(message.user_id, message.username)}
+                                                    className="btn btn-ghost btn-xs text-warning"
+                                                    title="Mute user"
+                                                >
+                                                    <FontAwesomeIcon icon={faVolumeMute} />
+                                                </button>
+                                                <button
+                                                    onClick={() => router.post(route('moderation.users.unmute', message.user_id))}
+                                                    className="btn btn-ghost btn-xs text-success"
+                                                    title="Unmute user"
+                                                >
+                                                    <FontAwesomeIcon icon={faVolumeHigh} />
+                                                </button>
+                                            </>
+                                        )}
+                                    </div>
+                                )}
                             </div>
                         ))
                     )}
