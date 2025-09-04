@@ -42,7 +42,7 @@ export default function ListeningStats() {
 
     if (!auth?.user) {
         return (
-            <div className="card bg-base-200 border">
+            <div className="card bg-base-200 border border-primary/20">
                 <div className="card-body text-center">
                     <h3 className="card-title"><FontAwesomeIcon icon={faMusic} /> Listening Stats</h3>
                     <p className="text-base-content/60">
@@ -58,7 +58,7 @@ export default function ListeningStats() {
 
     if (loading) {
         return (
-            <div className="card bg-base-200 border">
+            <div className="card bg-base-200 border border-primary/20">
                 <div className="card-body">
                     <h3 className="card-title"><FontAwesomeIcon icon={faMusic} /> Listening Stats</h3>
                     <div className="flex justify-center py-4">
@@ -71,7 +71,7 @@ export default function ListeningStats() {
 
     if (error) {
         return (
-            <div className="card bg-base-200 border">
+            <div className="card bg-base-200 border border-primary/20">
                 <div className="card-body">
                     <h3 className="card-title"><FontAwesomeIcon icon={faMusic} /> Listening Stats</h3>
                     <div className="alert alert-error">
@@ -86,7 +86,7 @@ export default function ListeningStats() {
     }
 
     return (
-        <div className="card bg-base-200 border">
+        <div className="card bg-base-200 border border-primary/20">
             <div className="card-body">
                 <h3 className="card-title flex items-center gap-2">
                     <FontAwesomeIcon icon={faMusic} /> Listening Stats

@@ -13,7 +13,7 @@ export default function Navbar() {
     };
 
     return (
-        <div className="navbar bg-base-200 border-b border-base-300">
+        <div className="navbar bg-base-200 border-b border-primary/20">
             <div className="navbar-start">
                 <Link href={route('browse')} className="btn btn-ghost text-xl font-black tracking-wider bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
                     WAVEFINDER

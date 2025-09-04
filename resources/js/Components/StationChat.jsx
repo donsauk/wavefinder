@@ -171,8 +171,8 @@ export default function StationChat({ stationUuid }) {
     }, [auth.user?.muted_until])
 
     return (
-        <div className="card bg-base-200 h-full flex flex-col">
-            <div className="card-header p-4 border-b">
+        <div className="card bg-base-200 h-full flex flex-col border border-primary/20">
+            <div className="card-header p-4 border-b border-primary/20">
                 <h3 className="card-title text-lg flex items-center gap-2">
                     <FontAwesomeIcon icon={faComments} className="text-xl" />
                     Station Chat
@@ -261,7 +261,7 @@ export default function StationChat({ stationUuid }) {
                     )}
                 </div>
 
-                <div className="p-4 border-t">
+                <div className="p-4 border-t border-primary/20">
                     {auth.user ? (
                         timeRemaining ? (
                             <div className="text-center py-4">

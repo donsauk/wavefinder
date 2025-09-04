@@ -56,7 +56,7 @@ export default function AudioPlayer() {
     }
 
     return (
-        <div className="fixed bottom-0 left-0 right-0 bg-base-200 border-t px-4 py-3 z-50">
+        <div className="fixed bottom-0 left-0 right-0 bg-base-200 border-t border-primary/20 px-4 py-3 z-50">
             <div className="max-w-7xl mx-auto flex items-center justify-between">
                 {/* Station Info */}
                 <div className="flex items-center gap-3 min-w-0 flex-1">

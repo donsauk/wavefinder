@@ -74,7 +74,7 @@ export default function StationComments({ stationUuid, comments = [] }) {
     }
 
     return (
-        <div className="card bg-base-200 border">
+        <div className="card bg-base-200 border border-primary/20">
             <div className="card-body">
                 <h2 className="card-title text-lg mb-4">
                     <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -139,7 +139,7 @@ export default function StationComments({ stationUuid, comments = [] }) {
                     </form>
                 ) : (
                     // Login prompt for unauthenticated users
-                    <div className="text-center py-6 mb-6 bg-base-100 rounded-lg border">
+                    <div className="text-center py-6 mb-6 bg-base-100 rounded-lg border border-primary/20">
                         <p className="text-sm opacity-70 mb-3">Join the conversation!</p>
                         <Link href="/login" className="btn btn-primary btn-sm mr-2">Login</Link>
                         <Link href="/register" className="btn btn-outline btn-sm">Sign Up</Link>

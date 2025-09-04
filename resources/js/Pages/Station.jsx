@@ -9,7 +9,7 @@ import AppLayout from '../Layouts/AppLayout'
 
 // Small helpers to reduce repetition
 const InfoItem = ({ label, children }) => (
-  <div className="flex-1 flex items-center justify-between p-2 rounded-box bg-base-100 border">
+  <div className="flex-1 flex items-center justify-between h-10 px-3 rounded-box bg-base-100 border border-primary/20">
     <span className="opacity-70">{label}</span>
     <span className="font-semibold">{children}</span>
   </div>
@@ -58,7 +58,7 @@ export default function Station({ station, isFavorited, canVote, nextVoteTime, c
             <AppLayout>
                 <div className="grid grid-cols-1 lg:grid-cols-[1fr_24rem] gap-6">
                     <div className="space-y-8">
-                                <div className="hero rounded-box bg-base-200 relative overflow-hidden shadow-xl">
+                                <div className="hero rounded-box bg-base-200 relative overflow-hidden shadow-xl border border-primary/20">
                                     <Link href={route('browse')} className="btn btn-primary btn-sm absolute left-4 top-4 z-10">
                                         <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 19l-7-7 7-7" />
@@ -77,7 +77,7 @@ export default function Station({ station, isFavorited, canVote, nextVoteTime, c
                                     </div>
                                 </div>
 
-                                <div className="card bg-base-200 shadow-lg">
+                                <div className="card bg-base-200 shadow-lg border border-primary/20">
                                     <div className="card-body gap-4">
                                         <div className="stats stats-vertical md:stats-horizontal w-full">
                                             {stats.map((s) => (
@@ -117,7 +117,7 @@ export default function Station({ station, isFavorited, canVote, nextVoteTime, c
                                                     href={station.homepage}
                                                     target="_blank"
                                                     rel="noopener noreferrer"
-                                                    className="btn btn-outline btn-primary btn-sm gap-2 w-full sm:w-auto"
+                                                    className="btn btn-outline btn-primary btn-sm h-10 gap-2 w-full sm:w-auto"
                                                 >
                                                     <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
@@ -133,7 +133,7 @@ export default function Station({ station, isFavorited, canVote, nextVoteTime, c
                                 </div>
 
                                 {userXP && (
-                                    <div className="bg-base-200 rounded-box shadow p-3 flex items-center gap-3">
+                                    <div className="bg-base-200 rounded-box shadow p-3 flex items-center gap-3 border border-primary/20">
                                         {auth?.user && (
                                             <div className="flex items-center gap-2 min-w-0">
                                                 <AvatarTiny user={auth.user} getInitials={getInitials} />

@@ -56,7 +56,7 @@ export default function StationCard({ station }) {
             className={`card bg-base-200 relative border ${
                 isStationLoading 
                     ? 'border-primary ring-4 ring-primary/40 animate-pulse shadow-lg shadow-primary/30 cursor-wait' 
-                    : 'border-transparent hover:border-primary cursor-pointer'
+                    : 'border-primary/20 hover:border-primary cursor-pointer'
             } ${
                 isOtherStationDisabled 
                     ? 'pointer-events-none opacity-60 filter saturate-50 cursor-not-allowed' 

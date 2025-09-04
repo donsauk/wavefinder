@@ -78,7 +78,7 @@ export default function FilterBar() {
         setFilterState(prev => ({ ...prev, searchQuery: e.target.value }))
     }
     return (
-        <div className="bg-base-200 border-b">
+        <div className="bg-base-200 border-b border-primary/20">
             <div className="max-w-8xl mx-auto px-4 lg:px-8">
                 <div className="flex flex-col lg:flex-row items-center lg:justify-center gap-4 py-4 lg:h-14">
                     {/* Local Stations Toggle - only show if user is authenticated and has country */}

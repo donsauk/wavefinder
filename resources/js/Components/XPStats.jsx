@@ -22,7 +22,7 @@ export default function XPStats({ user }) {
     };
 
     return (
-        <div className="card bg-base-100 shadow-lg border w-full max-w-sm">
+        <div className="card bg-base-100 shadow-lg border border-primary/20 w-full max-w-sm">
             <div className="card-body p-6">
                 <div className="flex items-center justify-between mb-4">
                     <h3 className="card-title text-lg">Level {currentLevel}</h3>
