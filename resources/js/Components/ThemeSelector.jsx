@@ -1,4 +1,6 @@
 import React, { useState, useEffect } from 'react'
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import { faSun, faMoon } from '@fortawesome/free-solid-svg-icons'
 
 const THEMES = [
     'light', 'dark', 'cupcake', 'bumblebee', 'emerald', 'corporate', 'synthwave',
@@ -40,7 +42,11 @@ export default function ThemeSelector() {
 
     return (
         <div className="dropdown dropdown-end">
-            <div tabIndex={0} role="button" className="btn btn-accent btn-sm">
+            <div tabIndex={0} role="button" className="btn btn-accent btn-sm gap-2">
+                <FontAwesomeIcon
+                    icon={/(dark|night|dracula|black|dim|forest|business|coffee|abyss|nord)/i.test(currentTheme) ? faMoon : faSun}
+                    className="w-4 h-4"
+                />
                 Theme
             </div>
             <div tabIndex={0} className="dropdown-content bg-base-100 rounded-box z-[1] w-96 p-3 shadow">

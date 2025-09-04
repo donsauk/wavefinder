@@ -95,9 +95,9 @@ export default function Login() {
                                     )}
                                 </div>
 
-                                {/* Remember Me */}
-                                <div className="form-control w-full">
-                                    <label className="label cursor-pointer justify-start gap-3">
+                                {/* Remember + Forgot (inline) */}
+                                <div className="flex items-center justify-between w-full mt-1">
+                                    <label className="label cursor-pointer justify-start gap-3 p-0">
                                         <input
                                             type="checkbox"
                                             className="checkbox checkbox-primary"
@@ -106,10 +106,6 @@ export default function Login() {
                                         />
                                         <span className="label-text">Remember me</span>
                                     </label>
-                                </div>
-
-                                {/* Forgot Password Link */}
-                                <div className="text-right mt-2">
                                     <Link href={route('password.request')} className="link link-primary text-sm">
                                         Forgot your password?
                                     </Link>

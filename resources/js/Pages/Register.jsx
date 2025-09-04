@@ -64,7 +64,7 @@ export default function Register() {
                                 {/* Name */}
                                 <div className="form-control w-full">
                                     <label className="label">
-                                        <span className="label-text">Name</span>
+                                        <span className="label-text">Username</span>
                                     </label>
                                     <input
                                         name="name"

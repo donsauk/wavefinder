@@ -53,7 +53,7 @@ export default function Settings({ user, flash }) {
                                 
                                 <div className="space-y-2 text-sm">
                                     <div className="flex justify-between">
-                                        <span className="text-base-content/70">Name:</span>
+                                        <span className="text-base-content/70">Username:</span>
                                         <span className="font-medium">{user.name}</span>
                                     </div>
                                     <div className="flex justify-between">
