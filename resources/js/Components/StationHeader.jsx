@@ -108,17 +108,8 @@ export default function StationHeader({ station, isFavorited, canVote, nextVoteT
 
     // Handle station play/pause using global audio context
     const handlePlayStation = () => {
-        if (isCurrentStation && isPlaying) {
-            // Pause current station
-            pauseStation()
-        } else if (isCurrentStation && !isPlaying) {
-            // Resume current station (handled by AudioPlayer component)
-            // For consistency, we'll treat this as playing the station again
-            playStation(station)
-        } else {
-            // Play new station
-            playStation(station)
-        }
+        if (isCurrentStation && isPlaying) return pauseStation()
+        playStation(station)
     }
 
     return (
@@ -186,7 +177,7 @@ export default function StationHeader({ station, isFavorited, canVote, nextVoteT
                     <button
                         onClick={handleVoteStation}
                         disabled={isVoting || !voteStatus.canVote}
-                        className={`btn btn-lg ${voteStatus.canVote ? 'btn-accent' : 'btn-disabled'}`}
+                        className="btn btn-lg btn-accent"
                         title={
                             voteStatus.canVote 
                                 ? 'Vote for this station to help Radio Browser' 

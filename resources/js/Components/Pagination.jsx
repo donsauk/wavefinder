@@ -83,7 +83,7 @@ export default function Pagination({ data, itemName = 'items' }) {
                                 <span className="hidden sm:inline">Previous</span>
                             </Link>
                         ) : (
-                            <button className="btn btn-outline btn-sm btn-disabled gap-1 opacity-50" disabled>
+                            <button className="btn btn-outline btn-sm gap-1" disabled>
                                 <FontAwesomeIcon icon={faChevronLeft} className="w-3 h-3" />
                                 <span className="hidden sm:inline">Previous</span>
                             </button>
@@ -143,7 +143,7 @@ export default function Pagination({ data, itemName = 'items' }) {
                                 <FontAwesomeIcon icon={faChevronRight} className="w-3 h-3" />
                             </Link>
                         ) : (
-                            <button className="btn btn-outline btn-sm btn-disabled gap-1 opacity-50" disabled>
+                            <button className="btn btn-outline btn-sm gap-1" disabled>
                                 <span className="hidden sm:inline">Next</span>
                                 <FontAwesomeIcon icon={faChevronRight} className="w-3 h-3" />
                             </button>

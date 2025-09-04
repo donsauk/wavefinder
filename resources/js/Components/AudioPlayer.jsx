@@ -4,22 +4,18 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faVolumeHigh, faVolumeMute } from '@fortawesome/free-solid-svg-icons'
 import { useAudio } from '../Contexts/AudioContext'
 
-// Safe Station Icon Component - handles image loading errors without DOM manipulation
-function StationIcon({ station, className = "w-12 h-12 rounded-full bg-primary flex items-center justify-center text-white text-lg overflow-hidden flex-shrink-0" }) {
+function StationIcon({ station }) {
     const [imageError, setImageError] = useState(false)
-    
+    const fallback = station.name?.charAt(0).toUpperCase() || '?'
     return (
-        <div className={className}>
-            {station.favicon && !imageError ? (
-                <img 
-                    src={station.favicon} 
-                    alt=""
-                    className="w-full h-full object-cover"
-                    onError={() => setImageError(true)}
-                />
-            ) : (
-                <span>{station.name?.charAt(0).toUpperCase() || '?'}</span>
-            )}
+        <div className="avatar">
+            <div className="w-12 rounded-full bg-primary text-primary-content overflow-hidden">
+                {station.favicon && !imageError ? (
+                    <img src={station.favicon} alt="" onError={() => setImageError(true)} />
+                ) : (
+                    <span className="text-lg font-semibold flex items-center justify-center h-full">{fallback}</span>
+                )}
+            </div>
         </div>
     )
 }
@@ -60,8 +56,7 @@ export default function AudioPlayer() {
     }
 
     return (
-        // Fixed bottom audio player bar (Spotify-style) - positioned at true bottom
-        <div className="fixed bottom-0 left-0 right-0 bg-base-200 border-t border-base-300 px-4 py-3 z-50">
+        <div className="fixed bottom-0 left-0 right-0 bg-base-200 border-t px-4 py-3 z-50">
             <div className="max-w-7xl mx-auto flex items-center justify-between">
                 {/* Station Info */}
                 <div className="flex items-center gap-3 min-w-0 flex-1">
@@ -84,7 +79,6 @@ export default function AudioPlayer() {
                     </div>
                 </div>
 
-                {/* Playback Controls */}
                 <div className="flex items-center gap-4 px-8">
                     <button 
                         className="btn btn-circle btn-primary"
@@ -106,7 +100,6 @@ export default function AudioPlayer() {
                     
                 </div>
 
-                {/* Volume Control */}
                 <div className="flex items-center gap-2 min-w-0 flex-1 justify-end">
                     <button 
                         onClick={handleMuteToggle}

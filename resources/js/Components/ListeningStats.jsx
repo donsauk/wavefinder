@@ -42,7 +42,7 @@ export default function ListeningStats() {
 
     if (!auth?.user) {
         return (
-            <div className="card bg-base-200 border border-primary/20">
+            <div className="card bg-base-200 border">
                 <div className="card-body text-center">
                     <h3 className="card-title"><FontAwesomeIcon icon={faMusic} /> Listening Stats</h3>
                     <p className="text-base-content/60">
@@ -58,7 +58,7 @@ export default function ListeningStats() {
 
     if (loading) {
         return (
-            <div className="card bg-base-200 border border-primary/20">
+            <div className="card bg-base-200 border">
                 <div className="card-body">
                     <h3 className="card-title"><FontAwesomeIcon icon={faMusic} /> Listening Stats</h3>
                     <div className="flex justify-center py-4">
@@ -71,7 +71,7 @@ export default function ListeningStats() {
 
     if (error) {
         return (
-            <div className="card bg-base-200 border border-primary/20">
+            <div className="card bg-base-200 border">
                 <div className="card-body">
                     <h3 className="card-title"><FontAwesomeIcon icon={faMusic} /> Listening Stats</h3>
                     <div className="alert alert-error">
@@ -86,14 +86,14 @@ export default function ListeningStats() {
     }
 
     return (
-        <div className="card bg-base-200 border border-primary/20">
+        <div className="card bg-base-200 border">
             <div className="card-body">
                 <h3 className="card-title flex items-center gap-2">
                     <FontAwesomeIcon icon={faMusic} /> Listening Stats
                 </h3>
 
                 {/* Total listening time */}
-                <div className="stat bg-base-100 rounded-box mb-4">
+                <div className="stat mb-4">
                     <div className="stat-title">Total Listening Time</div>
                     <div className="stat-value text-primary text-2xl">
                         {stats?.total_formatted || '0s'}
@@ -111,7 +111,7 @@ export default function ListeningStats() {
                         </h4>
                         <div className="space-y-2 max-h-64 overflow-y-auto">
                             {stats.station_stats.slice(0, 10).map((station, index) => (
-                                <div key={station.station_uuid} className="flex items-center justify-between p-3 bg-base-100 rounded-box">
+                                <div key={station.station_uuid} className="flex items-center justify-between p-3 bg-base-100 rounded">
                                     <div className="flex items-center gap-3">
                                         <div className="badge badge-primary badge-sm">
                                             #{index + 1}

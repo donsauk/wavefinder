@@ -49,7 +49,7 @@ export default function ThemeSelector() {
                 />
                 Theme
             </div>
-            <div tabIndex={0} className="dropdown-content bg-base-100 rounded-box z-[1] w-96 p-3 shadow">
+            <div tabIndex={0} className="dropdown-content bg-base-100 rounded-box z-[1] w-80 p-3 shadow">
                 <div className="grid grid-cols-2 gap-1 max-h-80 overflow-y-auto">
                     {THEMES.map((theme) => (
                         <button

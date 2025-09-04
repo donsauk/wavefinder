@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react'
-import { useForm, router } from '@inertiajs/react'
+import { useForm, router, Link } from '@inertiajs/react'
 import { usePage } from '@inertiajs/react'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faComments, faWaveSquare, faTrashCan, faVolumeMute, faVolumeHigh } from '@fortawesome/free-solid-svg-icons'
@@ -12,29 +12,23 @@ export default function StationChat({ stationUuid }) {
     const [isInitialLoad, setIsInitialLoad] = useState(true)
     const [timeRemaining, setTimeRemaining] = useState(null)
     const [isSending, setIsSending] = useState(false)
-    const messagesEndRef = useRef(null)
     const messagesContainerRef = useRef(null)
     const echoRef = useRef(null)
-    const sendingTimeoutRef = useRef(null)
     const pendingMessageRef = useRef(null)
 
-    const { data, setData, post, processing, reset } = useForm({
+    const { data, setData, post, reset } = useForm({
         station_uuid: stationUuid,
         message: '',
     })
 
     const scrollToBottom = (smooth = true) => {
-        // Prefer scrolling the container itself to avoid window jumps
         const container = messagesContainerRef.current
         if (container) {
             container.scrollTo({
                 top: container.scrollHeight,
                 behavior: smooth ? 'smooth' : 'auto'
             })
-            return
         }
-        // Fallback: keep old behavior (rarely used)
-        messagesEndRef.current?.scrollIntoView({ behavior: smooth ? 'smooth' : 'auto' })
     }
 
     useEffect(() => {
@@ -49,7 +43,6 @@ export default function StationChat({ stationUuid }) {
     }, [messages, isInitialLoad, isSending])
 
     useEffect(() => {
-        // Fetch initial messages
         fetch(route('chat.messages', stationUuid))
             .then(response => response.json())
             .then(data => setMessages(data))
@@ -68,7 +61,6 @@ export default function StationChat({ stationUuid }) {
                         created_at: e.created_at
                     }])
                     
-                    // Clear loading state when our own message appears
                     if (e.user_id === auth.user?.id && pendingMessageRef.current === e.message) {
                         setIsSending(false)
                         pendingMessageRef.current = null
@@ -78,15 +70,12 @@ export default function StationChat({ stationUuid }) {
                     setMessages(prev => prev.filter(msg => msg.id !== e.messageId))
                 })
 
-            // Listen for user mute/unmute events on private channel
             if (auth.user) {
                 window.Echo.private(`user.${auth.user.id}`)
                     .listen('.user.muted', (e) => {
-                        // Reload page immediately when user gets muted
                         window.location.reload()
                     })
                     .listen('.user.unmuted', (e) => {
-                        // Reload page immediately when user gets unmuted
                         window.location.reload()
                     })
             }
@@ -117,16 +106,12 @@ export default function StationChat({ stationUuid }) {
             onSuccess: () => {
                 reset()
                 setData('message', '')
-                // Don't clear isSending here - wait for WebSocket confirmation
             },
             onError: (errors) => {
                 console.error('Chat error:', errors)
                 setIsSending(false)
                 pendingMessageRef.current = null
-                // Show flash error message for rate limiting
-                if (errors.message) {
-                    // The error will be handled by the global flash message system
-                }
+                if (errors.message) {}
             }
         })
     }
@@ -140,14 +125,12 @@ export default function StationChat({ stationUuid }) {
     }
 
     const deleteChatMessage = (messageId) => {
-        // Remove from UI immediately
         setMessages(prev => prev.filter(msg => msg.id !== messageId))
         
         router.delete(route('moderation.chat.delete', messageId), {
             preserveScroll: true,
             onError: (errors) => {
                 console.log('Delete error:', errors)
-                // If delete failed, we could restore the message here if needed
             }
         })
     }
@@ -157,7 +140,6 @@ export default function StationChat({ stationUuid }) {
         if (modal) modal.showModal()
     }
 
-    // Update countdown timer for muted users
     useEffect(() => {
         if (!auth.user?.muted_until) {
             setTimeRemaining(null)
@@ -171,7 +153,6 @@ export default function StationChat({ stationUuid }) {
 
             if (diff <= 0) {
                 setTimeRemaining(null)
-                // Reload page to refresh user auth data
                 window.location.reload()
                 return
             }
@@ -190,8 +171,8 @@ export default function StationChat({ stationUuid }) {
     }, [auth.user?.muted_until])
 
     return (
-        <div className="card bg-base-200 h-full flex flex-col border border-primary/20">
-            <div className="card-header p-4 border-b border-base-300">
+        <div className="card bg-base-200 h-full flex flex-col">
+            <div className="card-header p-4 border-b">
                 <h3 className="card-title text-lg flex items-center gap-2">
                     <FontAwesomeIcon icon={faComments} className="text-xl" />
                     Station Chat
@@ -202,7 +183,6 @@ export default function StationChat({ stationUuid }) {
             </div>
             
             <div className="flex-1 flex flex-col min-h-0">
-                {/* Messages Container */}
                 <div ref={messagesContainerRef} className="flex-1 overflow-y-auto p-4 space-y-3 min-h-0">
                     {messages.length === 0 ? (
                         <div className="text-center text-base-content/60 py-8">
@@ -229,7 +209,7 @@ export default function StationChat({ stationUuid }) {
                                         )}
                                     </div>
                                 </div>
-                                <div className={`chat-bubble px-3 py-1 leading-snug ${message.user_id === auth.user?.id ? 'chat-bubble-primary' : 'bg-base-100 text-base-content border border-base-300'}`}>
+                                <div className={`chat-bubble ${message.user_id === auth.user?.id ? 'chat-bubble-primary' : ''}`}>
                                     <div className="text-[11px] opacity-80 flex items-center justify-between">
                                         <div className="flex items-center gap-2">
                                             <span className="font-medium text-base-content">
@@ -279,11 +259,9 @@ export default function StationChat({ stationUuid }) {
                             </div>
                         ))
                     )}
-                    <div ref={messagesEndRef} />
                 </div>
 
-                {/* Message Input */}
-                <div className="p-4 border-t border-base-300">
+                <div className="p-4 border-t">
                     {auth.user ? (
                         timeRemaining ? (
                             <div className="text-center py-4">
@@ -308,7 +286,7 @@ export default function StationChat({ stationUuid }) {
                                 <input
                                     type="text"
                                     placeholder="Type your message..."
-                                    className={`input input-bordered flex-1 ${isSending ? 'input-disabled opacity-50' : ''}`}
+                                    className="input input-bordered flex-1"
                                     value={data.message}
                                     onChange={(e) => setData('message', e.target.value)}
                                     maxLength={500}
@@ -316,11 +294,11 @@ export default function StationChat({ stationUuid }) {
                                 />
                                 <button
                                     type="submit"
-                                    className={`btn btn-primary ${isSending ? 'loading' : ''}`}
+                                    className="btn btn-primary"
                                     disabled={isSending || !data.message.trim()}
                                 >
                                     {isSending ? (
-                                        <span className="loading loading-spinner loading-sm"></span>
+                                        <span className="loading loading-spinner loading-sm" />
                                     ) : (
                                         <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
@@ -332,15 +310,12 @@ export default function StationChat({ stationUuid }) {
                     ) : (
                         <div className="text-center py-4">
                             <p className="text-base-content/60 mb-3">Sign in to join the chat</p>
-                            <a href={route('login')} className="btn btn-primary btn-sm">
-                                Sign In
-                            </a>
+                            <Link href={route('login')} className="btn btn-primary btn-sm">Sign In</Link>
                         </div>
                     )}
                 </div>
             </div>
             
-            {/* Mute User Modals - only create one per unique user */}
             {auth.user?.isModerator && 
                 [...new Map(messages.filter(m => m.user_id).map(m => [m.user_id, m])).values()]
                 .map((message) => (

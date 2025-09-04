@@ -1,26 +1,19 @@
 import React from 'react'
-import { Link, useForm, usePage } from '@inertiajs/react'
+import { Link, router, usePage } from '@inertiajs/react'
 import ThemeSelector from './ThemeSelector'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faDice } from '@fortawesome/free-solid-svg-icons'
 
 export default function Navbar() {
     const { auth } = usePage().props;
-    const { post } = useForm();
 
-    // Enhanced logout with better UX patterns
     const handleLogout = (e) => {
         e.preventDefault();
-        post(route('logout'), {
-            preserveScroll: true,
-            onSuccess: () => {
-                // Logout success handled by backend redirect
-            }
-        });
+        router.post(route('logout'), { }, { preserveScroll: true });
     };
 
     return (
-        <div className="navbar bg-base-200 border-b border-base-300 h-16 flex-shrink-0">
+        <div className="navbar bg-base-200 border-b border-base-300">
             <div className="navbar-start">
                 <Link href={route('browse')} className="btn btn-ghost text-xl font-black tracking-wider bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
                     WAVEFINDER
@@ -49,25 +42,14 @@ export default function Navbar() {
             <div className="navbar-end">
                 <ThemeSelector />
                 {auth.user ? (
-                    // Logged in user
                     <div className="dropdown dropdown-end ml-2">
-                        <div tabIndex={0} role="button" className="btn btn-ghost btn-circle">
-                            <div className="avatar">
-                                <div className="w-10 rounded-full bg-primary">
-                                    {auth.user.avatar_url ? (
-                                        <img 
-                                            src={auth.user.avatar_url} 
-                                            alt={`${auth.user.name}'s avatar`}
-                                            className="w-full h-full object-cover rounded-full"
-                                        />
-                                    ) : (
-                                        <div className="w-full h-full flex items-center justify-center text-white">
-                                            <span className="text-sm font-bold">
-                                                {auth.user.name.charAt(0).toUpperCase()}
-                                            </span>
-                                        </div>
-                                    )}
-                                </div>
+                        <div tabIndex={0} role="button" className="btn btn-ghost btn-circle avatar placeholder">
+                            <div className="w-10 rounded-full bg-primary text-primary-content">
+                                {auth.user.avatar_url ? (
+                                    <img src={auth.user.avatar_url} alt={`${auth.user.name}'s avatar`} />
+                                ) : (
+                                    <span className="text-sm font-bold">{auth.user.name.charAt(0).toUpperCase()}</span>
+                                )}
                             </div>
                         </div>
                         <ul tabIndex={0} className="menu menu-sm dropdown-content bg-base-100 rounded-box z-[1] mt-3 w-52 p-2 shadow">

@@ -1,9 +1,7 @@
-import React, { useState } from 'react'
+import React from 'react'
 import { useForm } from '@inertiajs/react'
 
 export default function MuteUserModal({ userId, username }) {
-    const [hours, setHours] = useState(1)
-    
     const { data, setData, post, processing } = useForm({
         hours: 1,
         reason: '',
@@ -14,15 +12,14 @@ export default function MuteUserModal({ userId, username }) {
         post(route('moderation.users.mute', userId), {
             onSuccess: () => {
                 document.getElementById(`mute_modal_${userId}`).close()
+                setData('hours', 1)
                 setData('reason', '')
-                setHours(1)
             }
         })
     }
 
     const handleHoursChange = (e) => {
         const value = parseFloat(e.target.value)
-        setHours(value)
         setData('hours', value)
     }
 
@@ -34,14 +31,14 @@ export default function MuteUserModal({ userId, username }) {
                 <form onSubmit={handleSubmit} className="space-y-4 mt-4">
                     <div>
                         <label className="label">
-                            <span className="label-text">Duration: {hours} hour{hours !== 1 ? 's' : ''}</span>
+                            <span className="label-text">Duration: {data.hours} hour{data.hours !== 1 ? 's' : ''}</span>
                         </label>
                         <input
                             type="range"
                             min="0.1"
                             max="24"
                             step="0.1"
-                            value={hours}
+                            value={data.hours}
                             onChange={handleHoursChange}
                             className="range range-warning w-full"
                         />

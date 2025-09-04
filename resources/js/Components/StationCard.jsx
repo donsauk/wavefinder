@@ -53,9 +53,9 @@ export default function StationCard({ station }) {
     return (
         <div 
             key={station.stationuuid} 
-            className={`card bg-base-200 duration-200 relative border ${
+            className={`card bg-base-200 relative border ${
                 isStationLoading 
-                    ? 'border-primary ring-4 ring-primary/40 animate-pulse shadow-2xl shadow-primary/50 cursor-wait' 
+                    ? 'border-primary ring-4 ring-primary/40 animate-pulse shadow-lg shadow-primary/30 cursor-wait' 
                     : 'border-transparent hover:border-primary cursor-pointer'
             } ${
                 isOtherStationDisabled 
@@ -73,11 +73,11 @@ export default function StationCard({ station }) {
                     </svg>
                 </div>
             )}
-            <div className="card-body p-2 flex flex-col h-full">
+            <div className="card-body p-2">
                 {/* Station Icon - Larger with hover play overlay */}
                 <div className="flex justify-center my-2">
                     <div 
-                        className={`relative w-24 h-24 rounded-full bg-primary flex items-center justify-center text-white text-2xl overflow-hidden ${isOtherStationDisabled ? '' : 'cursor-pointer'} group transition-all duration-300 hover:ring-4 hover:ring-secondary hover:ring-opacity-80 ${isCurrentStation && isPlaying ? 'ring-4 ring-accent ring-opacity-100' : ''}`}
+                        className={`relative w-24 h-24 rounded-full bg-primary flex items-center justify-center text-white text-2xl overflow-hidden ${isOtherStationDisabled ? '' : 'cursor-pointer'} group transition hover:ring-4 hover:ring-secondary ${isCurrentStation && isPlaying ? 'ring-4 ring-accent' : ''}`}
                         onClick={(e) => handlePlayButtonClick(e, station)}
                     >
                         {station.favicon ? (

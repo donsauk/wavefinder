@@ -78,7 +78,7 @@ export default function FilterBar() {
         setFilterState(prev => ({ ...prev, searchQuery: e.target.value }))
     }
     return (
-        <div className="bg-base-200 border-b border-base-300 flex-shrink-0 lg:h-14">
+        <div className="bg-base-200 border-b">
             <div className="max-w-8xl mx-auto px-4 lg:px-8">
                 <div className="flex flex-col lg:flex-row items-center lg:justify-center gap-4 py-4 lg:h-14">
                     {/* Local Stations Toggle - only show if user is authenticated and has country */}
@@ -131,18 +131,16 @@ export default function FilterBar() {
 
                     {/* Search Bar */}
                     <form onSubmit={handleSearchSubmit} className="form-control">
-                        <div className="relative">
-                            <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none z-10">
-                                <FontAwesomeIcon icon={faSearch} className="text-base-content opacity-70" />
-                            </div>
+                        <label className="input input-bordered input-sm w-64 flex items-center gap-2">
+                            <FontAwesomeIcon icon={faSearch} className="opacity-70" />
                             <input
                                 type="search"
-                                className="input input-bordered input-sm w-64 pl-10 relative z-0"
+                                className="grow"
                                 placeholder="Search stations..."
                                 value={filterState.searchQuery}
                                 onChange={handleSearchChange}
                             />
-                        </div>
+                        </label>
                     </form>
 
                     {/* Country Filter - hide when local stations filter is active */}
