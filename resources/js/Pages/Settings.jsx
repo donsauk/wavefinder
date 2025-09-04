@@ -47,7 +47,7 @@ export default function Settings({ user, flash }) {
                         )}
 
                         {/* Account Information */}
-                        <div className="card bg-base-200 shadow-xl mb-6">
+                        <div className="card bg-base-200 shadow-xl mb-6 border border-primary/20">
                             <div className="card-body py-4">
                                 <h2 className="text-lg font-bold text-center mb-4">Account Information</h2>
                                 
@@ -69,7 +69,7 @@ export default function Settings({ user, flash }) {
                         </div>
 
                         {/* Change Password */}
-                        <div className="card bg-base-200 shadow-xl mb-6">
+                        <div className="card bg-base-200 shadow-xl mb-6 border border-primary/20">
                             <div className="card-body">
                                 <h2 className="text-xl font-bold text-center mb-6">Change Password</h2>
                                 
@@ -137,14 +137,6 @@ export default function Settings({ user, flash }) {
                                         </button>
                                     </div>
                                 </form>
-                            </div>
-                        </div>
-
-                        {/* Future sections placeholder */}
-                        <div className="card bg-base-200 shadow-xl opacity-50">
-                            <div className="card-body">
-                                <h2 className="text-xl font-bold text-center mb-4">Preferences</h2>
-                                <p className="text-center text-base-content/50">Additional settings coming soon...</p>
                             </div>
                         </div>
                     </div>

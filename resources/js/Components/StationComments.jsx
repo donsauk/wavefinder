@@ -74,7 +74,7 @@ export default function StationComments({ stationUuid, comments = [] }) {
     }
 
     return (
-        <div className="card bg-base-200">
+        <div className="card bg-base-200 border border-primary/20">
             <div className="card-body">
                 <h2 className="card-title text-lg mb-4">
                     <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">

@@ -52,7 +52,7 @@ export default function Login() {
                     </div>
 
                     {/* Login Form */}
-                    <div className="card bg-base-200 shadow-xl w-full">
+                    <div className="card bg-base-200 shadow-xl w-full border border-primary/20">
                         <div className="card-body">
                             <h2 className="text-2xl font-bold text-center mb-6">Login</h2>
                             

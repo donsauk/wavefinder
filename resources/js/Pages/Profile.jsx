@@ -68,7 +68,7 @@ export default function Profile({ user }) {
                             </div>
                         )}
                         {/* User Profile Card */}
-                        <div className="card bg-base-200">
+                        <div className="card bg-base-200 border border-primary/20">
                             <div className="card-body">
                                 <div className="flex items-center gap-6">
                                     <div className="relative">

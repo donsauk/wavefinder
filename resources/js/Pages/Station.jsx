@@ -26,6 +26,8 @@ export default function Station({ station, isFavorited, canVote, nextVoteTime, c
         if (!s) return ''
         return s.charAt(0).toUpperCase() + s.slice(1)
     })()
+    // Guard to avoid rendering a stray `0` when bitrate is 0
+    const showBitrate = Number.isFinite(Number(station?.bitrate)) && Number(station.bitrate) > 0
     
     return (
         <>
@@ -45,7 +47,7 @@ export default function Station({ station, isFavorited, canVote, nextVoteTime, c
                             {/* Content */}
                             <div className="space-y-8">
                                 {/* Hero Header */}
-                                <div className="hero rounded-box bg-base-200 relative overflow-hidden shadow-xl">
+                                <div className="hero rounded-box bg-base-200 relative overflow-hidden shadow-xl border border-primary/20">
                                     {/* Inline Back button inside the card */}
                                     <Link href={route('browse')} className="btn btn-primary btn-sm absolute left-4 top-4 z-10">
                                         <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -66,7 +68,7 @@ export default function Station({ station, isFavorited, canVote, nextVoteTime, c
                                 </div>
 
                                 {/* Compact Info Panel: Stats + Tags + Details */}
-                                <div className="card bg-base-200 shadow-lg">
+                                <div className="card bg-base-200 shadow-lg border border-primary/20">
                                     <div className="card-body gap-4">
                                         {/* Stats Row (unchanged design) */}
                                         <div className="stats stats-vertical md:stats-horizontal w-full">
@@ -117,10 +119,10 @@ export default function Station({ station, isFavorited, canVote, nextVoteTime, c
                                                     <span className="font-semibold">{station.codec}</span>
                                                 </div>
                                             )}
-                                            {station.bitrate && (
+                                            {showBitrate && (
                                                 <div className="flex-1 flex items-center justify-between p-2 rounded-box bg-base-100 border border-base-300">
                                                     <span className="opacity-70">Bitrate</span>
-                                                    <span className="font-semibold">{station.bitrate} kbps</span>
+                                                    <span className="font-semibold">{Number(station.bitrate)} kbps</span>
                                                 </div>
                                             )}
                                             {languageLabel && (
@@ -153,7 +155,7 @@ export default function Station({ station, isFavorited, canVote, nextVoteTime, c
 
                                 {/* Level Strip */}
                                 {userXP && (
-                                    <div className="bg-base-200 rounded-box shadow p-3 flex items-center gap-3">
+                                    <div className="bg-base-200 rounded-box shadow p-3 flex items-center gap-3 border border-primary/20">
                                         {auth?.user && (
                                             <div className="flex items-center gap-2 min-w-0">
                                                 <div className="avatar">

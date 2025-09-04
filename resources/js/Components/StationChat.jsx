@@ -13,6 +13,7 @@ export default function StationChat({ stationUuid }) {
     const [timeRemaining, setTimeRemaining] = useState(null)
     const [isSending, setIsSending] = useState(false)
     const messagesEndRef = useRef(null)
+    const messagesContainerRef = useRef(null)
     const echoRef = useRef(null)
     const sendingTimeoutRef = useRef(null)
     const pendingMessageRef = useRef(null)
@@ -23,19 +24,29 @@ export default function StationChat({ stationUuid }) {
     })
 
     const scrollToBottom = (smooth = true) => {
-        messagesEndRef.current?.scrollIntoView({ 
-            behavior: smooth ? "smooth" : "instant" 
-        })
+        // Prefer scrolling the container itself to avoid window jumps
+        const container = messagesContainerRef.current
+        if (container) {
+            container.scrollTo({
+                top: container.scrollHeight,
+                behavior: smooth ? 'smooth' : 'auto'
+            })
+            return
+        }
+        // Fallback: keep old behavior (rarely used)
+        messagesEndRef.current?.scrollIntoView({ behavior: smooth ? 'smooth' : 'auto' })
     }
 
     useEffect(() => {
-        if (messages.length > 0) {
-            scrollToBottom(!isInitialLoad)
-            if (isInitialLoad) {
-                setIsInitialLoad(false)
-            }
+        if (messages.length === 0) return
+        // Do not auto-jump the page on initial load; only enable after
+        // the first batch has rendered or when we are actively sending
+        if (isInitialLoad && !isSending) {
+            setIsInitialLoad(false)
+            return
         }
-    }, [messages, isInitialLoad])
+        scrollToBottom(true)
+    }, [messages, isInitialLoad, isSending])
 
     useEffect(() => {
         // Fetch initial messages
@@ -179,7 +190,7 @@ export default function StationChat({ stationUuid }) {
     }, [auth.user?.muted_until])
 
     return (
-        <div className="card bg-base-200 h-full flex flex-col">
+        <div className="card bg-base-200 h-full flex flex-col border border-primary/20">
             <div className="card-header p-4 border-b border-base-300">
                 <h3 className="card-title text-lg flex items-center gap-2">
                     <FontAwesomeIcon icon={faComments} className="text-xl" />
@@ -192,7 +203,7 @@ export default function StationChat({ stationUuid }) {
             
             <div className="flex-1 flex flex-col min-h-0">
                 {/* Messages Container */}
-                <div className="flex-1 overflow-y-auto p-4 space-y-3 min-h-0">
+                <div ref={messagesContainerRef} className="flex-1 overflow-y-auto p-4 space-y-3 min-h-0">
                     {messages.length === 0 ? (
                         <div className="text-center text-base-content/60 py-8">
                             <div className="text-4xl mb-2"><FontAwesomeIcon icon={faWaveSquare} /></div>
