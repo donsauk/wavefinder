@@ -42,12 +42,12 @@ export default function ThemeSelector() {
 
     return (
         <div className="dropdown dropdown-end">
-            <div tabIndex={0} role="button" className="btn btn-accent btn-sm gap-2">
+            <div tabIndex={0} role="button" className="btn btn-accent btn-xs sm:btn-sm gap-2">
                 <FontAwesomeIcon
                     icon={/(dark|night|dracula|black|dim|forest|business|coffee|abyss|nord)/i.test(currentTheme) ? faMoon : faSun}
                     className="w-4 h-4"
                 />
-                Theme
+                <span className="hidden sm:inline">Theme</span>
             </div>
             <div tabIndex={0} className="dropdown-content bg-base-100 rounded-box z-[1] w-80 p-3 shadow">
                 <div className="grid grid-cols-2 gap-1 max-h-80 overflow-y-auto">

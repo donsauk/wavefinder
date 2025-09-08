@@ -171,7 +171,7 @@ export default function StationChat({ stationUuid }) {
     }, [auth.user?.muted_until])
 
     return (
-        <div className="card bg-base-200 h-full flex flex-col border border-primary/20">
+        <div className="card bg-base-200 h-full flex flex-col border border-primary/20 min-h-[20rem] lg:min-h-0">
             <div className="card-header p-4 border-b border-primary/20">
                 <h3 className="card-title text-lg flex items-center gap-2">
                     <FontAwesomeIcon icon={faComments} className="text-xl" />

@@ -81,9 +81,12 @@ export default function Station({ station, isFavorited, canVote, nextVoteTime, c
                                     <div className="card-body gap-4">
                                         <div className="stats stats-vertical md:stats-horizontal w-full">
                                             {stats.map((s) => (
-                                                <div className="stat" key={s.title}>
+                                                <div
+                                                    className="stat place-items-center md:place-items-start text-center md:text-left"
+                                                    key={s.title}
+                                                >
                                                     <div className="stat-title">{s.title}</div>
-                                                    <div className={`stat-value ${s.color} flex items-center gap-2`}>
+                                                    <div className={`stat-value ${s.color} flex items-center gap-2 justify-center md:justify-start`}>
                                                         <FontAwesomeIcon icon={s.icon} /> {s.value}
                                                     </div>
                                                 </div>
@@ -153,8 +156,8 @@ export default function Station({ station, isFavorited, canVote, nextVoteTime, c
                                 </div>
                             </div>
 
-                            <div className="hidden lg:block">
-                                <div className="sticky h-[calc(100vh-15rem)]">
+                            <div>
+                                <div className="lg:sticky lg:h-[calc(100vh-15rem)]">
                                     <StationChat stationUuid={station.stationuuid} />
                                 </div>
                             </div>
