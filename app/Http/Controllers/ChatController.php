@@ -11,15 +11,17 @@ use ConsoleTVs\Profanity\Facades\Profanity;
 
 class ChatController extends Controller
 {
+    private function reject(string $field, string $error, ?string $flash = null)
+    {
+        $response = back()->withErrors([$field => $error]);
+        return $response->with('flash.error', $flash ?? $error);
+    }
+
     public function store(Request $request)
     {
-        // Check rate limit: 2 messages per second per user
         $rateLimitKey = 'chat:' . Auth::id();
-        
         if (RateLimiter::tooManyAttempts($rateLimitKey, 2)) {
-            return back()
-                ->withErrors(['message' => 'You\'re posting too fast!'])
-                ->with('flash.error', 'You\'re posting too fast!');
+            return $this->reject('message', "You're posting too fast!", "You're posting too fast!");
         }
 
         $request->validate([
@@ -29,19 +31,17 @@ class ChatController extends Controller
 
         $user = Auth::user();
 
-        // Check if user is muted
         if ($user->isMuted()) {
-            return back()
-                ->withErrors(['message' => 'You are currently muted and cannot send messages.'])
-                ->with('flash.error', 'You are currently muted and cannot send messages.');
+            return $this->reject('message', 'You are currently muted and cannot send messages.');
         }
 
-        // Check for profanity in message content
         $message = trim($request->message);
         if (!Profanity::blocker($message)->clean()) {
-            return back()
-                ->withErrors(['message' => 'Your message contains inappropriate language. Please keep it respectful.'])
-                ->with('flash.error', 'Message rejected due to inappropriate language.');
+            return $this->reject(
+                'message',
+                'Your message contains inappropriate language. Please keep it respectful.',
+                'Message rejected due to inappropriate language.'
+            );
         }
 
         $chatMessage = ChatMessage::create([
@@ -51,15 +51,11 @@ class ChatController extends Controller
             'message' => $message,
         ]);
 
-        // Load the user relationship for broadcasting
         $chatMessage->load('user:id,name,isModerator,avatar_path');
-        
-        // Ensure avatar_url is included in the user data for broadcasting
         if ($chatMessage->user) {
             $chatMessage->user->append('avatar_url');
         }
 
-        // Hit the rate limiter (1 second window)
         RateLimiter::hit($rateLimitKey, 1);
 
         broadcast(new MessageSent($chatMessage));
@@ -71,18 +67,17 @@ class ChatController extends Controller
     {
         $messages = ChatMessage::with('user:id,name,isModerator,avatar_path')
             ->where('station_uuid', $stationUuid)
-            ->orderBy('created_at', 'desc')
-            ->limit(50)
+            ->latest()
+            ->take(50)
             ->get()
             ->reverse()
             ->values();
 
         // Ensure avatar_url is included in the response
-        $messages->transform(function ($message) {
+        $messages->each(function ($message) {
             if ($message->user) {
                 $message->user->append('avatar_url');
             }
-            return $message;
         });
 
         return response()->json($messages);
