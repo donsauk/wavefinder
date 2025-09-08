@@ -36,6 +36,9 @@ class ChatController extends Controller
         }
 
         $message = trim($request->message);
+        if ($message === '') {
+            return $this->reject('message', 'Message cannot be empty.');
+        }
         if (!Profanity::blocker($message)->clean()) {
             return $this->reject(
                 'message',
@@ -74,11 +77,7 @@ class ChatController extends Controller
             ->values();
 
         // Ensure avatar_url is included in the response
-        $messages->each(function ($message) {
-            if ($message->user) {
-                $message->user->append('avatar_url');
-            }
-        });
+        $messages->each(fn ($m) => $m->user?->append('avatar_url'));
 
         return response()->json($messages);
     }

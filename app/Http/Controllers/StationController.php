@@ -52,12 +52,7 @@ class StationController extends Controller
             ->get();
 
         // Ensure avatar_url is included for comments
-        $comments->transform(function ($comment) {
-            if ($comment->user) {
-                $comment->user->append('avatar_url');
-            }
-            return $comment;
-        });
+        $comments->each(fn ($comment) => $comment->user?->append('avatar_url'));
 
         // Get user XP data if authenticated
         $userXP = null;
@@ -92,14 +87,14 @@ class StationController extends Controller
 
         // Report click to radio-browser.info API to help with popularity statistics
         try {
-            \Http::timeout(5)
+            Http::timeout(5)
                 ->withHeaders([
                     'User-Agent' => 'WAVEFINDER/1.0 (Laravel Radio App)'
                 ])
                 ->post("http://de2.api.radio-browser.info/json/url/{$stationuuid}");
         } catch (\Exception $e) {
             // Silently fail - don't let API issues affect user experience
-            \Log::warning("Failed to report station click to radio-browser API: " . $e->getMessage());
+            Log::warning("Failed to report station click to radio-browser API: " . $e->getMessage());
         }
 
         // Silent success: no flash messages, just complete the request
@@ -144,8 +139,9 @@ class StationController extends Controller
 
         if ($recentVote) {
             $nextVoteTime = $recentVote->created_at->addMinutes(10);
-            $minutesLeft = ceil(now()->diffInMinutes($nextVoteTime, false));
-            
+            $secondsLeft = now()->diffInSeconds($nextVoteTime, false);
+            $minutesLeft = max(1, (int) ceil($secondsLeft / 60));
+
             return back()->withErrors([
                 'vote' => "Please wait {$minutesLeft} more minutes before voting again."
             ]);

@@ -63,8 +63,8 @@ class UserController extends Controller
         $user = auth()->user();
 
         try {
-            // Delete old avatar if it exists
-            if ($user->avatar_path && Storage::disk('public')->exists($user->avatar_path)) {
+            // Delete old avatar (no-op if missing)
+            if ($user->avatar_path) {
                 Storage::disk('public')->delete($user->avatar_path);
             }
 

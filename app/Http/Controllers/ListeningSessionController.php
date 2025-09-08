@@ -49,18 +49,14 @@ class ListeningSessionController extends Controller
     {
         $userId = Auth::id();
 
-        // End all active sessions for this user
-        $endedSessions = ListeningSession::where('user_id', $userId)
+        $activeSessions = ListeningSession::where('user_id', $userId)
             ->where('is_active', true)
             ->get();
-
-        foreach ($endedSessions as $session) {
-            $session->endSession();
-        }
+        $activeSessions->each->endSession();
 
         return response()->json([
             'success' => true,
-            'ended_sessions' => $endedSessions->count()
+            'ended_sessions' => $activeSessions->count()
         ]);
     }
 
@@ -111,15 +107,13 @@ class ListeningSessionController extends Controller
             ->groupBy('station_uuid', 'station_name')
             ->orderByDesc('total_seconds')
             ->get()
-            ->map(function ($stat) {
-                return [
-                    'station_uuid' => $stat->station_uuid,
-                    'station_name' => $stat->station_name ?? 'Unknown Station',
-                    'total_seconds' => $stat->total_seconds,
-                    'session_count' => $stat->session_count,
-                    'formatted_duration' => $this->formatDuration($stat->total_seconds)
-                ];
-            });
+            ->map(fn ($stat) => [
+                'station_uuid' => $stat->station_uuid,
+                'station_name' => $stat->station_name ?? 'Unknown Station',
+                'total_seconds' => (int) $stat->total_seconds,
+                'session_count' => (int) $stat->session_count,
+                'formatted_duration' => $this->formatDuration((int) $stat->total_seconds),
+            ]);
 
         // Get recent sessions using stored station names
         $recentSessions = ListeningSession::where('user_id', $userId)
@@ -133,16 +127,14 @@ class ListeningSessionController extends Controller
             ->orderByDesc('started_at')
             ->limit(10)
             ->get()
-            ->map(function ($session) {
-                return [
-                    'station_uuid' => $session->station_uuid,
-                    'station_name' => $session->station_name ?? 'Unknown Station',
-                    'started_at' => $session->started_at,
-                    'duration_seconds' => $session->duration_seconds,
-                    'formatted_duration' => $this->formatDuration($session->duration_seconds),
-                    'is_active' => $session->is_active
-                ];
-            });
+            ->map(fn ($session) => [
+                'station_uuid' => $session->station_uuid,
+                'station_name' => $session->station_name ?? 'Unknown Station',
+                'started_at' => $session->started_at,
+                'duration_seconds' => (int) $session->duration_seconds,
+                'formatted_duration' => $this->formatDuration((int) $session->duration_seconds),
+                'is_active' => (bool) $session->is_active,
+            ]);
 
         return response()->json([
             'total_seconds' => $totalSeconds,

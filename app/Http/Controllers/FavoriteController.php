@@ -13,28 +13,16 @@ class FavoriteController extends Controller
             'station_uuid' => 'required|string',
         ]);
 
-        $userId = auth()->id();
-        $stationUuid = $request->station_uuid;
+        $favorite = UserFavorite::firstOrCreate([
+            'user_id' => auth()->id(),
+            'station_uuid' => $request->station_uuid,
+        ]);
 
-        // Check if favorite already exists
-        $favorite = UserFavorite::where('user_id', $userId)
-            ->where('station_uuid', $stationUuid)
-            ->first();
-
-        if ($favorite) {
-            // Remove from favorites
-            $favorite->delete();
-            $message = 'Station removed from favorites!';
-        } else {
-            // Add to favorites
-            UserFavorite::create([
-                'user_id' => $userId,
-                'station_uuid' => $stationUuid,
-            ]);
-            $message = 'Station added to favorites!';
+        if ($favorite->wasRecentlyCreated) {
+            return back()->with('flash.message', 'Station added to favorites!');
         }
-        
-        // Always redirect back with flash message - Inertia way
-        return back()->with('flash.message', $message);
+
+        $favorite->delete();
+        return back()->with('flash.message', 'Station removed from favorites!');
     }
 }

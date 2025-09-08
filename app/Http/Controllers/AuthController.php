@@ -111,9 +111,14 @@ class AuthController extends Controller
     
     private function isLocalIp(string $ip): bool
     {
-        return in_array($ip, ['127.0.0.1', '::1']) || 
-               str_starts_with($ip, '192.168.') || 
-               str_starts_with($ip, '10.');
+        if (in_array($ip, ['127.0.0.1', '::1'], true)) {
+            return true;
+        }
+        if (str_starts_with($ip, '192.168.') || str_starts_with($ip, '10.')) {
+            return true;
+        }
+        // 172.16.0.0 – 172.31.255.255
+        return \preg_match('/^172\.(1[6-9]|2[0-9]|3[0-1])\./', $ip) === 1;
     }
 
     public function showForgotPassword()

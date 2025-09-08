@@ -55,9 +55,10 @@ class BrowseController extends Controller
             ->orderBy('country')
             ->pluck('country', 'country');
 
-        // Get sort parameters for both history and normal filtering
+        // Get sort parameters with safe direction
         $sortBy = $request->get('sort_by', 'votes');
-        $sortDirection = $request->get('sort_direction', 'desc');
+        $sortDirection = strtolower($request->get('sort_direction', 'desc'));
+        $sortDirection = in_array($sortDirection, ['asc', 'desc'], true) ? $sortDirection : 'desc';
         
         $sortFieldMap = [
             'votes' => 'votes',

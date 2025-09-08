@@ -38,6 +38,9 @@ class CommentController extends Controller
         }
 
         $content = trim($request->input('content'));
+        if ($content === '') {
+            return $this->reject('content', 'Comment cannot be empty.', withInput: true);
+        }
         if (!Profanity::blocker($content)->clean()) {
             return $this->reject(
                 'content',
