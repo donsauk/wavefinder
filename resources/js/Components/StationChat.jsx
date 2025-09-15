@@ -116,13 +116,23 @@ export default function StationChat({ stationUuid }) {
         })
     }
 
+    const formatDate = (timestamp) => {
+        const d = new Date(timestamp)
+        const y = d.getFullYear()
+        const m = String(d.getMonth() + 1).padStart(2, '0')
+        const day = String(d.getDate()).padStart(2, '0')
+        return `${y}-${m}-${day}`
+    }
+
     const formatTime = (timestamp) => {
-        return new Date(timestamp).toLocaleTimeString([], { 
-            hour: '2-digit', 
+        return new Date(timestamp).toLocaleTimeString([], {
+            hour: '2-digit',
             minute: '2-digit',
-            hour12: false
+            hour12: false,
         })
     }
+
+    const formatDateTime = (timestamp) => `${formatDate(timestamp)} ${formatTime(timestamp)}`
 
     const deleteChatMessage = (messageId) => {
         setMessages(prev => prev.filter(msg => msg.id !== messageId))
@@ -191,7 +201,7 @@ export default function StationChat({ stationUuid }) {
                         </div>
                     ) : (
                         messages.map((message) => (
-                            <div key={message.id} className={`chat ${message.user_id === auth.user?.id ? 'chat-end' : 'chat-start'}`}>
+                            <div key={message.id} className="chat chat-end">
                                 <div className="chat-image avatar">
                                     <div className="w-8 h-8 rounded-full overflow-hidden">
                                         {message.user?.avatar_url ? (
@@ -209,8 +219,8 @@ export default function StationChat({ stationUuid }) {
                                         )}
                                     </div>
                                 </div>
-                                <div className={`chat-bubble ${message.user_id === auth.user?.id ? 'chat-bubble-primary' : ''}`}>
-                                    <div className="text-[11px] opacity-80 flex items-center justify-between">
+                                <div className={`chat-bubble ${message.user_id === auth.user?.id ? 'chat-bubble-primary' : ''} text-right`}>
+                                    <div className="text-[11px] opacity-80 flex items-center justify-end gap-2 text-right">
                                         <div className="flex items-center gap-2">
                                             <span className="font-medium text-base-content">
                                                 {message.username || 'Anonymous'}
@@ -219,11 +229,11 @@ export default function StationChat({ stationUuid }) {
                                                 <span className="badge badge-info badge-xs">MOD</span>
                                             )}
                                         </div>
-                                        <time className="opacity-60 ml-2 flex-shrink-0">
-                                            {formatTime(message.created_at)}
+                                        <time className="opacity-60 flex-shrink-0">
+                                            {formatDateTime(message.created_at)}
                                         </time>
                                     </div>
-                                    <div className="whitespace-pre-wrap break-words">
+                                    <div className="whitespace-pre-wrap break-words text-right">
                                         {message.message}
                                     </div>
                                 </div>

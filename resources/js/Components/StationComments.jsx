@@ -69,7 +69,15 @@ export default function StationComments({ stationUuid, comments = [] }) {
         return name?.split(' ').map(word => word.charAt(0)).join('').toUpperCase() || '?'
     }
 
-    // Match chat's compact time formatting (HH:mm, 24h)
+    // Date and time formatting to include YYYY-MM-DD alongside HH:mm
+    const formatDate = (timestamp) => {
+        const d = new Date(timestamp)
+        const y = d.getFullYear()
+        const m = String(d.getMonth() + 1).padStart(2, '0')
+        const day = String(d.getDate()).padStart(2, '0')
+        return `${y}-${m}-${day}`
+    }
+
     const formatTime = (timestamp) => {
         return new Date(timestamp).toLocaleTimeString([], {
             hour: '2-digit',
@@ -77,6 +85,8 @@ export default function StationComments({ stationUuid, comments = [] }) {
             hour12: false,
         })
     }
+
+    const formatDateTime = (timestamp) => `${formatDate(timestamp)} ${formatTime(timestamp)}`
 
     return (
         <div className="card bg-base-200 border border-primary/20">
@@ -156,7 +166,7 @@ export default function StationComments({ stationUuid, comments = [] }) {
                 {comments.length > 0 ? (
                     <div className="space-y-3 max-h-96 overflow-y-auto p-1">
                         {comments.map((comment) => (
-                            <div key={comment.id} className={`chat ${comment.user.id === auth.user?.id ? 'chat-end' : 'chat-start'}`}>
+                            <div key={comment.id} className="chat chat-end">
                                 {/* Avatar (match chat sizes/colors) */}
                                 <div className="chat-image avatar">
                                     <div className="w-12 h-12 rounded-full overflow-hidden">
@@ -175,8 +185,8 @@ export default function StationComments({ stationUuid, comments = [] }) {
                                 </div>
 
                                 {/* Bubble with username/time header to match chat */}
-                                <div className={`chat-bubble ${comment.user.id === auth.user?.id ? 'chat-bubble-primary' : ''}`}>
-                                    <div className="text-[11px] opacity-80 flex items-center justify-between gap-2">
+                                <div className={`chat-bubble ${comment.user.id === auth.user?.id ? 'chat-bubble-primary' : ''} text-right`}>
+                                    <div className="text-[11px] opacity-80 flex items-center justify-end gap-2 text-right">
                                         <div className="flex items-center gap-2">
                                             <span className="font-medium text-base-content">{comment.user.name}</span>
                                             {comment.user?.isModerator && (
@@ -184,7 +194,7 @@ export default function StationComments({ stationUuid, comments = [] }) {
                                             )}
                                         </div>
                                         <div className="flex items-center gap-1">
-                                            <time className="opacity-60 ml-2 flex-shrink-0">{formatTime(comment.created_at)}</time>
+                                            <time className="opacity-60 flex-shrink-0">{formatDateTime(comment.created_at)}</time>
                                             {auth.user && (auth.user.id === comment.user.id || auth.user.isModerator) && (
                                                 <button
                                                     onClick={() => handleDeleteComment(comment.id, auth.user.isModerator && auth.user.id !== comment.user.id)}
@@ -197,7 +207,7 @@ export default function StationComments({ stationUuid, comments = [] }) {
                                             )}
                                         </div>
                                     </div>
-                                    <div className="whitespace-pre-wrap break-words">
+                                    <div className="whitespace-pre-wrap break-words text-right">
                                         {comment.content}
                                     </div>
                                 </div>
