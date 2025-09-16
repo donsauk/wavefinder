@@ -33,8 +33,14 @@ class ListeningSession extends Model
     public function endSession(): void
     {
         if ($this->is_active && $this->started_at) {
-            $this->ended_at = now();
-            $this->duration_seconds = $this->started_at->diffInSeconds($this->ended_at);
+            // Use last heartbeat time (updated_at) to prevent inflating duration
+            // if the app/browser was closed without an explicit stop.
+            $endCandidate = $this->updated_at && $this->updated_at->gt($this->started_at)
+                ? $this->updated_at
+                : now();
+
+            $this->ended_at = $endCandidate;
+            $this->duration_seconds = max(0, $this->started_at->diffInSeconds($endCandidate));
             $this->is_active = false;
             $this->save();
             
@@ -70,8 +76,12 @@ class ListeningSession extends Model
     public function getCurrentDuration(): int
     {
         if ($this->is_active && $this->started_at) {
-            return $this->started_at->diffInSeconds(now());
+            // Reflect duration up to the last heartbeat to avoid runaway totals
+            $endCandidate = $this->updated_at && $this->updated_at->gt($this->started_at)
+                ? $this->updated_at
+                : now();
+            return max(0, $this->started_at->diffInSeconds($endCandidate));
         }
-        return $this->duration_seconds;
+        return (int) $this->duration_seconds;
     }
 }

@@ -1,7 +1,7 @@
 import React from 'react'
 import { usePage, useForm, router, Link } from '@inertiajs/react'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faTrashCan, faVolumeMute } from '@fortawesome/free-solid-svg-icons'
+import { faTrashCan } from '@fortawesome/free-solid-svg-icons'
 
 export default function StationComments({ stationUuid, comments = [] }) {
     const { auth, flash, errors } = usePage().props
@@ -165,7 +165,9 @@ export default function StationComments({ stationUuid, comments = [] }) {
                 {/* Align message visuals with StationChat bubbles */}
                 {comments.length > 0 ? (
                     <div className="space-y-3 max-h-96 overflow-y-auto p-1">
-                        {comments.map((comment) => (
+                        {comments.map((comment) => {
+                            const isOwner = comment.user.id === auth.user?.id
+                            return (
                             <div key={comment.id} className="chat chat-end">
                                 {/* Avatar (match chat sizes/colors) */}
                                 <div className="chat-image avatar">
@@ -185,16 +187,16 @@ export default function StationComments({ stationUuid, comments = [] }) {
                                 </div>
 
                                 {/* Bubble with username/time header to match chat */}
-                                <div className={`chat-bubble ${comment.user.id === auth.user?.id ? 'chat-bubble-primary' : ''} text-right`}>
+                                <div className={`chat-bubble ${isOwner ? 'chat-bubble-primary' : ''} text-right`}>
                                     <div className="text-[11px] opacity-80 flex items-center justify-end gap-2 text-right">
                                         <div className="flex items-center gap-2">
-                                            <span className="font-medium text-base-content">{comment.user.name}</span>
+                                            <span className={`font-medium ${isOwner ? 'text-primary-content' : 'text-base-content'}`}>{comment.user.name}</span>
                                             {comment.user?.isModerator && (
-                                                <span className="badge badge-info badge-xs">MOD</span>
+                                                <span className="badge badge-accent badge-xs text-accent-content">MOD</span>
                                             )}
                                         </div>
                                         <div className="flex items-center gap-1">
-                                            <time className="opacity-60 flex-shrink-0">{formatDateTime(comment.created_at)}</time>
+                                            <time className={`opacity-60 flex-shrink-0 ${isOwner ? 'text-primary-content' : ''}`}>{formatDateTime(comment.created_at)}</time>
                                             {auth.user && (auth.user.id === comment.user.id || auth.user.isModerator) && (
                                                 <button
                                                     onClick={() => handleDeleteComment(comment.id, auth.user.isModerator && auth.user.id !== comment.user.id)}
@@ -213,20 +215,9 @@ export default function StationComments({ stationUuid, comments = [] }) {
                                 </div>
 
                                 {/* Only show moderator actions that remain (mute) below bubble */}
-                                {auth.user && auth.user.isModerator && auth.user.id !== comment.user.id && (
-                                    <div className="chat-footer opacity-60 mt-1 flex gap-1">
-                                        <button
-                                            onClick={() => router.post(route('moderation.users.mute', comment.user.id), { hours: 1, reason: 'Inappropriate comment' })}
-                                            className="btn btn-ghost btn-xs text-warning"
-                                            title="Mute user"
-                                            aria-label="Mute user"
-                                        >
-                                            <FontAwesomeIcon icon={faVolumeMute} />
-                                        </button>
-                                    </div>
-                                )}
                             </div>
-                        ))}
+                            )
+                        })}
                     </div>
                 ) : (
                     <div className="text-center py-8 opacity-60">

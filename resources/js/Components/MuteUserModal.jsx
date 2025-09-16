@@ -4,7 +4,6 @@ import { useForm } from '@inertiajs/react'
 export default function MuteUserModal({ userId, username }) {
     const { data, setData, post, processing } = useForm({
         hours: 1,
-        reason: '',
     })
 
     const handleSubmit = (e) => {
@@ -13,7 +12,6 @@ export default function MuteUserModal({ userId, username }) {
             onSuccess: () => {
                 document.getElementById(`mute_modal_${userId}`).close()
                 setData('hours', 1)
-                setData('reason', '')
             }
         })
     }
@@ -48,21 +46,6 @@ export default function MuteUserModal({ userId, username }) {
                             <span>24h</span>
                         </div>
                     </div>
-
-                    <div>
-                        <label className="label">
-                            <span className="label-text">Reason (optional)</span>
-                        </label>
-                        <input
-                            type="text"
-                            placeholder="Reason for muting..."
-                            className="input input-bordered w-full"
-                            value={data.reason}
-                            onChange={(e) => setData('reason', e.target.value)}
-                            maxLength={255}
-                        />
-                    </div>
-
                     <div className="modal-action">
                         <button
                             type="button"

@@ -25,7 +25,6 @@ return new class extends Migration
             $table->boolean('isModerator')->default(false);
             $table->timestamp('muted_until')->nullable();
             $table->foreignId('muted_by')->nullable()->constrained('users')->onDelete('set null');
-            $table->text('mute_reason')->nullable();
             $table->rememberToken();
             $table->timestamps();
         });

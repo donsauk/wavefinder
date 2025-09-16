@@ -30,13 +30,12 @@ class ModerationController extends Controller
     {
         $request->validate([
             'hours' => 'required|numeric|min:0.1|max:24',
-            'reason' => 'nullable|string|max:255',
         ]);
 
-        $user->muteUser($request->hours, $request->reason, Auth::id());
+        $user->muteUser($request->hours, Auth::id());
 
         // Broadcast to the muted user so they know they've been muted
-        broadcast(new \App\Events\UserMuted($user->id, $user->muted_until, $request->reason));
+        broadcast(new \App\Events\UserMuted($user->id, $user->muted_until));
 
         return back()->with('success', "User {$user->name} muted for {$request->hours} hours");
     }

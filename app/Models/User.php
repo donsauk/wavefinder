@@ -29,7 +29,6 @@ class User extends Authenticatable
         'isModerator',
         'muted_until',
         'muted_by',
-        'mute_reason',
     ];
 
     /**
@@ -86,11 +85,10 @@ class User extends Authenticatable
         return $this->muted_until && $this->muted_until > now();
     }
 
-    public function muteUser($hours, $reason = null, $moderatorId)
+    public function muteUser($hours, $moderatorId)
     {
         $this->muted_until = now()->addHours($hours);
         $this->muted_by = $moderatorId;
-        $this->mute_reason = $reason;
         $this->save();
     }
 
@@ -98,7 +96,6 @@ class User extends Authenticatable
     {
         $this->muted_until = null;
         $this->muted_by = null;
-        $this->mute_reason = null;
         $this->save();
     }
 

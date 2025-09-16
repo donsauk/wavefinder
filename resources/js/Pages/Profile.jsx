@@ -47,6 +47,10 @@ export default function Profile({ user }) {
         <>
             <Head title="Profile - WAVEFINDER" />
             <AppLayout containerClass="max-w-4xl mx-auto p-6 space-y-6">
+                        <div className="text-center mb-8">
+                            <h1 className="text-3xl font-bold mb-2">Profile</h1>
+                            <p className="text-base-content/70">Manage your profile and stats</p>
+                        </div>
                         {/* Errors */}
                         {errors?.avatar && (
                             <div className="alert alert-error">

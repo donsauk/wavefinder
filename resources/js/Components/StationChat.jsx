@@ -200,7 +200,9 @@ export default function StationChat({ stationUuid }) {
                             <p>No messages yet. Be the first to say hello!</p>
                         </div>
                     ) : (
-                        messages.map((message) => (
+                        messages.map((message) => {
+                            const isSelf = message.user_id === auth.user?.id
+                            return (
                             <div key={message.id} className="chat chat-end">
                                 <div className="chat-image avatar">
                                     <div className="w-8 h-8 rounded-full overflow-hidden">
@@ -219,17 +221,17 @@ export default function StationChat({ stationUuid }) {
                                         )}
                                     </div>
                                 </div>
-                                <div className={`chat-bubble ${message.user_id === auth.user?.id ? 'chat-bubble-primary' : ''} text-right`}>
+                                <div className={`chat-bubble ${isSelf ? 'chat-bubble-primary' : ''} text-right`}>
                                     <div className="text-[11px] opacity-80 flex items-center justify-end gap-2 text-right">
                                         <div className="flex items-center gap-2">
-                                            <span className="font-medium text-base-content">
+                                            <span className={`font-medium ${isSelf ? 'text-primary-content' : 'text-base-content'}`}>
                                                 {message.username || 'Anonymous'}
                                             </span>
                                             {message.user?.isModerator && (
-                                                <span className="badge badge-info badge-xs">MOD</span>
+                                                <span className="badge badge-accent badge-xs text-accent-content">MOD</span>
                                             )}
                                         </div>
-                                        <time className="opacity-60 flex-shrink-0">
+                                        <time className={`opacity-60 flex-shrink-0 ${isSelf ? 'text-primary-content' : ''}`}>
                                             {formatDateTime(message.created_at)}
                                         </time>
                                     </div>
@@ -238,11 +240,12 @@ export default function StationChat({ stationUuid }) {
                                     </div>
                                 </div>
                                 {auth.user?.isModerator && (
-                                    <div className="chat-footer opacity-60 mt-1 flex gap-1">
+                                    <div className="chat-footer mt-1 flex gap-1">
                                         <button
                                             onClick={() => deleteChatMessage(message.id)}
-                                            className="btn btn-ghost btn-xs text-error"
+                                            className="btn btn-xs text-error bg-error/20 hover:bg-error/30 border-0"
                                             title="Delete message"
+                                            aria-label="Delete message"
                                         >
                                             <FontAwesomeIcon icon={faTrashCan} />
                                         </button>
@@ -250,15 +253,17 @@ export default function StationChat({ stationUuid }) {
                                             <>
                                                 <button
                                                     onClick={() => showMuteModal(message.user_id, message.username)}
-                                                    className="btn btn-ghost btn-xs text-warning"
+                                                    className="btn btn-xs text-warning bg-warning/20 hover:bg-warning/30 border-0"
                                                     title="Mute user"
+                                                    aria-label="Mute user"
                                                 >
                                                     <FontAwesomeIcon icon={faVolumeMute} />
                                                 </button>
                                                 <button
                                                     onClick={() => router.post(route('moderation.users.unmute', message.user_id))}
-                                                    className="btn btn-ghost btn-xs text-success"
+                                                    className="btn btn-xs text-success bg-success/20 hover:bg-success/30 border-0"
                                                     title="Unmute user"
+                                                    aria-label="Unmute user"
                                                 >
                                                     <FontAwesomeIcon icon={faVolumeHigh} />
                                                 </button>
@@ -267,7 +272,8 @@ export default function StationChat({ stationUuid }) {
                                     </div>
                                 )}
                             </div>
-                        ))
+                            )
+                        })
                     )}
                 </div>
 

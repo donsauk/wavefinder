@@ -22,8 +22,10 @@ const AvatarTiny = ({ user, getInitials }) => (
         <img src={user.avatar_url} alt={`${user.name}'s avatar`} className="w-full h-full object-cover" />
       </div>
     ) : (
-      <div className="placeholder w-6 h-6 rounded-full bg-neutral text-neutral-content flex items-center justify-center">
-        <span className="text-[10px]">{getInitials(user?.name)}</span>
+      <div className="w-6 h-6 rounded-full overflow-hidden">
+        <div className="w-full h-full bg-neutral text-neutral-content flex items-center justify-center">
+          <span className="text-[10px] font-semibold leading-none">{getInitials(user?.name)}</span>
+        </div>
       </div>
     )}
   </div>

@@ -16,13 +16,11 @@ class UserMuted implements ShouldBroadcast
 
     public $userId;
     public $mutedUntil;
-    public $reason;
 
-    public function __construct($userId, $mutedUntil, $reason = null)
+    public function __construct($userId, $mutedUntil)
     {
         $this->userId = $userId;
         $this->mutedUntil = $mutedUntil;
-        $this->reason = $reason;
     }
 
     public function broadcastOn()
