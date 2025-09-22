@@ -54,11 +54,17 @@ export default function Navbar() {
                         </div>
                         <div tabIndex={0} className="dropdown-content z-[1] mt-3 w-48 p-3 bg-base-200 border border-primary/20 rounded-box shadow-xl">
                             <div className="flex flex-col gap-2">
-                                <Link href={route('profile')} className="btn btn-outline btn-sm w-full justify-start gap-2">
+                                <Link
+                                    href={route('profile')}
+                                    className="btn btn-outline btn-sm w-full justify-start gap-2 hover:bg-base-200/80 hover:border-current"
+                                >
                                     <FontAwesomeIcon icon={faUser} className="w-4 h-4" />
                                     Profile
                                 </Link>
-                                <Link href={route('settings')} className="btn btn-outline btn-sm w-full justify-start gap-2">
+                                <Link
+                                    href={route('settings')}
+                                    className="btn btn-outline btn-sm w-full justify-start gap-2 hover:bg-base-200/80 hover:border-current"
+                                >
                                     <FontAwesomeIcon icon={faGear} className="w-4 h-4" />
                                     Settings
                                 </Link>
