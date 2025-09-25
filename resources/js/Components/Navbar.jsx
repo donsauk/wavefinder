@@ -44,11 +44,17 @@ export default function Navbar() {
                 {auth.user ? (
                     <div className="dropdown dropdown-end ml-2">
                         <div tabIndex={0} role="button" className="btn btn-ghost btn-circle avatar placeholder">
-                            <div className="w-10 rounded-full bg-primary text-primary-content">
+                            <div className="w-10 h-10 rounded-full bg-primary text-primary-content relative overflow-hidden">
                                 {auth.user.avatar_url ? (
-                                    <img src={auth.user.avatar_url} alt={`${auth.user.name}'s avatar`} />
+                                    <img
+                                        src={auth.user.avatar_url}
+                                        alt={`${auth.user.name}'s avatar`}
+                                        className="w-full h-full object-cover"
+                                    />
                                 ) : (
-                                    <span className="text-sm font-bold">{auth.user.name.charAt(0).toUpperCase()}</span>
+                                    <span className="absolute inset-0 flex items-center justify-center text-base font-bold uppercase">
+                                        {auth.user.name.charAt(0)}
+                                    </span>
                                 )}
                             </div>
                         </div>
